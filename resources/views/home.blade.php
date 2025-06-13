@@ -298,19 +298,19 @@
                                     <!-- Code Digits -->
                                     <g transform="translate(60, 115)">
                                         <rect x="0" y="0" width="28" height="32" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
-                                        <text x="14" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">1</text>
+                                        <text x="14" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">7</text>
                                         
                                         <rect x="35" y="0" width="28" height="32" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
                                         <text x="49" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">2</text>
                                         
                                         <rect x="70" y="0" width="28" height="32" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
-                                        <text x="84" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">3</text>
+                                        <text x="84" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">5</text>
                                         
                                         <rect x="105" y="0" width="28" height="32" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
-                                        <text x="119" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">4</text>
+                                        <text x="119" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">5</text>
                                         
                                         <rect x="140" y="0" width="28" height="32" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
-                                        <text x="154" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">5</text>
+                                        <text x="154" y="21" text-anchor="middle" fill="#10b981" font-size="18" font-weight="bold">3</text>
                                     </g>
                                     
                                     <!-- Success checkmark -->
