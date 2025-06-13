@@ -176,7 +176,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         <h1 class="text-2xl font-bold text-gray-900 navbar-logo">
-                            <i class="fas fa-mobile-alt mr-2"></i>SMS Verify
+                            <i class="fas fa-mobile-alt mr-2"></i>{{$settings->site_name}}
                         </h1>
                     </div>
                 </div>
@@ -218,9 +218,9 @@
     <!-- Hero Section -->
     <section class="hero-bg min-h-screen flex items-center justify-center relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="grid lg:grid-cols-2 gap-6 items-center">
                 <!-- Left Content -->
-                <div class="text-center lg:text-left mt-40" data-aos="fade-right" data-aos-duration="1000">
+                <div class="text-center lg:text-left mt-20" data-aos="fade-right" data-aos-duration="1000">
                     <!-- Premium Badge -->
                     <div class="mb-6">
                         <span class="premium-badge">
