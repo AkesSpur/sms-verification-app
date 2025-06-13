@@ -181,12 +181,35 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors navbar-link">
-                        Login
-                    </a>
-                    <a href="{{ route('register') }}" class="bg-gradient-to-r from-slate-800 to-gray-900 text-white hover:from-slate-900 hover:to-black px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                        Get Started
-                    </a>
+                    @auth
+                        <!-- Dashboard Link for authenticated users -->
+                        <a href="{{ route('user.dashboard') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors navbar-link">
+                            <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                        </a>
+                        
+                        @if(auth()->user()->is_admin)
+                            <!-- Admin Panel Link for admin users -->
+                            <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors navbar-link">
+                                <i class="fas fa-cog mr-1"></i>Admin 
+                            </a>
+                        @endif
+                        
+                        <!-- Logout Link -->
+                        {{-- <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                            </button>
+                        </form> --}}
+                    @else
+                        <!-- Login and Register Links for guests -->
+                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors navbar-link">
+                            Login
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-gradient-to-r from-slate-800 to-gray-900 text-white hover:from-slate-900 hover:to-black px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Get Started
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
