@@ -5,6 +5,7 @@ on:
     branches:
       - main  # or 'master', depending on your default branch
 
+
 jobs:
   ftp-deploy:
     name: Deploy via FTP
