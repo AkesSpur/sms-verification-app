@@ -4,7 +4,7 @@
       <!-- Main Content -->
         <section class="section">
           <div class="section-header">
-            <h1>Manage User</h1>
+            <h1>User Management</h1>
           </div>
 
           <div class="section-body">
@@ -14,7 +14,6 @@
                 <div class="card">
                   <div class="card-header">
                     <h4>Create User</h4>
-
                   </div>
                   <div class="card-body">
                     <form action="{{route('admin.manage-user.create')}}" method="POST">
@@ -22,38 +21,48 @@
 
                         <div class="form-group">
                             <label>Name</label>
-                            <input type="text" class="form-control" name="name" value="{{old('name')}}">
+                            <input type="text" class="form-control" name="name" value="{{old('name')}}" required>
                         </div>
 
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="text" class="form-control" name="email" value="{{ old('email') }}">
+                            <input type="email" class="form-control" name="email" value="{{ old('email') }}" required>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
 
                                 <div class="form-group">
                                     <label>Password</label>
-                                    <input type="password" class="form-control" name="password" value="">
+                                    <input type="password" class="form-control" name="password" value="" required minlength="8">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Confirm password</label>
-                                    <input type="password" class="form-control" name="password_confirmation" value="">
+                                    <label>Confirm Password</label>
+                                    <input type="password" class="form-control" name="password_confirmation" value="" required minlength="8">
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="inputState">Role</label>
-                            <select id="inputState" class="form-control" name="role">
-                                <option value="">Select</option>
-                              <option value="user">User</option>
-                              <option value="admin">Admin</option>
-
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="inputState">Role</label>
+                                    <select id="inputState" class="form-control" name="role" required>
+                                        <option value="">Select</option>
+                                        <option value="client">Client</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Initial Balance</label>
+                                    <input type="number" class="form-control" name="balance" value="{{ old('balance', 0) }}" min="0" max="100000" step="0.01">
+                                    <small class="text-muted">Leave empty for 0.00</small>
+                                </div>
+                            </div>
                         </div>
-                        <button type="submmit" class="btn btn-primary">Create</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
                     </form>
                   </div>
 

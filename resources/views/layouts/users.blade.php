@@ -50,10 +50,10 @@
     <div id="sidebar" class="sidebar d-flex flex-column p-3 border-end">
         <h1 class="fs-5 fw-bold text-center">SMS</h1>
         <nav class="nav flex-column flex-grow-1">
-            <a href="{{route('dashboard')}}" class="nav-link d-flex align-items-center py-2"><span class="me-2">📊</span> <span class="d-md-inline">Dashboard</span></a>
-            <a href="{{route('user.number')}}" class="nav-link d-flex align-items-center py-2"><span class="me-2">📞</span> <span class="d-md-inline">Numbers</span></a>
+            <a href="{{route('user.dashboard')}}" class="nav-link d-flex align-items-center py-2"><span class="me-2">📊</span> <span class="d-md-inline">Dashboard</span></a>
+            <a href="{{route('user.usa-numbers')}}" class="nav-link d-flex align-items-center py-2"><span class="me-2">🇺🇸</span> <span class="d-md-inline">USA Numbers</span></a>
+            <a href="{{route('user.all-countries')}}" class="nav-link d-flex align-items-center py-2"><span class="me-2">🌍</span> <span class="d-md-inline">All Countries</span></a>
             <a href="{{route('user.transaction')}}" class="nav-link d-flex align-items-center py-2"><span class="me-2">📜</span> <span class="d-md-inline">Transactions</span></a>
-            <a href="#" class="nav-link d-flex align-items-center py-2"><span class="me-2">⚙️</span> <span class="d-md-inline">Settings</span></a>
         </nav>
         <a href="{{route('logout')}}" class="nav-link text-danger logout d-flex align-items-center py-2"><span class="me-2">🚪</span> <span class="d-md-inline">Logout</span></a>
     </div>

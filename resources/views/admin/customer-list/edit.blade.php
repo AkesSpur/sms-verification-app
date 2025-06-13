@@ -4,7 +4,7 @@
       <!-- Main Content -->
         <section class="section">
           <div class="section-header">
-            <h1>User Wallet</h1>
+            <h1>Кошелек пользователя</h1>
 
           </div>
 
@@ -14,16 +14,16 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
-                    <h4>Edit User Wallet Balance</h4>
+                    <h4>Редактировать баланс кошелька пользователя</h4>
                   </div>
                   <div class="card-body">
                     <form action="" method="POST">
                         @csrf
                         <div class="form-group">
-                          <label>Amount</label>
+                          <label>Сумма</label>
                           <input type="number" class="form-control" name="amount" value="" required>
                         </div>
-                        <button type="submmit" class="btn btn-primary">Update</button>
+                        <button type="submmit" class="btn btn-primary">Обновить</button>
                     </form>
                   </div>
 

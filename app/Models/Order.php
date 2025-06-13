@@ -4,12 +4,44 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\OrderExpiredNotification;
 
 class Order extends Model
 {
 protected $fillable = [
     'user_id', 'service_id', 'phone_number', 'activation_id', 'sms_code', 'status', 'refunded', 'needs_review', 'retry_attempts', 'expires_at', 'is_number_used'
 ];
+
+protected $casts = [
+    'expires_at' => 'datetime',
+    'refunded' => 'boolean',
+    'needs_review' => 'boolean',
+    'is_number_used' => 'boolean',
+];
+
+/**
+ * Get the user that owns the order.
+ */
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
+
+/**
+ * Get the service that the order belongs to.
+ */
+public function service()
+{
+    return $this->belongsTo(Service::class);
+}
+
+/**
+ * Get the review queue entry for the order.
+ */
+public function reviewQueue()
+{
+    return $this->hasOne(ReviewQueue::class);
+}
 
 public function isExpired()
 {

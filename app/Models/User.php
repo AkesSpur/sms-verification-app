@@ -22,7 +22,9 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
-        'balance'
+        'balance',
+        'role',
+        'status'
     ];
 
     /**
@@ -45,6 +47,32 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
+            'balance' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin()
+    {
+        return $this->is_admin || $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive()
+    {
+        return $this->status === 'active';
+    }
+
+    /**
+     * Get the orders for the user.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

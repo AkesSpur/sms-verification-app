@@ -5,21 +5,25 @@
                 @csrf
                 @method('PUT')
                 <div class="form-group">
-                    <img src="{{asset(@$logoSetting->logo)}}" width="150px" alt="">
-                    <br>
+                    @if(@$logoSetting->logo)
+                        <img src="{{asset(@$logoSetting->logo)}}" width="150px" alt="Логотип" class="mb-2">
+                        <br>
+                    @endif
                     <label>Logo</label>
-                    <input type="file" class="form-control" name="logo" value="">
+                    <input type="file" class="form-control" name="logo" accept="image/*">
                     <input type="hidden" class="form-control" name="old_logo" value="{{@$logoSetting->logo}}">
-
+                    <small class="text-muted">Recommended size: 200x50px. Formats: JPG, PNG, SVG</small>
                 </div>
 
                 <div class="form-group">
-                    <img src="{{asset(@$logoSetting->favicon)}}" width="150px" alt="">
-                    <br>
+                    @if(@$logoSetting->favicon)
+                        <img src="{{asset(@$logoSetting->favicon)}}" width="32px" alt="Favicon" class="mb-2">
+                        <br>
+                    @endif
                     <label>Favicon</label>
-                    <input type="file" class="form-control" name="favicon" value="">
+                    <input type="file" class="form-control" name="favicon" accept="image/*">
                     <input type="hidden" class="form-control" name="old_favicon" value="{{@$logoSetting->favicon}}">
-
+                    <small class="text-muted">Recommended size: 32x32px. Formats: ICO, PNG</small>
                 </div>
 
 

@@ -134,5 +134,57 @@ class SmsActivateService
     // Return raw response for getStatus to handle in getStatus method
     return $result;
 }
+
+    /**
+     * Get prices for services in a specific country.
+     */
+    public function getPrices($country = null, $service = null)
+    {
+        $requestParam = [
+            'api_key' => $this->apiKey,
+            'action' => 'getPrices',
+        ];
+
+        if ($country !== null) {
+            $requestParam['country'] = $country;
+        }
+        if ($service !== null) {
+            $requestParam['service'] = $service;
+        }
+
+        $response = $this->request($requestParam, 'GET', true, 4);
+        
+        // Parse the response - SMS Activate returns JSON for getPrices
+        if (is_string($response)) {
+            $decoded = json_decode($response, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            }
+        }
+        
+        return [];
+    }
+
+    /**
+     * Get available countries.
+     */
+    public function getCountries()
+    {
+        $requestParam = [
+            'api_key' => $this->apiKey,
+            'action' => 'getCountries',
+        ];
+
+        $response = $this->request($requestParam, 'GET', true, 5);
+        
+        if (is_string($response)) {
+            $decoded = json_decode($response, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            }
+        }
+        
+        return [];
+    }
     
 }

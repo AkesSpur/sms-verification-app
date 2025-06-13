@@ -1,0 +1,70 @@
+<?php
+use App\Http\Controllers\Backend\LocalBankSettingController;
+use App\Http\Controllers\Backend\PaymentSettingController;
+use App\Http\Controllers\Backend\PaystackSettingController;
+use App\Http\Controllers\Backend\SettingController;
+use App\Http\Controllers\Backend\AdminListController;
+use App\Http\Controllers\Backend\CustomerListController;
+use App\Http\Controllers\Backend\AdminController;
+use App\Http\Controllers\Backend\FundManagementController;
+use App\Http\Controllers\Backend\ManageUserController;
+use App\Http\Controllers\Backend\CountryServiceController;
+use App\Http\Controllers\Backend\ServiceController;
+use Illuminate\Support\Facades\Route;
+
+
+/* Dashboard route */
+Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
+
+/** customer list routes */
+Route::put('customer/status-change', [CustomerListController::class, 'changeStatus'])->name('customer.status-change');
+Route::put('customer-list/{id}/update-email', [CustomerListController::class, 'updateEmail'])->name('customer-list.update-email');
+Route::get('customer', [CustomerListController::class, 'index'])->name('customer.index');
+Route::post('customers/{id}/verify-email', [CustomerListController::class, 'verifyEmail'])->name('customers.verify-email');
+Route::post('customers/{id}/send-reset-link', [CustomerListController::class, 'sendResetLink'])->name('customers.send-reset-link');
+Route::delete('customers/{id}', [CustomerListController::class, 'destroy'])->name('customers.destroy');
+
+/** admin list routes */
+Route::get('admin-list', [AdminListController::class, 'index'])->name('admin-list.index');
+Route::put('admin-list/status-change', [AdminListController::class, 'changeStatus'])->name('admin-list.status-change');
+Route::put('admin-list/{id}/update-email', [AdminListController::class, 'updateEmail'])->name('admin-list.update-email');
+Route::delete('admin-list/{id}', [AdminListController::class, 'destroy'])->name('admin-list.destroy');
+Route::post('admins/{id}/verify-email', [AdminListController::class, 'verifyEmail'])->name('admins.verify-email');
+Route::post('admins/{id}/send-reset-link', [AdminListController::class, 'sendResetLink'])->name('admins.send-reset-link');
+
+
+/** Add and withdraw funds routes */
+Route::get('add-fund/{id}', [FundManagementController::class, 'addIndex'])->name('add-fund.index');
+Route::post('fund-user/{id}', [FundManagementController::class, 'addFund'])->name('fund-user');
+Route::get('withdraw-fund/{id}', [FundManagementController::class, 'withdrawIndex'])->name('withdraw-fund.index');
+Route::post('withdraw-user-fund/{id}', [FundManagementController::class, 'withdrawFund'])->name('withdraw-user-fund');
+
+/** manage user routes */
+Route::get('manage-user', [ManageUserController::class, 'index'])->name('manage-user.index');
+Route::post('manage-user', [ManageUserController::class, 'create'])->name('manage-user.create');
+
+
+/* Settings Routes */
+Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+Route::put('general-setting-update', [SettingController::class, 'updateGeneralSetting'])->name('general-setting-update');
+Route::put('email-setting-update', [SettingController::class, 'updateEmailSetting'])->name('email-setting-update');
+Route::put('logo-setting-update', [SettingController::class, 'updateLogoSetting'])->name('logo-setting-update');
+
+/* Country Service Pricing Routes */
+Route::get('country-service', [CountryServiceController::class, 'index'])->name('country-service.index');
+Route::get('country-service/{country}/prices', [CountryServiceController::class, 'getCountryPrices'])->name('country-service.prices');
+Route::post('country-service/update-price', [CountryServiceController::class, 'updatePrice'])->name('country-service.update-price');
+Route::delete('country-service/remove-price', [CountryServiceController::class, 'removeCustomPrice'])->name('country-service.remove-price');
+Route::post('country-service/bulk-update', [CountryServiceController::class, 'bulkUpdatePrices'])->name('country-service.bulk-update');
+Route::post('country-service/{country}/sync-api', [CountryServiceController::class, 'syncApiPrices'])->name('country-service.sync-api');
+
+/* Service Management Routes */
+Route::post('services/bulk-action', [ServiceController::class, 'bulkAction'])->name('services.bulk-action');
+Route::patch('services/{service}/toggle-status', [ServiceController::class, 'toggleStatus'])->name('services.toggle-status');
+Route::resource('services', ServiceController::class);
+
+/** Payment settings routes */
+Route::get('payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');
+Route::put('paystack-setting/{id}', [PaystackSettingController::class, 'update'])->name('paystack-setting.update');
+Route::put('localbank-setting/{id}', [LocalBankSettingController::class, 'update'])->name('localbank-setting.update');
