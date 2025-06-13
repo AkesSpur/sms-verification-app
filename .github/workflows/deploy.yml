@@ -1,0 +1,23 @@
+name: FTP Deploy
+
+on:
+  push:
+    branches:
+      - main  # or 'master', depending on your default branch
+
+jobs:
+  ftp-deploy:
+    name: Deploy via FTP
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Deploy to FTP server
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.ftp.vaultedgebk.com }}
+        username: ${{ secrets.blizzsms@vaultedgebk.com }}
+        password: ${{ secrets.B,W--JOV_F.pqJ!B }}
+        server-dir: ${{ secrets./home/vaultedg/blizzsms.com }}
