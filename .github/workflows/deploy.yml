@@ -17,7 +17,7 @@ jobs:
     - name: Deploy to FTP server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.ftp.vaultedgebk.com }}
-        username: ${{ secrets.vaultedg }}
-        password: ${{ secrets.78q_ZE6d }}
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
         server-dir: ${{ secrets.FTP_REMOTE_DIR }}
