@@ -20,4 +20,4 @@ jobs:
         server: ${{ secrets.ftp.vaultedgebk.com }}
         username: ${{ secrets.vaultedg }}
         password: ${{ secrets.78q_ZE6d }}
-        server-dir: ${{ secrets./home/vaultedg/blizzsms.com }}
+        server-dir: ${{ secrets./blizzsms.com/ }}
