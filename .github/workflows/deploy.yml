@@ -5,7 +5,6 @@ on:
     branches:
       - main  # or 'master', depending on your default branch
 
-
 jobs:
   ftp-deploy:
     name: Deploy via FTP
@@ -21,4 +20,4 @@ jobs:
         server: ${{ secrets.ftp.vaultedgebk.com }}
         username: ${{ secrets.vaultedg }}
         password: ${{ secrets.78q_ZE6d }}
-        server-dir: ${{ secrets./blizzsms.com/ }}
+        server-dir: ${{ secrets.FTP_REMOTE_DIR }}
