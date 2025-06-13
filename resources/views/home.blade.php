@@ -528,7 +528,7 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <!-- Company Info -->
             <div class="mb-8">
-                <h3 class="text-2xl font-bold mb-4 gradient-text">SMS Verify</h3>
+                <h3 class="text-2xl font-bold mb-4 gradient-text">{{$settings->site_name}}</h3>
                 <p class="text-gray-300 mb-6">The most reliable SMS verification service for your online accounts.</p>
                 
                 <!-- Email Contact -->
@@ -556,7 +556,7 @@
             
             <!-- Copyright -->
             <div class="border-t border-slate-700 pt-8">
-                <p class="text-gray-300 text-sm">&copy; {{ date('Y') }} SMS Verify. All rights reserved.</p>
+                <p class="text-gray-300 text-sm">&copy; {{ date('Y') }} {{$settings->site_name}}. All rights reserved.</p>
             </div>
         </div>
     </footer>
