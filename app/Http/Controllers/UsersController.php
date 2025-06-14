@@ -61,6 +61,94 @@ class UsersController extends Controller
 
     public function transaction()
     {
-        return view('user.transaction');
+        $user = Auth::user();
+        
+        // Get user's transactions/orders for statistics
+        $orders = Order::where('user_id', $user->id)->get();
+        
+        $totalTransactions = $orders->count();
+        $totalSpent = $orders->where('status', 'completed')->sum('amount');
+        $totalRefunds = $orders->where('status', 'refunded')->sum('amount');
+        $pendingAmount = $orders->where('status', 'pending')->sum('amount');
+        
+        return view('user.transaction', compact(
+            'totalTransactions',
+            'totalSpent', 
+            'totalRefunds',
+            'pendingAmount'
+        ));
+    }
+    
+    public function getTransactions(Request $request)
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication required. Please log in to continue.',
+                    'error' => 'Unauthorized',
+                    'status' => 401
+                ], 401);
+            }
+            
+            $user = Auth::user();
+            $orders = Order::where('user_id', $user->id)
+                ->with('service')
+                ->latest()
+                ->paginate(10);
+            
+            $transactions = $orders->map(function($order) {
+                return [
+                    'id' => 'TXN' . str_pad($order->id, 3, '0', STR_PAD_LEFT),
+                    'type' => $this->getTransactionType($order->status),
+                    'service' => $order->service->name ?? 'N/A',
+                    'amount' => $order->amount,
+                    'status' => $order->status,
+                    'created_at' => $order->created_at->toISOString()
+                ];
+            });
+            
+            $stats = [
+                'total_transactions' => $orders->total(),
+                'total_spent' => Order::where('user_id', $user->id)->where('status', 'completed')->sum('amount'),
+                'total_refunds' => Order::where('user_id', $user->id)->where('status', 'refunded')->sum('amount'),
+                'pending_amount' => Order::where('user_id', $user->id)->where('status', 'pending')->sum('amount')
+            ];
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'transactions' => $transactions,
+                    'stats' => $stats,
+                    'pagination' => [
+                        'current_page' => $orders->currentPage(),
+                        'last_page' => $orders->lastPage(),
+                        'per_page' => $orders->perPage(),
+                        'total' => $orders->total()
+                    ]
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load transactions',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    private function getTransactionType($status)
+    {
+        switch($status) {
+            case 'completed':
+                return 'purchase';
+            case 'refunded':
+                return 'refund';
+            case 'pending':
+                return 'purchase';
+            default:
+                return 'purchase';
+        }
     }
 }

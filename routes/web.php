@@ -35,4 +35,9 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('/order/{order}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/order/{order}/status', [OrderController::class, 'checkStatus'])->name('order.checkStatus');
 });
+
+// API routes for AJAX calls
+Route::prefix('api/user')->middleware('auth')->group(function () {
+    Route::get('/transactions', [UsersController::class, 'getTransactions'])->name('api.user.transactions');
+});
 require __DIR__.'/auth.php';
