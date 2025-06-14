@@ -221,17 +221,18 @@
 
 <!-- Custom Styles -->
 <style>
-    .primary-600 { color: #4f46e5; }
-    .primary-700 { background-color: #4338ca; }
-    .primary-500 { border-color: #6366f1; }
-    .primary-50 { background-color: #eef2ff; }
-    .bg-primary-600 { background-color: #4f46e5; }
-    .bg-primary-700 { background-color: #4338ca; }
-    .focus\:ring-primary-500:focus { --tw-ring-color: #6366f1; }
-    .border-primary-500 { border-color: #6366f1; }
-    .text-primary-600 { color: #4f46e5; }
-    .text-primary-900 { color: #312e81; }
-    .hover\:text-primary-900:hover { color: #312e81; }
+    /* Use consistent primary colors that match the sidebar theme */
+    .primary-600 { color: #1e293b; }
+    .primary-700 { background-color: #0f172a; }
+    .primary-500 { border-color: #334155; }
+    .primary-50 { background-color: #f8fafc; }
+    .bg-primary-600 { background-color: #1e293b; }
+    .bg-primary-700 { background-color: #0f172a; }
+    .focus\:ring-primary-500:focus { --tw-ring-color: #334155; }
+    .border-primary-500 { border-color: #334155; }
+    .text-primary-600 { color: #1e293b; }
+    .text-primary-700 { color: #0f172a; }
+    .hover\:text-primary-700:hover { color: #0f172a; }
 </style>
 
 <!-- JavaScript for enhanced functionality -->
