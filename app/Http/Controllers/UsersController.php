@@ -79,6 +79,94 @@ class UsersController extends Controller
         ));
     }
     
+    public function orderHistory()
+    {
+        $user = Auth::user();
+        
+        // Get user's orders for SMS tab
+        $smsOrders = Order::where('user_id', $user->id)
+            ->with('service')
+            ->latest()
+            ->paginate(10);
+        
+        // Mock data for digital products (you can replace with actual digital product model)
+        $digitalProducts = collect([
+            [
+                'id' => 'DP001',
+                'name' => 'Amazon Gift Card',
+                'type' => 'gift_card',
+                'details' => '$50 USD Amazon Gift Card - Valid for all Amazon purchases',
+                'access_code' => 'AMZN-' . strtoupper(substr(md5('DP001'), 0, 12)),
+                'amount' => 25000,
+                'status' => 'active',
+                'created_at' => now()->subDay()
+            ],
+            [
+                'id' => 'DP002',
+                'name' => 'VPN Premium Access',
+                'type' => 'vpn',
+                'details' => '30-day premium VPN access with unlimited bandwidth',
+                'access_code' => 'VPN-' . strtoupper(substr(md5('DP002'), 0, 12)),
+                'amount' => 15000,
+                'status' => 'active',
+                'created_at' => now()->subHours(3)
+            ],
+            [
+                'id' => 'DP003',
+                'name' => 'Netflix Gift Card',
+                'type' => 'gift_card',
+                'details' => '$25 USD Netflix Gift Card - 1 month subscription',
+                'access_code' => 'NFLX-' . strtoupper(substr(md5('DP003'), 0, 12)),
+                'amount' => 12500,
+                'status' => 'expired',
+                'created_at' => now()->subDays(2)
+            ]
+        ]);
+        
+        // Mock data for gift orders (you can replace with actual gift order model)
+        $giftOrders = collect([
+            [
+                'id' => 'GIFT001',
+                'item_name' => 'Beautiful Flower Bouquet',
+                'item_description' => 'Mixed roses and lilies',
+                'recipient' => 'John Doe',
+                'amount' => 15000,
+                'status' => 'delivered',
+                'tracking_code' => 'TRK' . strtoupper(substr(md5('GIFT001'), 0, 8)),
+                'icon' => 'seedling',
+                'created_at' => now()->subDay()
+            ],
+            [
+                'id' => 'GIFT002',
+                'item_name' => 'Amazon Gift Card',
+                'item_description' => '$50 USD',
+                'recipient' => 'Jane Smith',
+                'amount' => 25000,
+                'status' => 'processing',
+                'tracking_code' => 'TRK' . strtoupper(substr(md5('GIFT002'), 0, 8)),
+                'icon' => 'gift-card',
+                'created_at' => now()->subHours(3)
+            ],
+            [
+                'id' => 'GIFT003',
+                'item_name' => 'Luxury Watch',
+                'item_description' => 'Premium stainless steel watch',
+                'recipient' => 'Mike Johnson',
+                'amount' => 45000,
+                'status' => 'delivered',
+                'tracking_code' => 'TRK' . strtoupper(substr(md5('GIFT003'), 0, 8)),
+                'icon' => 'clock',
+                'created_at' => now()->subDays(2)
+            ]
+        ]);
+        
+        return view('user.order-history', compact(
+            'smsOrders',
+            'digitalProducts',
+            'giftOrders'
+        ));
+    }
+    
     public function getTransactions(Request $request)
     {
         try {

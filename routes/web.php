@@ -8,6 +8,11 @@ use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/checkout', [HomeController::class, 'checkout'])->name('checkout');
+Route::get('/all-categories', [HomeController::class, 'allCategories'])->name('all-categories');
+Route::get('/all-gifts', [HomeController::class, 'allGifts'])->name('all-gifts');
+Route::get('/gift/{id}', [HomeController::class, 'showGift'])->name('gift.show');
+Route::post('/gift/order', [HomeController::class, 'orderGift'])->name('gift.order');
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
@@ -26,6 +31,7 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('/usa-numbers', [UsersController::class, 'usaNumbers'])->name('user.usa-numbers');
     Route::get('/all-countries', [UsersController::class, 'allCountriesNumbers'])->name('user.all-countries');
     Route::get('/transaction', [UsersController::class, 'transaction'])->name('user.transaction');
+    Route::get('/order-history', [UsersController::class, 'orderHistory'])->name('user.order-history');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

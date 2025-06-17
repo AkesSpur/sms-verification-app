@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-600">Total Spent</p>
-                    <p class="text-2xl font-bold text-gray-900" id="totalSpent">${{ number_format($totalSpent ?? 0, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900" id="totalSpent">₦{{ number_format($totalSpent ?? 0, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-600">Total Refunds</p>
-                    <p class="text-2xl font-bold text-gray-900" id="totalRefunds">${{ number_format($totalRefunds ?? 0, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900" id="totalRefunds">₦{{ number_format($totalRefunds ?? 0, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-600">Pending</p>
-                    <p class="text-2xl font-bold text-gray-900" id="pendingAmount">${{ number_format($pendingAmount ?? 0, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900" id="pendingAmount">₦{{ number_format($pendingAmount ?? 0, 2) }}</p>
                 </div>
             </div>
         </div>
@@ -110,7 +110,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">WhatsApp</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$2.50</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦2.50</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <i class="fas fa-check-circle mr-1"></i>
@@ -136,7 +136,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Telegram</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$1.80</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦1.80</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                 <i class="fas fa-clock mr-1"></i>
@@ -162,7 +162,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">-</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$25.00</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦25.00</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <i class="fas fa-check-circle mr-1"></i>
@@ -317,7 +317,7 @@ $(document).ready(function() {
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.service || '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$${parseFloat(transaction.amount).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦${parseFloat(transaction.amount).toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
                         <i class="fas fa-${transaction.status === 'completed' ? 'check-circle' : transaction.status === 'pending' ? 'clock' : 'times-circle'} mr-1"></i>

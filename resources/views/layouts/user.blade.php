@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SMS Verification') - Dashboard</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,6 +32,21 @@
         }
     </script>
     
+    <!-- Custom Styles -->
+<style>
+    /* Use consistent primary colors that match the sidebar theme */
+    .primary-600 { color: #1e293b; }
+    .primary-700 { background-color: #0f172a; }
+    .primary-500 { border-color: #334155; }
+    .primary-50 { background-color: #f8fafc; }
+    .bg-primary-600 { background-color: #1e293b; }
+    .bg-primary-700 { background-color: #0f172a; }
+    .focus\:ring-primary-500:focus { --tw-ring-color: #334155; }
+    .border-primary-500 { border-color: #334155; }
+    .text-primary-600 { color: #1e293b; }
+    .text-primary-700 { color: #0f172a; }
+    .hover\:text-primary-700:hover { color: #0f172a; }
+</style>
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -93,6 +108,13 @@
                         <i class="fas fa-receipt w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
                         <span class="font-medium" x-show="!sidebarCollapsed">Transactions</span>
                     </a>
+                    
+                    <a href="{{ route('user.order-history') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.order-history') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-history w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Order History</span>
+                    </a>
                 </div>
             </nav>
             
@@ -104,7 +126,7 @@
                     </div>
                     <div class="ml-3" x-show="!sidebarCollapsed">
                         <p class="text-sm font-medium text-gray-700">{{ auth()->user()->name ?? 'User' }}</p>
-                        <p class="text-xs text-gray-500">${{ number_format(auth()->user()->balance ?? 0, 2) }}</p>
+                        <p class="text-xs text-gray-500">₦{{ number_format(auth()->user()->balance ?? 0, 2) }}</p>
                     </div>
                 </div>
                 
@@ -142,7 +164,7 @@
                         <!-- Balance display -->
                         <div class="hidden sm:flex items-center px-3 py-2 bg-green-50 rounded-lg">
                             <i class="fas fa-wallet text-green-600 mr-2"></i>
-                            <span class="text-sm font-medium text-green-800">${{ number_format(auth()->user()->balance ?? 0, 2) }}</span>
+                            <span class="text-sm font-medium text-green-800">₦{{ number_format(auth()->user()->balance ?? 0, 2) }}</span>
                         </div>
                         
                         <!-- Notifications -->
