@@ -80,6 +80,7 @@
   <script src="{{asset('backend/assets/js/bootstrap-iconpicker.bundle.min.js')}}"></script>
   <script src="{{asset('backend/assets/modules/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
   <script src="{{asset('backend/assets/modules/select2/dist/js/select2.full.min.js')}}"></script>
+  <script src="{{asset('backend/assets/modules/upload-preview/assets/js/jquery.uploadPreview.min.js')}}"></script>
 
 
   {{-- datatable --}}
@@ -118,7 +119,20 @@
         $('body').on('click', '.delete-item', function(event){
             event.preventDefault();
 
-            let deleteUrl = $(this).attr('href');
+            let deleteUrl;
+            let targetForm;
+            
+            // Check if it's a form, button in form, or anchor tag
+            if ($(this).is('form')) {
+                deleteUrl = $(this).attr('action');
+                targetForm = $(this);
+            } else if ($(this).closest('form.delete-item').length) {
+                targetForm = $(this).closest('form.delete-item');
+                deleteUrl = targetForm.attr('action');
+            } else {
+                deleteUrl = $(this).attr('href');
+                targetForm = null;
+            }
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -130,32 +144,38 @@
                 confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                 if (result.isConfirmed) {
-
-                    $.ajax({
-                        type: 'DELETE',
-                        url: deleteUrl,
-
-                        success: function(data){
-
-                            if(data.status == 'success'){
-                                Swal.fire(
-                                    'Deleted!',
-                                    data.message,
-                                    'success'
-                                )
-                                window.location.reload();
-                            }else if (data.status == 'error'){
-                                Swal.fire(
-                                    'Cant Delete',
-                                    data.message,
-                                    'error'
-                                )
+                    if (targetForm) {
+                        // Submit the form normally for form-based deletes
+                        targetForm[0].submit();
+                    } else {
+                        // Use AJAX for anchor-based deletes
+                        $.ajax({
+                            type: 'DELETE',
+                            url: deleteUrl,
+                            data: {
+                                '_token': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(data){
+                                if(data.status == 'success'){
+                                    Swal.fire(
+                                        'Deleted!',
+                                        data.message,
+                                        'success'
+                                    )
+                                    window.location.reload();
+                                }else if (data.status == 'error'){
+                                    Swal.fire(
+                                        'Cant Delete',
+                                        data.message,
+                                        'error'
+                                    )
+                                }
+                            },
+                            error: function(xhr, status, error){
+                                console.log(error);
                             }
-                        },
-                        error: function(xhr, status, error){
-                            console.log(error);
-                        }
-                    })
+                        })
+                    }
                 }
             })
         })

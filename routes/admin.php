@@ -10,6 +10,10 @@ use App\Http\Controllers\Backend\FundManagementController;
 use App\Http\Controllers\Backend\ManageUserController;
 use App\Http\Controllers\Backend\CountryServiceController;
 use App\Http\Controllers\Backend\ServiceController;
+use App\Http\Controllers\Backend\DigitalProductCategoryController;
+use App\Http\Controllers\Backend\DigitalProductSubcategoryController;
+use App\Http\Controllers\Backend\DigitalProductController;
+use App\Http\Controllers\Backend\DigitalProductLogController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -63,6 +67,19 @@ Route::post('country-service/{country}/sync-api', [CountryServiceController::cla
 Route::post('services/bulk-action', [ServiceController::class, 'bulkAction'])->name('services.bulk-action');
 Route::patch('services/{service}/toggle-status', [ServiceController::class, 'toggleStatus'])->name('services.toggle-status');
 Route::resource('services', ServiceController::class);
+
+/* Digital Product Management Routes */
+Route::resource('digital-product-categories', DigitalProductCategoryController::class);
+Route::get('digital-product-subcategories/by-category/{category}', [DigitalProductSubcategoryController::class, 'getByCategory'])->name('digital-product-subcategories.by-category');
+Route::resource('digital-product-subcategories', DigitalProductSubcategoryController::class);
+Route::resource('digital-products', DigitalProductController::class);
+
+/* Digital Product Log Management Routes */
+Route::get('digital-product-logs/by-product/{product}', [DigitalProductLogController::class, 'getByProduct'])->name('digital-product-logs.by-product');
+Route::get('digital-product-logs/add-logs', [DigitalProductLogController::class, 'showAddLogsForm'])->name('digital-product-logs.add-logs');
+Route::post('digital-product-logs/add-logs', [DigitalProductLogController::class, 'addLogs'])->name('digital-product-logs.store-multiple');
+Route::post('digital-product-logs/{digitalProductLog}/mark-available', [DigitalProductLogController::class, 'markAsAvailable'])->name('digital-product-logs.mark-available');
+Route::resource('digital-product-logs', DigitalProductLogController::class);
 
 /** Payment settings routes */
 Route::get('payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');
