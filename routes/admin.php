@@ -14,6 +14,8 @@ use App\Http\Controllers\Backend\DigitalProductCategoryController;
 use App\Http\Controllers\Backend\DigitalProductSubcategoryController;
 use App\Http\Controllers\Backend\DigitalProductController;
 use App\Http\Controllers\Backend\DigitalProductLogController;
+use App\Http\Controllers\Backend\GiftController;
+use App\Http\Controllers\Backend\BannerController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -80,6 +82,16 @@ Route::get('digital-product-logs/add-logs', [DigitalProductLogController::class,
 Route::post('digital-product-logs/add-logs', [DigitalProductLogController::class, 'addLogs'])->name('digital-product-logs.store-multiple');
 Route::post('digital-product-logs/{digitalProductLog}/mark-available', [DigitalProductLogController::class, 'markAsAvailable'])->name('digital-product-logs.mark-available');
 Route::resource('digital-product-logs', DigitalProductLogController::class);
+
+/* Gift Management Routes */
+Route::delete('gifts/images/{image}', [GiftController::class, 'deleteImage'])->name('gifts.delete-image');
+Route::post('gifts/images/{image}/set-featured', [GiftController::class, 'setFeaturedImage'])->name('gifts.set-featured-image');
+Route::post('gifts/images/{image}/unset-featured', [GiftController::class, 'unsetFeaturedImage'])->name('gifts.unset-featured-image');
+Route::resource('gifts', GiftController::class);
+
+/* Banner Management Routes */
+Route::post('banners/{banner}/toggle-status', [BannerController::class, 'toggleStatus'])->name('banners.toggle-status');
+Route::resource('banners', BannerController::class);
 
 /** Payment settings routes */
 Route::get('payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');

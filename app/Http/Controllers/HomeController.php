@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Banner;
 use App\Models\Service;
 use App\Models\Country;
 use Illuminate\Http\Request;
@@ -22,10 +23,12 @@ class HomeController extends Controller
                            ->take(8)
                            ->get();
         
+        $banners = Banner::active()->ordered()->get();
+        
         $totalServices = Service::where('status', 'active')->count();
         $totalCountries = Country::count();
         
-        return view('home', compact('services', 'countries', 'totalServices', 'totalCountries'));
+        return view('home', compact('services', 'countries', 'banners', 'totalServices', 'totalCountries'));
     }
 
     /**

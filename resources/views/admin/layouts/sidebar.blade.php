@@ -42,6 +42,20 @@
                     </ul>
                 </li>
 
+                <li class="{{ setActive(['admin.gifts.*']) }}">
+                    <a href="{{ route('admin.gifts.index') }}" class="nav-link">
+                        <i class="fas fa-gift"></i>
+                        <span>Gift Management</span>
+                    </a>
+                </li>
+
+                <li class="{{ setActive(['admin.banners.*']) }}">
+                    <a href="{{ route('admin.banners.index') }}" class="nav-link">
+                        <i class="fas fa-images"></i>
+                        <span>Banner Management</span>
+                    </a>
+                </li>
+
                 {{-- <li
                     class="dropdown {{ setActive(['admin.order.*', 'admin.gift-info', 'admin.pending-gift-orders']) }}">
                     <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i
@@ -101,17 +115,17 @@
 
                 <li class="{{ setActive(['admin.country-service.*']) }}"><a class="nav-link"
                         href="{{ route('admin.country-service.index') }}"><i class="fas fa-globe-americas"></i>
-                        Country Service Pricing
+                        <span>Country Service Pricing </span>
                     </a></li>
 
                 <li class="{{ setActive(['admin.services.*']) }}"><a class="nav-link"
                         href="{{ route('admin.services.index') }}"><i class="fas fa-cogs"></i>
-                        Service Management
+                        <span>Service Management </span>
                     </a></li>
 
                 <li class="{{ setActive(['admin.payment-settings.*']) }}"><a class="nav-link"
                         href="{{ route('admin.payment-settings.index') }}"><i class="fas fa-cog"></i>
-                        Payment Settings
+                        <span> Payment Settings</span>
                     </a></li>
 
 

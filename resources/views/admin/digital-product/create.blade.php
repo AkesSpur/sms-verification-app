@@ -179,6 +179,9 @@
             no_label: false
         });
 
+        // Store original subcategory options
+        let originalSubcategories = $('#subcategory_id').html();
+        
         // Filter subcategories based on selected category
         $('#category_id').on('change', function() {
             let categoryId = $(this).val();
@@ -188,14 +191,18 @@
             subcategorySelect.html('<option value="">Select Subcategory</option>');
             
             if (categoryId) {
+                // Create a temporary container to parse original options
+                let tempDiv = $('<div>').html(originalSubcategories);
+                
                 // Show subcategories for selected category
-                $('#subcategory_id option[data-category]').each(function() {
+                tempDiv.find('option[data-category]').each(function() {
                     if ($(this).data('category') == categoryId) {
                         subcategorySelect.append($(this).clone());
                     }
                 });
             }
         });
+        
 
         // Trigger category change on page load if category is selected
         if ($('#category_id').val()) {

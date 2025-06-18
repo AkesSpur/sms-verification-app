@@ -808,58 +808,58 @@
     </section>
 
     <!-- Image Banner Carousel Section -->
+    @if($banners->count() > 0)
     <section class="py-16 bg-gradient-to-r from-slate-50 to-gray-100 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Carousel Container -->
             <div class="relative" data-aos="fade-up">
                 <div class="carousel-container overflow-hidden rounded-2xl shadow-2xl">
                     <div class="carousel-wrapper flex transition-transform duration-500 ease-in-out" id="carousel">
-                        <!-- Banner Slide 1 -->
+                        @foreach($banners as $banner)
+                        <!-- Banner Slide {{ $loop->iteration }} -->
                         <div class="carousel-slide w-full flex-shrink-0 relative">
-                            <div class="relative h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] xl:h-[400px] overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&h=400&fit=crop&crop=center" 
-                                     alt="Promotional Banner 1" 
-                                     class="w-full h-full object-cover">
+                            <div class="relative h-[155px] sm:h-[200px] md:h-[250px] lg:h-[300px] xl:h-[300px] overflow-hidden">
+                                @if($banner->link_url)
+                                    <a href="{{ $banner->link_url }}" target="_blank" class="block w-full h-full">
+                                        <img src="{{ $banner->image_url }}" 
+                                             alt="{{ $banner->title ?? 'Banner' }}" 
+                                             class="w-[100%] h-full object-cover hover:scale-105 transition-transform duration-300"
+                                             >
+                                    </a>
+                                @else
+                                    <img src="{{ $banner->image_url }}" 
+                                         alt="{{ $banner->title ?? 'Banner' }}" 
+                                         class="w-full h-full object-cover"
+                                         loading="lazy">
+                                @endif
+                                
+                                
                             </div>
                         </div>
-                        
-                        <!-- Banner Slide 2 -->
-                        <div class="carousel-slide w-full flex-shrink-0 relative">
-                            <div class="relative h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] xl:h-[400px] overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=400&fit=crop&crop=center" 
-                                     alt="Promotional Banner 2" 
-                                     class="w-full h-full object-cover">
-                            </div>
-                        </div>
-                        
-                        <!-- Banner Slide 3 -->
-                        <div class="carousel-slide w-full flex-shrink-0 relative">
-                            <div class="relative h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] xl:h-[400px] overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&h=400&fit=crop&crop=center" 
-                                     alt="Promotional Banner 3" 
-                                     class="w-full h-full object-cover">
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
                 
+                @if($banners->count() > 1)
                 <!-- Navigation Arrows -->
-                <button class="carousel-btn carousel-prev absolute left-4 top-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-3 rounded-full shadow-lg transition-all hover-scale z-10">
+                <button class="carousel-btn carousel-prev absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-3 rounded-full shadow-lg z-10">
                     <i class="fas fa-chevron-left text-xl"></i>
                 </button>
-                <button class="carousel-btn carousel-next absolute right-4 top-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-3 rounded-full shadow-lg transition-all hover-scale z-10">
+                <button class="carousel-btn carousel-next absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-3 rounded-full shadow-lg z-10">
                     <i class="fas fa-chevron-right text-xl"></i>
                 </button>
                 
                 <!-- Dots Indicator -->
                 <div class="flex justify-center mt-8 space-x-2">
-                    <button class="carousel-dot w-3 h-3 rounded-full bg-gray-400 hover:bg-gray-600 transition-colors" data-slide="0"></button>
-                    <button class="carousel-dot w-3 h-3 rounded-full bg-gray-400 hover:bg-gray-600 transition-colors" data-slide="1"></button>
-                    <button class="carousel-dot w-3 h-3 rounded-full bg-gray-400 hover:bg-gray-600 transition-colors" data-slide="2"></button>
+                    @foreach($banners as $banner)
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-gray-400 hover:bg-gray-600 transition-colors" data-slide="{{ $loop->index }}"></button>
+                    @endforeach
                 </div>
+                @endif
             </div>
         </div>
     </section>
+    @endif
 
     <!-- How It Works Section -->
     <section id="how-it-works" class="py-20 relative">
@@ -1677,7 +1677,7 @@
 
         // Carousel functionality
         let currentSlide = 0;
-        const totalSlides = 3;
+        const totalSlides = {{ $banners->count() }};
         let carouselInterval;
 
         function updateCarousel() {
