@@ -75,4 +75,33 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Get the digital product orders for the user.
+     */
+    public function digitalProductOrders()
+    {
+        return $this->hasMany(DigitalProductOrder::class);
+    }
+
+    /**
+     * Check if user has sufficient balance for purchase.
+     */
+    public function hasSufficientBalance($amount)
+    {
+        return $this->balance >= $amount;
+    }
+
+    /**
+     * Deduct amount from user balance.
+     */
+    public function deductBalance($amount)
+    {
+        if (!$this->hasSufficientBalance($amount)) {
+            throw new \Exception('Insufficient balance');
+        }
+        
+        $this->decrement('balance', $amount);
+        return $this;
+    }
 }

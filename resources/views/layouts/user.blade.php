@@ -162,7 +162,7 @@
                     
                     <div class="flex items-center space-x-4">
                         <!-- Balance display -->
-                        <div class="hidden sm:flex items-center px-3 py-2 bg-green-50 rounded-lg">
+                        <div class="flex items-center px-3 py-2 bg-green-50 rounded-lg">
                             <i class="fas fa-wallet text-green-600 mr-2"></i>
                             <span class="text-sm font-medium text-green-800">₦{{ number_format(auth()->user()->balance ?? 0, 2) }}</span>
                         </div>

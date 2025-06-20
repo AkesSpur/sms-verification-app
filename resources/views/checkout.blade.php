@@ -87,15 +87,35 @@
                     </div>
 
                     <!-- Payment Button -->
-                    @if(($product->available_stock ?? 0) > 0)
-                        <button class="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg mb-4">
-                            Proceed to Payment
-                        </button>
+                    @auth
+                        @if(($product->available_stock ?? 0) > 0)
+                            <button id="purchaseBtn" class="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg mb-4">
+                                <span id="purchaseText">Proceed to Payment</span>
+                                <span id="loadingSpinner" class="hidden">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>Processing...
+                                </span>
+                            </button>
+                        @else
+                            <button disabled class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed mb-4">
+                                Out of Stock
+                            </button>
+                        @endif
+                        
+                        <!-- User Balance Display -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-blue-700 font-medium">Your Wallet Balance:</span>
+                                <span id="userBalance" class="text-blue-900 font-bold">₦{{ number_format(auth()->user()->balance) }}</span>
+                            </div>
+                        </div>
                     @else
-                        <button disabled class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed mb-4">
-                            Out of Stock
-                        </button>
-                    @endif
+                        <div class="text-center mb-4">
+                            <p class="text-gray-600 mb-3">Please log in to make a purchase</p>
+                            <a href="{{ route('login') }}" class="w-full inline-block bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg text-center">
+                                Login to Purchase
+                            </a>
+                        </div>
+                    @endauth
 
                     <!-- Share Product -->
                     <div class="text-center space-y-3">
@@ -135,10 +155,19 @@
 const productPrice = {{ $product->price }};
 const maxStock = {{ $product->available_stock ?? 0 }};
 const productName = '{{ addslashes($product->name) }}';
+const productId = {{ $product->id }};
+@auth
+const userBalance = {{ auth()->user()->balance }};
+const isAuthenticated = true;
+@else
+const userBalance = 0;
+const isAuthenticated = false;
+@endauth
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     updateSummary();
+    initializePurchaseButton();
 });
 
 // Quantity controls
@@ -217,6 +246,194 @@ function copyPageUrl() {
     }).catch(function(err) {
         console.error('Could not copy text: ', err);
     });
+}
+
+// Initialize purchase button
+function initializePurchaseButton() {
+    const purchaseBtn = document.getElementById('purchaseBtn');
+    if (purchaseBtn && isAuthenticated) {
+        purchaseBtn.addEventListener('click', handlePurchase);
+    }
+}
+
+// Handle purchase process
+function handlePurchase() {
+    const quantity = parseInt(quantityInput.value);
+    const totalAmount = quantity * productPrice;
+    
+    // Validate quantity
+    if (quantity < 1 || quantity > maxStock) {
+        showNotification('Please select a valid quantity.', 'error');
+        return;
+    }
+    
+    // Check user balance
+    if (userBalance < totalAmount) {
+        const needed = totalAmount - userBalance;
+        showNotification(`Insufficient balance. You need ₦${needed.toLocaleString()} more to complete this purchase.`, 'error');
+        return;
+    }
+    
+    // Show confirmation
+    if (!confirm(`Are you sure you want to purchase ${quantity} ${productName} for ₦${totalAmount.toLocaleString()}?`)) {
+        return;
+    }
+    
+    // Disable button and show loading
+    setLoadingState(true);
+    
+    // Make AJAX request
+    fetch('{{ route("digital-products.purchase") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        setLoadingState(false);
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            
+            // Update UI with new data
+            if (data.data) {
+                updateUserBalance(data.data.remaining_balance);
+                
+                // Show purchase details
+                setTimeout(() => {
+                    showPurchaseDetails(data.data);
+                }, 1500);
+            }
+        } else {
+            showNotification(data.message || 'Purchase failed. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Purchase error:', error);
+        setLoadingState(false);
+        showNotification('An unexpected error occurred. Please try again.', 'error');
+    });
+}
+
+// Set loading state
+function setLoadingState(loading) {
+    const purchaseBtn = document.getElementById('purchaseBtn');
+    const purchaseText = document.getElementById('purchaseText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    
+    if (loading) {
+        purchaseBtn.disabled = true;
+        purchaseText.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
+    } else {
+        purchaseBtn.disabled = false;
+        purchaseText.classList.remove('hidden');
+        loadingSpinner.classList.add('hidden');
+    }
+}
+
+// Update user balance display
+function updateUserBalance(newBalance) {
+    const balanceElement = document.getElementById('userBalance');
+    if (balanceElement) {
+        balanceElement.textContent = `₦${newBalance.toLocaleString()}`;
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
+    
+    // Set notification style based on type
+    if (type == 'success') {
+        notification.className += ' bg-green-500 text-white';
+        notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    } else if (type == 'error') {
+        notification.className += ' bg-red-500 text-white';
+        notification.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+    } else {
+        notification.className += ' bg-blue-500 text-white';
+        notification.innerHTML = `<i class="fas fa-info-circle mr-2"></i>${message}`;
+    }
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Remove after delay
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 5000);
+}
+
+// Show purchase details modal
+function showPurchaseDetails(data) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Purchase Successful!</h3>
+                <p class="text-gray-600">Your digital products have been added to your account.</p>
+            </div>
+            
+            <div class="border-t pt-4 mb-4">
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Product:</span>
+                        <span class="font-medium">${data.product_name}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Quantity:</span>
+                        <span class="font-medium">${data.orders.length}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Paid:</span>
+                        <span class="font-medium">₦${data.total_amount.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Remaining Balance:</span>
+                        <span class="font-medium">₦${data.remaining_balance.toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="closeModal(this)" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    Close
+                </button>
+                <a href="{{ route('user.order-history') }}" class="flex-1 bg-slate-800 text-white py-2 px-4 rounded-lg hover:bg-slate-900 transition-colors text-center">
+                    View Orders
+                </a>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Close modal
+function closeModal(button) {
+    const modal = button.closest('.fixed');
+    document.body.removeChild(modal);
 }
 </script>
 @endsection

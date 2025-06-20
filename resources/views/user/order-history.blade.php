@@ -233,135 +233,109 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($digitalProducts as $product)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-gift-card text-blue-600 text-sm"></i>
+                                            <i class="fas fa-box text-blue-600 text-sm"></i>
                                         </div>
-                                        <span class="text-sm font-medium text-gray-900">Amazon Gift Card</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ $product['name'] }}</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Gift Card</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ $product['type'] }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦25,000</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦{{ number_format($product['amount'], 0) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                    @if($product['status'] === 'completed')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                    @elseif($product['status'] === 'pending')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>
+                                    @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:30:25</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product['created_at']->format('Y-m-d H:i:s') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="openLogModal('LOG001', 'Amazon Gift Card', 'Digital gift card for Amazon purchases', 'AGC-' + Math.random().toString(36).substr(2, 9).toUpperCase())" 
+                                    <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['access_code']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
                                             class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors mr-3">
                                         <i class="fas fa-eye"></i> View
                                     </button>
-                                    <button class="text-blue-600 hover:text-blue-900">
-                                        <i class="fas fa-download"></i>
+                                    @if($product['status'] === 'completed' && $product['full_log_item'])
+                                    <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-copy"></i>
                                     </button>
+                                    @endif
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-shield-alt text-purple-600 text-sm"></i>
-                                        </div>
-                                        <span class="text-sm font-medium text-gray-900">VPN Premium Access</span>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                    <div class="flex flex-col items-center justify-center py-8">
+                                        <i class="fas fa-box-open text-gray-300 text-4xl mb-4"></i>
+                                        <p class="text-lg font-medium text-gray-400">No digital product orders found</p>
+                                        <p class="text-sm text-gray-400 mt-1">Your digital product purchases will appear here</p>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">VPN Service</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦15,000</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Expires Soon</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:32:10</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="openLogModal('LOG002', 'VPN Premium Access', '30-day premium VPN access with global servers', 'VPN-' + Math.random().toString(36).substr(2, 9).toUpperCase())" 
-                                            class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors mr-3">
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                    <button class="text-green-600 hover:text-green-900">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                </td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Mobile Cards -->
                 <div class="md:hidden space-y-4">
+                    @forelse($digitalProducts as $product)
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-2">
                                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-gift-card text-blue-600 text-sm"></i>
+                                    <i class="fas fa-box text-blue-600 text-sm"></i>
                                 </div>
-                                <span class="font-medium text-gray-900">Amazon Gift Card</span>
+                                <span class="font-medium text-gray-900">{{ $product['name'] }}</span>
                             </div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                            @if($product['status'] === 'completed')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                            @elseif($product['status'] === 'pending')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>
+                            @endif
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-sm mb-3">
                             <div>
                                 <span class="text-gray-500">Type:</span>
-                                <span class="ml-1 font-medium">Gift Card</span>
+                                <span class="ml-1 font-medium">{{ $product['type'] }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500">Amount:</span>
-                                <span class="ml-1 font-medium">₦25,000</span>
+                                <span class="ml-1 font-medium">₦{{ number_format($product['amount'], 0) }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500">Date:</span>
-                                <span class="ml-1">2024-01-15 14:30:25</span>
+                                <span class="ml-1">{{ $product['created_at']->format('Y-m-d H:i:s') }}</span>
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="openLogModal('LOG001', 'Amazon Gift Card', 'Digital gift card for Amazon purchases', 'AGC-' + Math.random().toString(36).substr(2, 9).toUpperCase())" 
+                            <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['access_code']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
                                     class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
-                            <button class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
-                                <i class="fas fa-download mr-1"></i>Download
+                            @if($product['status'] === 'completed' && $product['full_log_item'])
+                            <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-copy mr-1"></i>Copy
                             </button>
+                            @endif
                         </div>
                     </div>
-
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-shield-alt text-purple-600 text-sm"></i>
-                                </div>
-                                <span class="font-medium text-gray-900">VPN Premium Access</span>
-                            </div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Expires Soon</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 text-sm mb-3">
-                            <div>
-                                <span class="text-gray-500">Type:</span>
-                                <span class="ml-1 font-medium">VPN Service</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-500">Amount:</span>
-                                <span class="ml-1 font-medium">₦15,000</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-500">Date:</span>
-                                <span class="ml-1">2024-01-15 14:32:10</span>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick="openLogModal('LOG002', 'VPN Premium Access', '30-day premium VPN access with global servers', 'VPN-' + Math.random().toString(36).substr(2, 9).toUpperCase())" 
-                                    class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
-                                <i class="fas fa-eye mr-1"></i>View
-                            </button>
-                            <button class="flex-1 bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">
-                                <i class="fas fa-sync-alt mr-1"></i>Renew
-                            </button>
-                        </div>
+                    @empty
+                    <div class="bg-gray-50 rounded-lg p-8 text-center">
+                        <i class="fas fa-box-open text-gray-300 text-4xl mb-4"></i>
+                        <p class="text-lg font-medium text-gray-400">No digital product orders found</p>
+                        <p class="text-sm text-gray-400 mt-1">Your digital product purchases will appear here</p>
                     </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -611,10 +585,10 @@
     }
     
     // Log modal functions
-    function openLogModal(id, name, details, accessCode) {
+    function openLogModal(id, name, details, accessCode, fullLogItem) {
         document.getElementById('logProductName').textContent = name;
         document.getElementById('logProductDetails').textContent = details;
-        document.getElementById('logAccessCode').value = accessCode;
+        document.getElementById('logAccessCode').value = fullLogItem || accessCode || 'N/A';
         document.getElementById('logModal').style.display = 'block';
     }
     

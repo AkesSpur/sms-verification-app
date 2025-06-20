@@ -22,7 +22,7 @@ class FundManagementController extends Controller
     public function addFund(Request $request, string $id)
     {
         $request->validate([
-            'amount'=> ['required','numeric','min:1','max:10000']
+            'amount'=> ['required','numeric','min:1','max:500000']
         ]);
         
         $user = User::findOrFail($id);
@@ -60,7 +60,7 @@ class FundManagementController extends Controller
     public function withdrawFund(Request $request, string $id)
     {
         $request->validate([
-            'amount'=> ['required','numeric','min:1','max:10000']
+            'amount'=> ['required','numeric','min:1','max:500000']
         ]);
         
         $user = User::findOrFail($id);

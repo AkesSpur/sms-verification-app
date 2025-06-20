@@ -319,17 +319,49 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth
-                        <!-- Dashboard Link for authenticated users -->
-                        <a href="{{ route('user.dashboard') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors navbar-link">
-                            <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
-                        </a>
-                        
-                        @if(auth()->user()->is_admin)
-                            <!-- Admin Panel Link for admin users -->
-                            <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors navbar-link">
-                                <i class="fas fa-cog mr-1"></i>Admin 
-                            </a>
-                        @endif
+                        <!-- User Balance Display -->
+                          <div class="flex items-center px-3 py-2 bg-blue-50 rounded-lg">
+                              <i class="fas fa-wallet text-blue-600 mr-2"></i>
+                              <span class="text-sm font-medium text-blue-800">₦{{ number_format(auth()->user()->balance, 0) }}</span>
+                          </div>
+                          
+                          <!-- User Dropdown -->
+                          <div class="relative ml-1" x-data="{ open: false }">
+                             <button @click="open = !open" class="flex items-center text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors navbar-link">
+                                 <i class="fas fa-user-circle mr-2 text-lg"></i>
+                                 <span>{{ auth()->user()->name }}</span>
+                                 <i class="fas fa-caret-down ml-1" :class="{ 'rotate-180': open }"></i>
+                             </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                                <!-- Dashboard Link -->
+                                <a href="{{ route('user.dashboard') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-tachometer-alt w-4 h-4 mr-3 text-gray-400"></i>
+                                    Dashboard
+                                </a>
+                                
+                                @if(auth()->user()->is_admin)
+                                    <!-- Admin Panel Link -->
+                                    <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                        <i class="fas fa-cog w-4 h-4 mr-3 text-gray-400"></i>
+                                        Admin Panel
+                                    </a>
+                                @endif
+                                
+                                <!-- Divider -->
+                                <div class="border-t border-gray-100 my-1"></div>
+                                
+                                <!-- Logout Link -->
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                        <i class="fas fa-sign-out-alt w-4 h-4 mr-3"></i>
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                         
                     @else
                         <!-- Login and Register Links for guests -->

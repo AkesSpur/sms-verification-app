@@ -125,4 +125,12 @@ class DigitalProduct extends Model
             'stock' => $this->available_stock
         ]);
     }
+
+    /**
+     * Get all orders for this product.
+     */
+    public function orders()
+    {
+        return $this->hasMany(DigitalProductOrder::class, 'product_id');
+    }
 }

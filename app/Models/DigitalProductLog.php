@@ -86,4 +86,12 @@ class DigitalProductLog extends Model
         // Update product stock
         $this->product->updateStock();
     }
+
+    /**
+     * Get the order that purchased this log.
+     */
+    public function order()
+    {
+        return $this->hasOne(DigitalProductOrder::class, 'log_id');
+    }
 }

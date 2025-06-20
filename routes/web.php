@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DigitalProductOrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
@@ -46,5 +47,12 @@ Route::prefix('user')->middleware('auth')->group(function () {
 // API routes for AJAX calls
 Route::prefix('api/user')->middleware('auth')->group(function () {
     Route::get('/transactions', [UsersController::class, 'getTransactions'])->name('api.user.transactions');
+    Route::get('/digital-orders', [DigitalProductOrderController::class, 'getUserOrders'])->name('api.user.digital-orders');
+    Route::get('/digital-orders/{id}', [DigitalProductOrderController::class, 'show'])->name('api.user.digital-orders.show');
+});
+
+// Digital Product Order routes
+Route::prefix('digital-products')->middleware('auth')->group(function () {
+    Route::post('/purchase', [DigitalProductOrderController::class, 'store'])->name('digital-products.purchase');
 });
 require __DIR__.'/auth.php';

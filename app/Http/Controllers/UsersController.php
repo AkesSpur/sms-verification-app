@@ -89,39 +89,26 @@ class UsersController extends Controller
             ->latest()
             ->paginate(10);
         
-        // Mock data for digital products (you can replace with actual digital product model)
-        $digitalProducts = collect([
-            [
-                'id' => 'DP001',
-                'name' => 'Amazon Gift Card',
-                'type' => 'gift_card',
-                'details' => '$50 USD Amazon Gift Card - Valid for all Amazon purchases',
-                'access_code' => 'AMZN-' . strtoupper(substr(md5('DP001'), 0, 12)),
-                'amount' => 25000,
-                'status' => 'active',
-                'created_at' => now()->subDay()
-            ],
-            [
-                'id' => 'DP002',
-                'name' => 'VPN Premium Access',
-                'type' => 'vpn',
-                'details' => '30-day premium VPN access with unlimited bandwidth',
-                'access_code' => 'VPN-' . strtoupper(substr(md5('DP002'), 0, 12)),
-                'amount' => 15000,
-                'status' => 'active',
-                'created_at' => now()->subHours(3)
-            ],
-            [
-                'id' => 'DP003',
-                'name' => 'Netflix Gift Card',
-                'type' => 'gift_card',
-                'details' => '$25 USD Netflix Gift Card - 1 month subscription',
-                'access_code' => 'NFLX-' . strtoupper(substr(md5('DP003'), 0, 12)),
-                'amount' => 12500,
-                'status' => 'expired',
-                'created_at' => now()->subDays(2)
-            ]
-        ]);
+        // Get actual digital product orders from database
+        $digitalProducts = auth()->user()->digitalProductOrders()
+            ->with(['product.subcategory.category', 'log'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->order_number,
+                    'name' => $order->product->name,
+                    'type' => $order->product->subcategory ? $order->product->subcategory->name : 'Digital Product',
+                    'details' => $order->product->description ?? 'Digital product purchase',
+                    'access_code' => $order->log ? substr($order->log->log_item, 0, 50) . '...' : 'N/A',
+                    'amount' => $order->total_amount,
+                    'status' => $order->status,
+                    'created_at' => $order->created_at,
+                    'order_id' => $order->id,
+                    'full_log_item' => $order->log ? $order->log->log_item : null
+                ];
+            });
         
         // Mock data for gift orders (you can replace with actual gift order model)
         $giftOrders = collect([
