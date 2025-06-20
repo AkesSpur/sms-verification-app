@@ -55,9 +55,9 @@
                                         <td>
                                             <strong>{{ $product->name }}</strong>
                                             <br><code class="small">{{ $product->slug }}</code>
-                                            @if($product->description)
+                                            {{-- @if($product->description)
                                                 <br><small class="text-muted">{!! Str::limit($product->description, 50) !!}</small>
-                                            @endif
+                                            @endif --}}
                                         </td>
                                         <td>
                                             <span class="badge badge-primary">{{ $product->subcategory->category->name }}</span>

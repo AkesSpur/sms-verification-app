@@ -17,12 +17,18 @@ class DigitalProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = DigitalProduct::with(['subcategory.category'])
-                        ->orderBy('sort_order')
-                        ->orderBy('name')
-                        ->get();
+        $query = DigitalProduct::with(['subcategory.category']);
+
+        // Filter by subcategory if specified
+        if ($request->filled('subcategory_id')) {
+            $query->where('subcategory_id', $request->subcategory_id);
+        }
+
+        $products = $query->orderBy('sort_order')
+                          ->orderBy('name')
+                          ->get();
 
         return view('admin.digital-product.index', compact('products'));
     }

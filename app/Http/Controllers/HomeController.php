@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
+use App\Models\Gift;
 use App\Models\Service;
 use App\Models\Country;
 use Illuminate\Http\Request;
+use App\Models\DigitalProductCategory;
+use App\Models\DigitalProductSubcategory;
+use App\Models\DigitalProduct;
 
 class HomeController extends Controller
 {
     /**
-     * Display the home page with services and countries data
+     * Display the home page with services, countries, and gifts data
      */
     public function index()
     {
@@ -25,10 +29,70 @@ class HomeController extends Controller
         
         $banners = Banner::active()->ordered()->get();
         
+        // Get featured gifts for the home page
+        $gifts = Gift::where('status', true)
+                      ->orderBy('sort_order')
+                      ->take(8)
+                      ->get();
+        
+        // Get digital product categories with their subcategories and products
+        $digitalCategories = DigitalProductCategory::active()
+                                                  ->ordered()
+                                                  ->with(['activeSubcategories' => function($query) {
+                                                      $query->whereHas('activeProducts');
+                                                  }, 'activeSubcategories.activeProducts'])
+                                                  ->whereHas('activeSubcategories', function($query) {
+                                                      $query->whereHas('activeProducts');
+                                                  })
+                                                  ->take(8)
+                                                  ->get();
+        
+        // Get all active subcategories with products (limit to 8 for home page)
+        // Only include subcategories whose parent category is also active
+        $activeSubcategories = DigitalProductSubcategory::active()
+                                                        ->whereHas('activeProducts')
+                                                        ->whereHas('category', function($query) {
+                                                            $query->where('status', 1);
+                                                        })
+                                                        ->with(['activeProducts', 'category'])
+                                                        ->ordered()
+                                                        ->take(8)
+                                                        ->get();
+        
+        // Transform data for JavaScript consumption
+        $digitalProductsData = $activeSubcategories->map(function($subcategory) {
+            return [
+                'id' => $subcategory->id,
+                'name' => $subcategory->name,
+                'slug' => $subcategory->slug,
+                'image' => $subcategory->image,
+                'category' => $subcategory->category->name,
+                'products' => $subcategory->activeProducts->map(function($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'price' => $product->price,
+                        'stock' => $product->available_stock,
+                        'image' => $product->image
+                    ];
+                })->toArray()
+            ];
+        });
+        
         $totalServices = Service::where('status', 'active')->count();
         $totalCountries = Country::count();
         
-        return view('home', compact('services', 'countries', 'banners', 'totalServices', 'totalCountries'));
+        return view('home', compact('services',
+         'countries',
+                     'banners',
+                      'gifts',
+                     'digitalCategories',
+                     'activeSubcategories',
+                      'digitalProductsData',
+                       'totalServices',
+                    'totalCountries'
+                    ));
     }
 
     /**
@@ -39,12 +103,60 @@ class HomeController extends Controller
         return view('checkout');
     }
 
+    public function showProduct($slug)
+    {
+        $product = DigitalProduct::where('slug', $slug)
+                                ->where('status', true)
+                                ->with(['subcategory.category'])
+                                ->firstOrFail();
+        
+        return view('checkout', compact('product'));
+    }
+
     /**
      * Display all categories page
      */
     public function allCategories()
     {
-        return view('all-categories');
+        $banners = Banner::active()->ordered()->get();
+        
+        // Get all digital product categories with their subcategories and products
+        $digitalCategories = DigitalProductCategory::active()
+                                                  ->ordered()
+                                                  ->with(['activeSubcategories' => function($query) {
+                                                      $query->whereHas('activeProducts');
+                                                  }, 'activeSubcategories.activeProducts'])
+                                                  ->whereHas('activeSubcategories', function($query) {
+                                                      $query->whereHas('activeProducts');
+                                                  })
+                                                  ->get();
+        
+        // Transform data for JavaScript consumption
+        $digitalProductsData = $digitalCategories->flatMap(function($category) {
+            return $category->activeSubcategories->filter(function($subcategory) {
+                return $subcategory->activeProducts->count() > 0;
+            })->map(function($subcategory) {
+                return [
+                    'id' => $subcategory->id,
+                    'name' => $subcategory->name,
+                    'slug' => $subcategory->slug,
+                    'image' => $subcategory->image,
+                    'category' => $subcategory->category->name,
+                    'products' => $subcategory->activeProducts->map(function($product) {
+                        return [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'slug' => $product->slug,
+                            'price' => $product->price,
+                            'stock' => $product->available_stock,
+                            'image' => $product->image
+                        ];
+                    })->toArray()
+                ];
+            })->toArray();
+        });
+        
+        return view('all-categories', compact('digitalCategories', 'digitalProductsData', 'banners'));
     }
 
     /**
@@ -52,114 +164,26 @@ class HomeController extends Controller
      */
     public function allGifts()
     {
-        return view('all-gifts');
+        $gifts = Gift::where('status', true)
+                      ->orderBy('sort_order')
+                      ->get();
+                      
+        return view('all-gifts', compact('gifts'));
     }
 
     /**
      * Display individual gift page
      */
-    public function showGift(Request $request, $id)
+    public function showGift(Request $request, $slug)
     {
-        // Demo gift data - in a real app, this would come from a database
-        $gifts = [
-            'flowers' => [
-                'id' => 'flowers',
-                'name' => 'Beautiful Flower Bouquet',
-                'price' => 45.99,
-                'description' => 'A stunning arrangement of fresh seasonal flowers, carefully selected and beautifully arranged to express your feelings.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1487070183336-b863922373d4?w=800&h=800&fit=crop'
-                ]
-            ],
-            'chocolate' => [
-                'id' => 'chocolate',
-                'name' => 'Premium Chocolate Box',
-                'price' => 29.99,
-                'description' => 'Indulge in our exquisite collection of handcrafted chocolates, made with the finest ingredients.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1511381939415-e44015466834?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=800&h=800&fit=crop'
-                ]
-            ],
-            'jewelry' => [
-                'id' => 'jewelry',
-                'name' => 'Elegant Necklace',
-                'price' => 89.99,
-                'description' => 'A timeless piece of jewelry that adds elegance to any outfit. Crafted with attention to detail.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&h=800&fit=crop'
-                ]
-            ],
-            'watch' => [
-                'id' => 'watch',
-                'name' => 'Luxury Watch',
-                'price' => 199.99,
-                'description' => 'A sophisticated timepiece that combines style and functionality. Perfect for any occasion.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?w=800&h=800&fit=crop'
-                ]
-            ],
-            'perfume' => [
-                'id' => 'perfume',
-                'name' => 'Designer Perfume',
-                'price' => 75.99,
-                'description' => 'A captivating fragrance that leaves a lasting impression. Perfect for special occasions.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&h=800&fit=crop'
-                ]
-            ],
-            'wine' => [
-                'id' => 'wine',
-                'name' => 'Premium Wine Bottle',
-                'price' => 65.99,
-                'description' => 'A fine wine selection perfect for celebrations and special moments.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=800&h=800&fit=crop'
-                ]
-            ],
-            'teddy' => [
-                'id' => 'teddy',
-                'name' => 'Cute Teddy Bear',
-                'price' => 25.99,
-                'description' => 'A soft and cuddly teddy bear that brings comfort and joy to anyone who receives it.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1530325553146-0113e5d3a8c2?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=800&fit=crop'
-                ]
-            ],
-            'candles' => [
-                'id' => 'candles',
-                'name' => 'Scented Candle Set',
-                'price' => 35.99,
-                'description' => 'Create a relaxing atmosphere with our premium scented candles. Perfect for unwinding.',
-                'images' => [
-                    'https://images.unsplash.com/photo-1602874801006-e26d405c9c8f?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&h=800&fit=crop'
-                ]
-            ]
-        ];
+        // Find the gift by slug
+        $gift = Gift::where('slug', $slug)
+                      ->where('status', true)
+                      ->with('images')
+                      ->firstOrFail();
+                      
 
-        // Get gift data or return 404
-        $gift = $gifts[$id] ?? null;
-        
-        if (!$gift) {
-            abort(404, 'Gift not found');
-        }
-
-        return view('gift', compact('gift'));
+        return view('gift', ['gift' => $gift]);
     }
 
     /**

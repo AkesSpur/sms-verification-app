@@ -137,6 +137,7 @@
             align-items: center;
             font-size: 0.875rem;
             color: #64748b;
+            position: relative;
         }
         .live-indicator::before {
             content: "";
@@ -146,7 +147,35 @@
             background-color: #22c55e;
             border-radius: 50%;
             margin-right: 0.5rem;
-            animation: pulse 1.5s infinite;
+            position: relative;
+            z-index: 2;
+        }
+        .live-indicator::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: bubble 2s infinite;
+        }
+        @keyframes bubble {
+            0% {
+                transform: translateY(-50%) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-50%) scale(1.8);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-50%) scale(2.5);
+                opacity: 0;
+            }
         }
         @keyframes pulse {
             0% { opacity: 1; }
@@ -392,7 +421,7 @@
                     <!-- Trust Indicators -->
                     <div class="flex flex-wrap gap-4 justify-center lg:justify-start mb-8">
                         <div class="trust-indicator">
-                            <div class="w-2 h-2 bg-green-500 rounded-full live-indicator"></div>
+                            <div class="w-2 h-2 bg-green-500 mr-1 rounded-full live-indicator"></div>
                             <span>Live Support</span>
                         </div>
                         <div class="trust-indicator">
@@ -985,116 +1014,52 @@
 
             <!-- Subcategories Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6" data-aos="fade-up" data-aos-delay="200">
-                <!-- Amazon Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Amazon')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">Amazon</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                        </div>
-                    </div>
-                </div>
-
-                <!-- iTunes Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('iTunes')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/ITunes_logo.svg" alt="iTunes" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">iTunes</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
+                @foreach($activeSubcategories->take(4) as $subcategory)
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
+                        <div class="p-6 text-center">
+                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
+                                @if($subcategory->image)
+                                    <img src="{{ asset($subcategory->image) }}" alt="{{ $subcategory->name }}" class="w-full h-full object-contain">
+                                @else
+                                    <div class="w-full h-full bg-gradient-to-br from-slate-100 to-gray-200 flex items-center justify-center rounded-lg">
+                                        <i class="fas fa-gift text-3xl text-gray-400"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            <h4 class="font-bold text-gray-900 mb-2">{{ $subcategory->name }}</h4>
+                            <div class="text-xs text-green-600 font-semibold">
+                                <i class="fas fa-clock mr-1"></i>Instant Delivery
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Google Play Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Google Play')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">Google Play</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Steam Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Steam')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg" alt="Steam" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">Steam</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
 
             <!-- Hidden Additional Categories -->
             <div id="additionalCategories" class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6 hidden" data-aos="fade-up">
-                <!-- PlayStation Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('PlayStation')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/00/PlayStation_logo.svg" alt="PlayStation" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">PlayStation</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Xbox Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Xbox')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Xbox_one_logo.svg" alt="Xbox" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">Xbox</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
+                @foreach($activeSubcategories->skip(4) as $subcategory)
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
+                        <div class="p-6 text-center">
+                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
+                                @if($subcategory->image)
+                                    <img src="{{ asset($subcategory->image) }}" alt="{{ $subcategory->name }}" class="w-full h-full object-contain">
+                                @else
+                                    <div class="w-full h-full bg-gradient-to-br from-slate-100 to-gray-200 flex items-center justify-center rounded-lg">
+                                        <i class="fas fa-gift text-3xl text-gray-400"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            <h4 class="font-bold text-gray-900 mb-2">{{ $subcategory->name }}</h4>
+                            <div class="text-xs text-green-600 font-semibold">
+                                <i class="fas fa-clock mr-1"></i>Instant Delivery
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Netflix Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Netflix')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">Netflix</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Spotify Gift Card -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Spotify')">
-                    <div class="p-6 text-center">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" alt="Spotify" class="w-full h-full object-contain">
-                        </div>
-                        <h4 class="font-bold text-gray-900 mb-2">Spotify</h4>
-                        <div class="text-xs text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
 
             <!-- View More/Less Button -->
-            <div class="text-center mt-8" data-aos="fade-up">
+            <div class="text-center mt-8 {{$activeSubcategories->count() < 5 ? 'hidden' : '' }}" data-aos="fade-up">
                 <button id="toggleButton" onclick="toggleCategories()" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-6 py-3 rounded-lg font-semibold transition-all hover-scale shadow-lg">
                     <i class="fas fa-chevron-down mr-2"></i>View All Gift Cards
                 </button>
@@ -1175,93 +1140,32 @@
 
             <!-- Gifts Grid -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12" data-aos="fade-up" data-aos-delay="200">
-                <!-- Gift 1 - Flowers -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group pulse-glow" onclick="redirectToGift('flowers', 'Beautiful Flower Bouquet', 45.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400&h=400&fit=crop" alt="Beautiful Flower Bouquet" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                @forelse($gifts as $gift)
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group {{ $loop->first ? 'pulse-glow' : '' }}" onclick="window.location.href='{{ route('gift.show', $gift->slug) }}'">
+                        <div class="aspect-square overflow-hidden rounded-t-xl relative">
+                            @if($gift->main_image)
+                                <img src="{{ asset($gift->main_image) }}" alt="{{ $gift->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            @else
+                                <img src="https://via.placeholder.com/400x400?text=No+Image" alt="{{ $gift->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            @endif
+                            
+                            @if($gift->customizable)
+                                <div class="absolute top-2 right-2 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                    <i class="fas fa-magic mr-1"></i>Customizable
+                                </div>
+                            @endif
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-900 mb-2 text-sm">{{ $gift->name }}</h4>
+                            <p class="text-lg font-bold text-slate-700">₦{{ number_format($gift->price, 2) }}</p>
+                        </div>
                     </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Beautiful Flower Bouquet</h4>
-                        <p class="text-lg font-bold text-slate-700">₦45.99</p>
+                @empty
+                    <div class="col-span-4 text-center py-12">
+                        <p class="text-gray-500">No gifts available at the moment. Please check back later.</p>
                     </div>
-                </div>
-
-                <!-- Gift 2 - Chocolate -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="redirectToGift('chocolate', 'Premium Chocolate Box', 29.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&h=400&fit=crop" alt="Premium Chocolate Box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Premium Chocolate Box</h4>
-                        <p class="text-lg font-bold text-slate-700">₦29.99</p>
-                    </div>
-                </div>
-
-                <!-- Gift 3 - Jewelry -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="redirectToGift('jewelry', 'Elegant Necklace', 89.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop" alt="Elegant Necklace" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Elegant Necklace</h4>
-                        <p class="text-lg font-bold text-slate-700">₦89.99</p>
-                    </div>
-                </div>
-
-                <!-- Gift 4 - Watch -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="redirectToGift('watch', 'Luxury Watch', 199.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=400&fit=crop" alt="Luxury Watch" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Luxury Watch</h4>
-                        <p class="text-lg font-bold text-slate-700">₦199.99</p>
-                    </div>
-                </div>
-
-                <!-- Gift 5 - Perfume -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="redirectToGift('perfume', 'Designer Perfume', 75.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop" alt="Designer Perfume" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Designer Perfume</h4>
-                        <p class="text-lg font-bold text-slate-700">₦75.99</p>
-                    </div>
-                </div>
-
-                <!-- Gift 6 - Wine -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="redirectToGift('wine', 'Premium Wine Bottle', 65.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop" alt="Premium Wine Bottle" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Premium Wine Bottle</h4>
-                        <p class="text-lg font-bold text-slate-700">₦65.99</p>
-                    </div>
-                </div>
-
-                <!-- Gift 7 - Teddy Bear -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="redirectToGift('teddy', 'Cute Teddy Bear', 25.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=400&fit=crop" alt="Cute Teddy Bear" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Cute Teddy Bear</h4>
-                        <p class="text-lg font-bold text-slate-700">₦25.99</p>
-                    </div>
-                </div>
-
-                <!-- Gift 8 - Candles -->
-                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="redirectToGift('candles', 'Scented Candle Set', 35.99)">
-                    <div class="aspect-square overflow-hidden rounded-t-xl">
-                        <img src="https://images.unsplash.com/photo-1602874801006-e26d405c9c8f?w=400&h=400&fit=crop" alt="Scented Candle Set" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Scented Candle Set</h4>
-                        <p class="text-lg font-bold text-slate-700">₦35.99</p>
-                    </div>
-                </div>
+                @endforelse
+            </div>
             </div>
 
             <!-- View All Gifts Button -->
@@ -1507,87 +1411,23 @@
             }
         }
         
-        // Product data for modal with Naira pricing and stock
-        const productData = {
-            'Amazon': [
-                { name: '₦2,000 Amazon Gift Card', price: '₦2,000', stock: 15 },
-                { name: '₦4,000 Amazon Gift Card', price: '₦4,000', stock: 12 },
-                { name: '₦10,000 Amazon Gift Card', price: '₦10,000', stock: 8 },
-                { name: '₦20,000 Amazon Gift Card', price: '₦20,000', stock: 5 },
-                { name: '₦40,000 Amazon Gift Card', price: '₦40,000', stock: 3 },
-                { name: '₦80,000 Amazon Gift Card', price: '₦80,000', stock: 2 }
-            ],
-            'iTunes': [
-                { name: '₦4,000 iTunes Gift Card', price: '₦4,000', stock: 20 },
-                { name: '₦6,000 iTunes Gift Card', price: '₦6,000', stock: 15 },
-                { name: '₦10,000 iTunes Gift Card', price: '₦10,000', stock: 10 },
-                { name: '₦20,000 iTunes Gift Card', price: '₦20,000', stock: 7 },
-                { name: '₦40,000 iTunes Gift Card', price: '₦40,000', stock: 4 }
-            ],
-            'Google Play': [
-                { name: '₦4,000 Google Play Gift Card', price: '₦4,000', stock: 18 },
-                { name: '₦10,000 Google Play Gift Card', price: '₦10,000', stock: 12 },
-                { name: '₦20,000 Google Play Gift Card', price: '₦20,000', stock: 8 },
-                { name: '₦40,000 Google Play Gift Card', price: '₦40,000', stock: 5 }
-            ],
-            'Steam': [
-                { name: '₦2,000 Steam Gift Card', price: '₦2,000', stock: 25 },
-                { name: '₦4,000 Steam Gift Card', price: '₦4,000', stock: 20 },
-                { name: '₦8,000 Steam Gift Card', price: '₦8,000', stock: 15 },
-                { name: '₦20,000 Steam Gift Card', price: '₦20,000', stock: 10 },
-                { name: '₦40,000 Steam Gift Card', price: '₦40,000', stock: 6 }
-            ],
-            'PlayStation': [
-                { name: '₦4,000 PlayStation Gift Card', price: '₦4,000', stock: 14 },
-                { name: '₦8,000 PlayStation Gift Card', price: '₦8,000', stock: 11 },
-                { name: '₦20,000 PlayStation Gift Card', price: '₦20,000', stock: 7 },
-                { name: '₦40,000 PlayStation Gift Card', price: '₦40,000', stock: 4 }
-            ],
-            'Xbox': [
-                { name: '₦4,000 Xbox Gift Card', price: '₦4,000', stock: 16 },
-                { name: '₦10,000 Xbox Gift Card', price: '₦10,000', stock: 12 },
-                { name: '₦20,000 Xbox Gift Card', price: '₦20,000', stock: 8 },
-                { name: '₦40,000 Xbox Gift Card', price: '₦40,000', stock: 5 }
-            ],
-            'Netflix': [
-                { name: '₦6,000 Netflix Gift Card', price: '₦6,000', stock: 22 },
-                { name: '₦12,000 Netflix Gift Card', price: '₦12,000', stock: 18 },
-                { name: '₦24,000 Netflix Gift Card', price: '₦24,000', stock: 10 },
-                { name: '₦40,000 Netflix Gift Card', price: '₦40,000', stock: 6 }
-            ],
-            'Spotify': [
-                { name: '₦4,000 Spotify Gift Card', price: '₦4,000', stock: 19 },
-                { name: '₦12,000 Spotify Gift Card', price: '₦12,000', stock: 14 },
-                { name: '₦24,000 Spotify Gift Card', price: '₦24,000', stock: 8 }
-            ]
-        };
+        // Digital products data from database
+        const digitalProductsData = @json($digitalProductsData);
         
-        // Get product image based on category
-        function getProductImage(category) {
-            const images = {
-                'Amazon': 'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=400&h=300&fit=crop&crop=center',
-                'iTunes': 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop&crop=center',
-                'Google Play': 'https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?w=400&h=300&fit=crop&crop=center',
-                'Steam': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center',
-                'PlayStation': 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400&h=300&fit=crop&crop=center',
-                'Xbox': 'https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=400&h=300&fit=crop&crop=center',
-                'Netflix': 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&h=300&fit=crop&crop=center',
-                'Spotify': 'https://images.unsplash.com/photo-1611339555312-e607c8352fd7?w=400&h=300&fit=crop&crop=center'
-            };
-            return images[category] || 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop&crop=center';
-        }
-
         // Open product modal with redesigned cards
-        function openProductModal(category) {
-            const products = productData[category] || [];
-            const productImage = getProductImage(category);
+        function openProductModal(subcategoryName, subcategoryId) {
+            const subcategory = digitalProductsData.find(sub => sub.id == subcategoryId);
+            if (!subcategory) return;
+            
+            const products = subcategory.products || [];
+            const subcategoryImage = subcategory.image ? `{{ asset('') }}${subcategory.image}` : null;
             
             const modalHTML = `
                 <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div class="bg-white rounded-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
                         <div class="p-6 border-b border-gray-200">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-2xl font-bold text-gray-900">${category} Gift Cards</h3>
+                                <h3 class="text-2xl font-bold text-gray-900">${subcategoryName} Products</h3>
                                 <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -1599,9 +1439,11 @@
                                     const stockStatus = product.stock > 10 ? 'text-green-600' : product.stock > 5 ? 'text-yellow-600' : 'text-red-600';
                                     const stockText = product.stock > 10 ? 'In Stock' : product.stock > 0 ? `${product.stock} left` : 'Out of Stock';
                                     const stockBg = product.stock > 10 ? 'bg-green-100' : product.stock > 5 ? 'bg-yellow-100' : 'bg-red-100';
+                                    const productImage = product.image ? `{{ asset('') }}${product.image}` : (subcategoryImage || 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop&crop=center');
+                                    const formattedPrice = `₦${parseFloat(product.price).toLocaleString()}`;
                                     
                                     return `
-                                        <div class="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1" onclick="redirectToCheckout('${category}', '${product.name}', '${product.price}', ${product.stock})">
+                                        <div class="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1" onclick="redirectToProduct('${product.slug}')">
                                             <div class="relative">
                                                 <img src="${productImage}" alt="${product.name}" class="w-full h-48 object-cover">
                                                 <div class="absolute top-3 right-3 ${stockBg} ${stockStatus} px-2 py-1 rounded-full text-xs font-semibold">
@@ -1611,14 +1453,14 @@
                                             <div class="p-4">
                                                 <h4 class="font-semibold text-gray-900 mb-2 text-sm">${product.name}</h4>
                                                 <div class="flex items-center justify-between mb-3">
-                                                    <span class="text-xl font-bold text-slate-800">${product.price}</span>
+                                                    <span class="text-xl font-bold text-slate-800">${formattedPrice}</span>
                                                     <div class="flex items-center text-green-600 text-xs">
-                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                        <i class="fas fa-clock mr-1"></i>
                                                         Instant Delivery
                                                     </div>
                                                 </div>
-                                                <button class="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white py-2 px-4 rounded-lg font-semibold transition-all duration-200 text-sm ${product.stock === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'}" ${product.stock === 0 ? 'disabled' : ''}>
-                                                    ${product.stock === 0 ? 'Sold Out' : 'Buy Now'}
+                                                <button class="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white py-2 px-4 rounded-lg font-semibold transition-all duration-200 text-sm ${product.stock == 0 ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'}" ${product.stock == 0 ? 'disabled' : ''}>
+                                                    ${product.stock == 0 ? 'Sold Out' : 'Buy Now'}
                                                 </button>
                                             </div>
                                         </div>
@@ -1641,18 +1483,10 @@
             }
         }
         
-        // Redirect to checkout page
-        function redirectToCheckout(category, productName, price, stock) {
-            // Create URL parameters for the checkout page
-            const params = new URLSearchParams({
-                category: category,
-                product: productName,
-                price: price,
-                stock: stock
-            });
-            
-            // Redirect to checkout page
-            window.location.href = `{{ route('checkout') }}?${params.toString()}`;
+        // Redirect to product page
+        function redirectToProduct(slug) {
+            // Redirect to product page using the new route
+            window.location.href = `/product/${slug}`;
         }
         
         // Redirect to individual gift page
@@ -1670,7 +1504,7 @@
         
         // Close modal when clicking outside
         document.addEventListener('click', function(e) {
-            if (e.target.id === 'productModal') {
+            if (e.target.id == 'productModal') {
                 closeProductModal();
             }
         });
@@ -1687,7 +1521,7 @@
                 
                 // Update dots
                 document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
-                    if (index === currentSlide) {
+                    if (index == currentSlide) {
                         dot.classList.remove('bg-gray-400');
                         dot.classList.add('bg-gray-800');
                     } else {

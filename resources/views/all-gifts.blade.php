@@ -88,166 +88,31 @@
     <section class="py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-aos="fade-up" data-aos-delay="200">
-                <!-- All Gifts in One Grid -->
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('flowers', 'Beautiful Flower Bouquet', 45.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400&h=400&fit=crop" alt="Beautiful Flower Bouquet" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
+                @forelse($gifts as $gift)
+                    <div class="gift-card cursor-pointer" onclick="window.location.href='{{ route('gift.show', $gift->slug) }}'">
+                        <div class="aspect-square overflow-hidden relative rounded-t-2xl">
+                            @if($gift->main_image)
+                                <img src="{{ asset($gift->main_image) }}" alt="{{ $gift->name }}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
+                            @else
+                                {{-- <img src="https://via.placeholder.com/400x400?text=No+Image" alt="{{ $gift->name }}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"> --}}
+                            @endif
+                            
+                            @if($gift->customizable)
+                                <div class="absolute top-2 right-2 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                    <i class="fas fa-magic mr-1"></i>Customizable
+                                </div>
+                            @endif
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-900 mb-2 text-sm">{{ $gift->name }}</h4>
+                            <p class="text-lg font-bold text-slate-700">₦{{ number_format($gift->price, 2) }}</p>
+                        </div>
                     </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Beautiful Flower Bouquet</h4>
-                        <p class="text-lg font-bold text-slate-700">₦45.99</p>
+                @empty
+                    <div class="col-span-4 text-center py-12">
+                        <p class="text-gray-500">No gifts available at the moment. Please check back later.</p>
                     </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('jewelry', 'Elegant Necklace', 89.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop" alt="Elegant Necklace" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Elegant Necklace</h4>
-                        <p class="text-lg font-bold text-slate-700">₦89.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('perfume', 'Designer Perfume', 75.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop" alt="Designer Perfume" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Designer Perfume</h4>
-                        <p class="text-lg font-bold text-slate-700">₦75.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('wine', 'Premium Wine Bottle', 65.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop" alt="Premium Wine Bottle" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Premium Wine Bottle</h4>
-                        <p class="text-lg font-bold text-slate-700">₦65.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('watch', 'Luxury Watch', 199.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=400&fit=crop" alt="Luxury Watch" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Luxury Watch</h4>
-                        <p class="text-lg font-bold text-slate-700">₦199.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('handbag', 'Designer Handbag', 150.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop" alt="Designer Handbag" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Designer Handbag</h4>
-                        <p class="text-lg font-bold text-slate-700">₦150.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('sunglasses', 'Premium Sunglasses', 85.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop" alt="Premium Sunglasses" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Premium Sunglasses</h4>
-                        <p class="text-lg font-bold text-slate-700">₦85.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('wallet', 'Leather Wallet', 45.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop" alt="Leather Wallet" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Leather Wallet</h4>
-                        <p class="text-lg font-bold text-slate-700">₦45.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('chocolate', 'Premium Chocolate Box', 29.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&h=400&fit=crop" alt="Premium Chocolate Box" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Premium Chocolate Box</h4>
-                        <p class="text-lg font-bold text-slate-700">₦29.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('cupcakes', 'Gourmet Cupcakes', 25.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&h=400&fit=crop" alt="Gourmet Cupcakes" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Gourmet Cupcakes</h4>
-                        <p class="text-lg font-bold text-slate-700">₦25.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('cookies', 'Artisan Cookie Set', 19.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=400&fit=crop" alt="Artisan Cookie Set" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Artisan Cookie Set</h4>
-                        <p class="text-lg font-bold text-slate-700">₦19.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('macarons', 'French Macarons', 35.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=400&h=400&fit=crop" alt="French Macarons" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">French Macarons</h4>
-                        <p class="text-lg font-bold text-slate-700">₦35.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('teddy', 'Cute Teddy Bear', 25.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=400&fit=crop" alt="Cute Teddy Bear" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Cute Teddy Bear</h4>
-                        <p class="text-lg font-bold text-slate-700">₦25.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('candles', 'Scented Candle Set', 35.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1602874801006-e26d405c9c8f?w=400&h=400&fit=crop" alt="Scented Candle Set" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Scented Candle Set</h4>
-                        <p class="text-lg font-bold text-slate-700">₦35.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('blanket', 'Cozy Throw Blanket', 45.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=400&fit=crop" alt="Cozy Throw Blanket" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Cozy Throw Blanket</h4>
-                        <p class="text-lg font-bold text-slate-700">₦45.99</p>
-                    </div>
-                </div>
-                
-                <div class="gift-card cursor-pointer" onclick="redirectToGift('pillow', 'Memory Foam Pillow', 39.99)">
-                    <div class="aspect-square overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1586047844557-42d3e3c7b8d4?w=400&h=400&fit=crop" alt="Memory Foam Pillow" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
-                    </div>
-                    <div class="p-4">
-                        <h4 class="font-bold text-gray-900 mb-2 text-sm">Memory Foam Pillow</h4>
-                        <p class="text-lg font-bold text-slate-700">₦39.99</p>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
     </section>

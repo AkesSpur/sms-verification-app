@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/checkout', [HomeController::class, 'checkout'])->name('checkout');
+Route::get('/product/{slug}', [HomeController::class, 'showProduct'])->name('product.show');
 Route::get('/all-categories', [HomeController::class, 'allCategories'])->name('all-categories');
 Route::get('/all-gifts', [HomeController::class, 'allGifts'])->name('all-gifts');
-Route::get('/gift/{id}', [HomeController::class, 'showGift'])->name('gift.show');
+Route::get('/gift/{slug}', [HomeController::class, 'showGift'])->name('gift.show');
 Route::post('/gift/order', [HomeController::class, 'orderGift'])->name('gift.order');
 
 // Route::get('/dashboard', function () {

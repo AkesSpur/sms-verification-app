@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', ($gift['name'] ?? 'Gift Details') . ' - SMS Verification')
+@section('title', ($gift->name ?? 'Gift Details') . ' - SMS Verification')
 
 @section('content')
 <!-- Custom Styles -->
@@ -79,7 +79,7 @@
                 <i class="fas fa-chevron-right text-xs"></i>
                 <a href="{{ route('all-gifts') }}" class="hover:text-slate-800">Gifts</a>
                 <i class="fas fa-chevron-right text-xs"></i>
-                <span class="text-slate-800 font-medium">{{ $gift['name'] ?? 'Gift Details' }}</span>
+                <span class="text-slate-800 font-medium">{{ $gift->name ?? 'Gift Details' }}</span>
             </nav>
         </div>
     </div>
@@ -92,26 +92,14 @@
             <!-- Main Image Carousel -->
             <div class="carousel-container bg-white rounded-xl shadow-lg mb-4 aspect-square">
                 <div class="carousel-track" id="mainCarousel">
-                    @if(isset($gift['images']) && is_array($gift['images']))
-                        @foreach($gift['images'] as $index => $image)
-                            <div class="carousel-slide">
-                                <img src="{{ $image }}?w=600&h=600&fit=crop" alt="Gift Image {{ $index + 1 }}" class="w-full h-full object-cover rounded-xl">
-                            </div>
-                        @endforeach
-                    @else
+                    <div class="carousel-slide">
+                        <img src="{{asset($gift->featured_image)}}?w=600&h=600&fit=crop" alt="{{$gift->alt_text ?? 'Gift Image ' . (1) }}" class="w-full h-full object-cover rounded-xl">
+                    </div>
+                    @foreach($gift->images as $index => $image)
                         <div class="carousel-slide">
-                            <img src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=600&h=600&fit=crop" alt="Gift Image 1" class="w-full h-full object-cover rounded-xl">
+                            <img src="{{ $image->image_url }}?w=600&h=600&fit=crop" alt="{{ $image->alt_text ?? 'Gift Image ' . ($index + 2) }}" class="w-full h-full object-cover rounded-xl">
                         </div>
-                        <div class="carousel-slide">
-                            <img src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=600&h=600&fit=crop" alt="Gift Image 2" class="w-full h-full object-cover rounded-xl">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&h=600&fit=crop" alt="Gift Image 3" class="w-full h-full object-cover rounded-xl">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&h=600&fit=crop" alt="Gift Image 4" class="w-full h-full object-cover rounded-xl">
-                        </div>
-                    @endif
+                    @endforeach
                 </div>
                 <button class="carousel-btn prev" onclick="previousSlide()">
                     <i class="fas fa-chevron-left"></i>
@@ -123,16 +111,10 @@
             
             <!-- Thumbnail Images -->
             <div class="flex gap-2 overflow-x-auto">
-                @if(isset($gift['images']) && is_array($gift['images']))
-                    @foreach($gift['images'] as $index => $image)
-                        <img src="{{ $image }}?w=150&h=150&fit=crop" alt="Thumbnail {{ $index + 1 }}" class="thumbnail {{ $index === 0 ? 'active' : '' }} aspect-square object-cover rounded-lg flex-shrink-0 w-20 h-20" onclick="goToSlide({{ $index }})">
-                    @endforeach
-                @else
-                    <img src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=150&h=150&fit=crop" alt="Thumbnail 1" class="thumbnail active aspect-square object-cover rounded-lg flex-shrink-0 w-20 h-20" onclick="goToSlide(0)">
-                    <img src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=150&h=150&fit=crop" alt="Thumbnail 2" class="thumbnail aspect-square object-cover rounded-lg flex-shrink-0 w-20 h-20" onclick="goToSlide(1)">
-                    <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=150&h=150&fit=crop" alt="Thumbnail 3" class="thumbnail aspect-square object-cover rounded-lg flex-shrink-0 w-20 h-20" onclick="goToSlide(2)">
-                    <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=150&h=150&fit=crop" alt="Thumbnail 4" class="thumbnail aspect-square object-cover rounded-lg flex-shrink-0 w-20 h-20" onclick="goToSlide(3)">
-                @endif
+                    <img src="{{ asset($gift->featured_image) }}?w=150&h=150&fit=crop" alt="{{ $image->alt_text ?? 'Thumbnail '. 1 }}" class="thumbnail active aspect-square object-cover rounded-lg flex-shrink-0 w-20 h-20" onclick="goToSlide(0)">
+                @foreach($gift->images as $index => $image)
+                    <img src="{{ $image->image_url }}?w=150&h=150&fit=crop" alt="{{ $image->alt_text ?? 'Thumbnail ' . ($index + 2) }}" class="thumbnail aspect-square object-cover rounded-lg flex-shrink-0 w-20 h-20" onclick="goToSlide({{ $index + 1}})">
+                @endforeach
             </div>
         </div>
 
@@ -140,18 +122,23 @@
         <div>
             <!-- Product Info -->
             <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
-                <h1 class="text-xl font-bold text-gray-900 mb-3" id="giftName">{{ $gift['name'] ?? 'Beautiful Flower Bouquet' }}</h1>
-                <div class="text-2xl font-bold text-slate-700 mb-4" id="giftPrice">₦{{ number_format($gift['price'] ?? 45.99, 2) }}</div>
+                <h1 class="text-xl font-bold text-gray-900 mb-3" id="giftName">{{ $gift->name }}</h1>
+                <div class="text-2xl font-bold text-slate-700 mb-4" id="giftPrice">₦{{ number_format($gift->price, 2) }}</div>
                 
                 <div class="flex items-center gap-4 mb-6">
                     <div class="flex items-center text-green-600">
                         <i class="fas fa-check-circle mr-1"></i>
-                        <span class="text-sm">Available</span>
+                        <span class="text-sm">In Stock</span>
                     </div>
                     <div class="flex items-center text-blue-600">
                         <i class="fas fa-truck mr-1"></i>
-                        <span class="text-sm">Fast delivery</span>
+                        <span class="text-sm">Delivery: 1-3 days</span>
                     </div>
+                    @if($gift->customizable)
+                        <div class="px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-800 rounded-full">
+                            Customizable
+                        </div>
+                    @endif
                 </div>
                 
                 <!-- Social Sharing -->
@@ -175,9 +162,9 @@
                 
                 <div class="border-t pt-4">
                     <h3 class="text-base font-semibold text-gray-900 mb-2">Description</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                        {{ $gift['description'] ?? 'Perfect for any special occasion. Comes with premium packaging and can be customized.' }}
-                    </p>
+                    <div class="prose prose-sm text-gray-600 mb-6">
+                        {!! $gift->description ?? 'This beautiful gift package includes premium items carefully selected to bring joy and happiness. Perfect for any occasion, this thoughtful present will surely make your loved ones smile.' !!}
+                    </div>
                 </div>
             </div>
 
@@ -189,9 +176,9 @@
                 
                 <form id="giftForm" action="{{ route('gift.order') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="gift_id" id="hiddenGiftId" value="{{ $gift['id'] ?? '' }}">
-                    <input type="hidden" name="gift_name" id="hiddenGiftName" value="{{ $gift['name'] ?? '' }}">
-                    <input type="hidden" name="gift_price" id="hiddenGiftPrice" value="{{ $gift['price'] ?? 0 }}">
+                    <input type="hidden" name="gift_id" id="hiddenGiftId" value="{{ $gift->id }}">
+                    <input type="hidden" name="gift_name" id="hiddenGiftName" value="{{ $gift->name }}">
+                    <input type="hidden" name="gift_price" id="hiddenGiftPrice" value="{{ $gift->price }}">
                     
                     <!-- Recipient Information -->
                     <div class="mb-6">
@@ -263,43 +250,54 @@
                     </div>
                     
                     <!-- Customize Gift -->
-                    <div class="mb-6">
-                        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-slate-200">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Customize Gift</h3>
-                                <p class="text-sm text-gray-600">Add a personal touch to your gift</p>
-                                <p class="text-sm font-medium text-slate-600">Customization fee: ₦5,000</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="customize_gift" id="customizeToggle" class="sr-only peer" onchange="toggleCustomization()">
-                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer-checked:bg-slate-600 transition-colors duration-200">
+                    @if($gift->customizable)
+                        <div class="mb-6">
+                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-slate-200">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">Customize Gift</h3>
+                                    <p class="text-sm text-gray-600">Add a personal touch to your gift</p>
+                                    <p class="text-sm font-medium text-slate-600">Customization fee: ₦{{ number_format($gift->customization_cost ?? 5000, 2) }}</p>
                                 </div>
-                                <div class="absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform duration-200 peer-checked:translate-x-full peer-checked:border-white"></div>
-                            </label>
-                        </div>
-                        
-                        <!-- Custom Image Upload (Hidden by default) -->
-                        <div id="customImageSection" class="mt-4" style="display: none;">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Custom Image</label>
-                            <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('customImage').click()">
-                                <input type="file" name="custom_image" id="customImage" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                                <div id="uploadContent">
-                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
-                                    <p class="text-gray-600 mb-2">Click to upload or drag and drop</p>
-                                    <p class="text-sm text-gray-500">PNG, JPG or GIF (MAX. 2MB)</p>
-                                </div>
-                                <div id="imagePreview" class="hidden">
-                                    <img id="previewImg" src="" alt="Preview" class="max-w-full max-h-48 mx-auto rounded-lg">
-                                    <p class="text-sm text-gray-600 mt-2">Click to change image</p>
-                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="customize_gift" id="customizeToggle" class="sr-only peer" onchange="toggleCustomization()">
+                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer-checked:bg-slate-600 transition-colors duration-200">
+                                    </div>
+                                    <div class="absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform duration-200 peer-checked:translate-x-full peer-checked:border-white"></div>
+                                </label>
                             </div>
                             
-                            <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Custom Message (Optional)</label>
-                                <textarea name="custom_message" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Add a personal message to your gift..."></textarea>
+                            <!-- Custom Image Upload (Hidden by default) -->
+                            <div id="customImageSection" class="mt-4" style="display: none;">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Custom Image</label>
+                                <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('customImage').click()">
+                                    <input type="file" name="custom_image" id="customImage" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                                    <div id="uploadContent">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                                        <p class="text-gray-600 mb-2">Click to upload or drag and drop</p>
+                                        <p class="text-sm text-gray-500">PNG, JPG or GIF (MAX. 2MB)</p>
+                                    </div>
+                                    <div id="imagePreview" class="hidden">
+                                        <img id="previewImg" src="" alt="Preview" class="max-w-full max-h-48 mx-auto rounded-lg">
+                                        <p class="text-sm text-gray-600 mt-2">Click to change image</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Custom Message (Optional)</label>
+                                    <textarea name="custom_message" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Add a personal message to your gift..."></textarea>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <!-- Gift Message Only -->
+                        <div class="mb-6">
+                            <div class="p-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-slate-200">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Gift Message</h3>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Add a personal message (Optional)</label>
+                                <textarea name="gift_message" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Add a personal message to your gift..."></textarea>
+                            </div>
+                        </div>
+                    @endif
                     
                     <!-- Order Summary -->
                     <div class="bg-gray-50 rounded-lg p-6 mb-6">
@@ -307,16 +305,18 @@
                         <div class="space-y-2">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Gift Price:</span>
-                                <span class="font-medium" id="summaryPrice">₦{{ number_format($gift['price'] ?? 45.99, 2) }}</span>
+                                <span class="font-medium" id="summaryPrice">₦{{ number_format($gift->price, 2) }}</span>
                             </div>
-                            <div class="flex justify-between" id="customizationFee" style="display: none;">
-                                <span class="text-gray-600">Customization Fee:</span>
-                                <span class="font-medium">₦5,000</span>
-                            </div>
+                            @if($gift->customizable)
+                                <div class="flex justify-between" id="customizationFee" style="display: none;">
+                                    <span class="text-gray-600">Customization Fee:</span>
+                                    <span class="font-medium">₦{{ number_format($gift->customization_cost ?? 5000, 2) }}</span>
+                                </div>
+                            @endif
                             <div class="border-t pt-2 mt-2">
                                 <div class="flex justify-between text-lg font-bold">
                                     <span>Total:</span>
-                                    <span id="totalPrice">₦{{ number_format($gift['price'] ?? 45.99, 2) }}</span>
+                                    <span id="totalPrice">₦{{ number_format($gift->price, 2) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -436,11 +436,16 @@
     
     // Update total price
     function updateTotalPrice() {
-        const basePrice = {{ $gift['price'] ?? 45.99 }};
-        const customizationFee = document.getElementById('customizeToggle').checked ? 5000 : 0;
-        const total = basePrice + customizationFee;
-        
-        document.getElementById('totalPrice').textContent = `₦${total.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        const basePrice = {{ $gift->price }};
+        @if($gift->customizable)
+            const customizationCost = {{ $gift->customization_cost ?? 5000 }};
+            const isCustomizing = document.getElementById('customizeToggle').checked;
+            
+            const total = isCustomizing ? basePrice + customizationCost : basePrice;
+        @else
+            const total = basePrice;
+        @endif
+        document.getElementById('totalPrice').textContent = '₦' + total.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
     
     // Handle image upload

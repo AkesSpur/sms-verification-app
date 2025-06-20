@@ -3,7 +3,60 @@
 @section('title', 'All Categories - Digital Gift Cards')
 
 @section('content')
-    <!-- Hero Section -->
+    <!-- Image Banner Carousel Section -->
+    @if($banners->count() > 0)
+    <section class="py-16 bg-gradient-to-r from-slate-50 to-gray-100 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Carousel Container -->
+            <div class="relative" data-aos="fade-up">
+                <div class="carousel-container overflow-hidden rounded-2xl shadow-2xl">
+                    <div class="carousel-wrapper flex transition-transform duration-500 ease-in-out" id="carousel">
+                        @foreach($banners as $banner)
+                        <!-- Banner Slide {{ $loop->iteration }} -->
+                        <div class="carousel-slide w-full flex-shrink-0 relative">
+                            <div class="relative h-[155px] sm:h-[200px] md:h-[250px] lg:h-[300px] xl:h-[300px] overflow-hidden">
+                                @if($banner->link_url)
+                                    <a href="{{ $banner->link_url }}" target="_blank" class="block w-full h-full">
+                                        <img src="{{ $banner->image_url }}" 
+                                             alt="{{ $banner->title ?? 'Banner' }}" 
+                                             class="w-[100%] h-full object-cover hover:scale-105 transition-transform duration-300"
+                                             >
+                                    </a>
+                                @else
+                                    <img src="{{ $banner->image_url }}" 
+                                         alt="{{ $banner->title ?? 'Banner' }}" 
+                                         class="w-full h-full object-cover"
+                                         loading="lazy">
+                                @endif
+                                
+                                
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                
+                @if($banners->count() > 1)
+                <!-- Navigation Arrows -->
+                <button class="carousel-btn carousel-prev absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-3 rounded-full shadow-lg z-10">
+                    <i class="fas fa-chevron-left text-xl"></i>
+                </button>
+                <button class="carousel-btn carousel-next absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 p-3 rounded-full shadow-lg z-10">
+                    <i class="fas fa-chevron-right text-xl"></i>
+                </button>
+                
+                <!-- Dots Indicator -->
+                <div class="flex justify-center mt-8 space-x-2">
+                    @foreach($banners as $banner)
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-gray-400 hover:bg-gray-600 transition-colors" data-slide="{{ $loop->index }}"></button>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+        </div>
+    </section>
+    @else
+    <!-- Fallback Hero Section when no banners -->
     <section class="relative py-20 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-gray-100"></div>
         <div class="absolute inset-0 opacity-10">
@@ -13,7 +66,7 @@
         </div>
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16" data-aos="fade-up">
+            <div class="text-center mb-8" data-aos="fade-up">
                 <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
                     All Digital <span class="gradient-text">Gift Cards</span>
                 </h1>
@@ -23,143 +76,45 @@
             </div>
         </div>
     </section>
+    @endif
 
     <!-- All Categories Section -->
     <section class="py-20 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Gaming Categories -->
-            <div class="mb-16" data-aos="fade-up">
+            @foreach($digitalCategories as $index => $category)
+            <!-- {{ $category->name }} Categories -->
+            <div class="mb-16" data-aos="fade-up" data-aos-delay="{{ $index * 200 }}">
                 <div class="mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Gaming Platforms</h2>
-                    <p class="text-gray-600">Digital gift cards for popular gaming platforms</p>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ $category->name }}</h2>
+                    <p class="text-gray-600">{{ $category->description ?? 'Digital gift cards for ' . strtolower($category->name) }}</p>
                 </div>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <!-- Steam Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Steam')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg" alt="Steam" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">Steam</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PlayStation Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('PlayStation')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/0/00/PlayStation_logo.svg" alt="PlayStation" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">PlayStation</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
+                    @foreach($category->activeSubcategories as $subcategory)
+                        @if($subcategory->activeProducts->count() > 0)
+                        <!-- {{ $subcategory->name }} Gift Card -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
+                            <div class="p-6 text-center">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
+                                    @if($subcategory->image)
+                                        <img src="{{ asset( $subcategory->image) }}" alt="{{ $subcategory->name }}" class="w-full h-full object-contain">
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                            <span class="text-white font-bold text-lg">{{ substr($subcategory->name, 0, 2) }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <h4 class="font-bold text-gray-900 mb-2">{{ $subcategory->name }}</h4>
+                                <div class="text-xs text-green-600 font-semibold">
+                                    <i class="fas fa-check-circle mr-1"></i>Instant Delivery
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Xbox Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Xbox')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Xbox_one_logo.svg" alt="Xbox" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">Xbox</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Google Play Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Google Play')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">Google Play</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                            </div>
-                        </div>
-                    </div>
+                        @endif
+                    @endforeach
                 </div>
             </div>
-
-            <!-- Entertainment Categories -->
-            <div class="mb-16" data-aos="fade-up" data-aos-delay="200">
-                <div class="mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Entertainment & Media</h2>
-                    <p class="text-gray-600">Digital gift cards for streaming and entertainment services</p>
-                </div>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <!-- Netflix Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Netflix')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">Netflix</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Spotify Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Spotify')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" alt="Spotify" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">Spotify</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- iTunes Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('iTunes')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/ITunes_logo.svg" alt="iTunes" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">iTunes</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- E-commerce Categories -->
-            <div class="mb-16" data-aos="fade-up" data-aos-delay="400">
-                <div class="mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">E-commerce & Shopping</h2>
-                    <p class="text-gray-600">Digital gift cards for online shopping platforms</p>
-                </div>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <!-- Amazon Gift Card -->
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('Amazon')">
-                        <div class="p-6 text-center">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">Amazon</h4>
-                            <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforeach
 
             <!-- Features Section -->
             <div class="mt-16 grid md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="600">
@@ -189,80 +144,37 @@
     </section>
 
     <script>
-        // Product data for modal with Naira pricing and stock
-        const productData = {
-            'Amazon': [
-                { name: '₦2,000 Amazon Gift Card', price: '₦2,000', stock: 15 },
-                { name: '₦4,000 Amazon Gift Card', price: '₦4,000', stock: 12 },
-                { name: '₦10,000 Amazon Gift Card', price: '₦10,000', stock: 8 },
-                { name: '₦20,000 Amazon Gift Card', price: '₦20,000', stock: 5 },
-                { name: '₦40,000 Amazon Gift Card', price: '₦40,000', stock: 3 },
-                { name: '₦80,000 Amazon Gift Card', price: '₦80,000', stock: 2 }
-            ],
-            'iTunes': [
-                { name: '₦4,000 iTunes Gift Card', price: '₦4,000', stock: 20 },
-                { name: '₦6,000 iTunes Gift Card', price: '₦6,000', stock: 15 },
-                { name: '₦10,000 iTunes Gift Card', price: '₦10,000', stock: 10 },
-                { name: '₦20,000 iTunes Gift Card', price: '₦20,000', stock: 7 },
-                { name: '₦40,000 iTunes Gift Card', price: '₦40,000', stock: 4 }
-            ],
-            'Google Play': [
-                { name: '₦4,000 Google Play Gift Card', price: '₦4,000', stock: 18 },
-                { name: '₦10,000 Google Play Gift Card', price: '₦10,000', stock: 12 },
-                { name: '₦20,000 Google Play Gift Card', price: '₦20,000', stock: 8 },
-                { name: '₦40,000 Google Play Gift Card', price: '₦40,000', stock: 5 }
-            ],
-            'Steam': [
-                { name: '₦2,000 Steam Gift Card', price: '₦2,000', stock: 25 },
-                { name: '₦4,000 Steam Gift Card', price: '₦4,000', stock: 20 },
-                { name: '₦8,000 Steam Gift Card', price: '₦8,000', stock: 15 },
-                { name: '₦20,000 Steam Gift Card', price: '₦20,000', stock: 10 },
-                { name: '₦40,000 Steam Gift Card', price: '₦40,000', stock: 6 }
-            ],
-            'PlayStation': [
-                { name: '₦4,000 PlayStation Gift Card', price: '₦4,000', stock: 14 },
-                { name: '₦8,000 PlayStation Gift Card', price: '₦8,000', stock: 11 },
-                { name: '₦20,000 PlayStation Gift Card', price: '₦20,000', stock: 7 },
-                { name: '₦40,000 PlayStation Gift Card', price: '₦40,000', stock: 4 }
-            ],
-            'Xbox': [
-                { name: '₦4,000 Xbox Gift Card', price: '₦4,000', stock: 16 },
-                { name: '₦10,000 Xbox Gift Card', price: '₦10,000', stock: 12 },
-                { name: '₦20,000 Xbox Gift Card', price: '₦20,000', stock: 8 },
-                { name: '₦40,000 Xbox Gift Card', price: '₦40,000', stock: 5 }
-            ],
-            'Netflix': [
-                { name: '₦6,000 Netflix Gift Card', price: '₦6,000', stock: 22 },
-                { name: '₦12,000 Netflix Gift Card', price: '₦12,000', stock: 18 },
-                { name: '₦24,000 Netflix Gift Card', price: '₦24,000', stock: 10 },
-                { name: '₦40,000 Netflix Gift Card', price: '₦40,000', stock: 6 }
-            ],
-            'Spotify': [
-                { name: '₦4,000 Spotify Gift Card', price: '₦4,000', stock: 19 },
-                { name: '₦12,000 Spotify Gift Card', price: '₦12,000', stock: 14 },
-                { name: '₦24,000 Spotify Gift Card', price: '₦24,000', stock: 8 }
-            ]
-        };
+        // Product data from database
+        const digitalProductsData = @json($digitalProductsData);
+        
+        // Convert to the format expected by the modal
+        const productData = {};
+        digitalProductsData.forEach(subcategory => {
+            productData[subcategory.name] = subcategory.products.map(product => ({
+                id: product.id,
+                name: product.name,
+                price: '₦' + parseFloat(product.price).toLocaleString(),
+                stock: product.stock,
+                slug: product.slug,
+                image: product.image
+            }));
+        });
         
         // Get product image based on category
-        function getProductImage(category) {
-            const images = {
-                'Amazon': 'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=400&h=300&fit=crop&crop=center',
-                'iTunes': 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop&crop=center',
-                'Google Play': 'https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?w=400&h=300&fit=crop&crop=center',
-                'Steam': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center',
-                'PlayStation': 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400&h=300&fit=crop&crop=center',
-                'Xbox': 'https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=400&h=300&fit=crop&crop=center',
-                'Netflix': 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&h=300&fit=crop&crop=center',
-                'Spotify': 'https://images.unsplash.com/photo-1611339555312-e607c8352fd7?w=400&h=300&fit=crop&crop=center'
-            };
-            return images[category] || 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop&crop=center';
+        function getProductImage(category, subcategoryId) {
+            const subcategory = digitalProductsData.find(sub => sub.id === subcategoryId);
+            if (subcategory && subcategory.image) {
+                return `{{ asset('') }}${subcategory.image}`;
+            }
+            // Fallback to a default image
+            return 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop&crop=center';
         }
 
         // Open product modal with redesigned cards
-        function openProductModal(category) {
+        function openProductModal(category, subcategoryId) {
             const products = productData[category] || [];
-            const productImage = getProductImage(category);
+            const subcategory = digitalProductsData.find(sub => sub.id === subcategoryId);
+            const subcategoryImage = subcategory && subcategory.image ? `{{ asset('') }}${subcategory.image}` : null;
             
             const modalHTML = `
                 <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -282,10 +194,12 @@
                                     const stockText = product.stock > 10 ? 'In Stock' : product.stock > 0 ? `${product.stock} left` : 'Out of Stock';
                                     const stockBg = product.stock > 10 ? 'bg-green-100' : product.stock > 5 ? 'bg-yellow-100' : 'bg-red-100';
                                     
+                                    const productImageSrc = product.image ? `{{ asset('') }}${product.image}` : (subcategoryImage || 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop&crop=center');
+                                    
                                     return `
-                                        <div class="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1" onclick="redirectToCheckout('${category}', '${product.name}', '${product.price}', ${product.stock})">
+                                        <div class="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1" onclick="redirectToCheckout('${product.slug}')">
                                             <div class="relative">
-                                                <img src="${productImage}" alt="${product.name}" class="w-full h-48 object-cover">
+                                                <img src="${productImageSrc}" alt="${product.name}" class="w-full h-48 object-cover">
                                                 <div class="absolute top-3 right-3 ${stockBg} ${stockStatus} px-2 py-1 rounded-full text-xs font-semibold">
                                                     ${stockText}
                                                 </div>
@@ -323,18 +237,9 @@
             }
         }
         
-        // Redirect to checkout page
-        function redirectToCheckout(category, productName, price, stock) {
-            // Create URL parameters for the checkout page
-            const params = new URLSearchParams({
-                category: category,
-                product: productName,
-                price: price,
-                stock: stock
-            });
-            
-            // Redirect to checkout page
-            window.location.href = `/checkout?${params.toString()}`;
+        // Redirect to checkout page with product details
+        function redirectToCheckout(productSlug) {
+            window.location.href = `/product/${productSlug}`;
         }
         
         // Close modal when clicking outside
@@ -343,5 +248,98 @@
                 closeProductModal();
             }
         });
+        
+        // Carousel functionality
+        @if($banners->count() > 0)
+        let currentSlide = 0;
+        const totalSlides = {{ $banners->count() }};
+        let carouselInterval;
+
+        function updateCarousel() {
+            const carousel = document.getElementById('carousel');
+            if (carousel) {
+                carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                // Update dots
+                document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                    if (index == currentSlide) {
+                        dot.classList.remove('bg-gray-400');
+                        dot.classList.add('bg-gray-800');
+                    } else {
+                        dot.classList.remove('bg-gray-800');
+                        dot.classList.add('bg-gray-400');
+                    }
+                });
+            }
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+        }
+
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            updateCarousel();
+        }
+
+        // Auto-play carousel
+        function startCarousel() {
+            carouselInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+        }
+
+        function stopCarousel() {
+            if (carouselInterval) {
+                clearInterval(carouselInterval);
+            }
+        }
+
+        // Initialize carousel when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCarousel();
+            startCarousel();
+
+            // Add event listeners for navigation buttons
+            const prevBtn = document.querySelector('.carousel-prev');
+            const nextBtn = document.querySelector('.carousel-next');
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function() {
+                    stopCarousel();
+                    prevSlide();
+                    startCarousel();
+                });
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function() {
+                    stopCarousel();
+                    nextSlide();
+                    startCarousel();
+                });
+            }
+
+            // Add event listeners for dots
+            document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                dot.addEventListener('click', function() {
+                    stopCarousel();
+                    goToSlide(index);
+                    startCarousel();
+                });
+            });
+
+            // Pause carousel on hover
+            const carouselContainer = document.querySelector('.carousel-container');
+            if (carouselContainer) {
+                carouselContainer.addEventListener('mouseenter', stopCarousel);
+                carouselContainer.addEventListener('mouseleave', startCarousel);
+            }
+        });
+        @endif
     </script>
 @endsection

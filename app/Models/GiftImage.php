@@ -43,6 +43,14 @@ class GiftImage extends Model
     }
 
     /**
+     * Get the raw image path without asset() for better quality.
+     */
+    public function getRawImageUrlAttribute()
+    {
+        return $this->image_path;
+    }
+
+    /**
      * Boot the model.
      */
     protected static function boot()
