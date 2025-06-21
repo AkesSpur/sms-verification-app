@@ -100,7 +100,7 @@ class UsersController extends Controller
                     'id' => $order->order_number,
                     'name' => $order->product->name,
                     'type' => $order->product->subcategory ? $order->product->subcategory->name : 'Digital Product',
-                    'details' => $order->product->description ?? 'Digital product purchase',
+                    'details' => $order->log ? $order->log->details : null,
                     'access_code' => $order->log ? substr($order->log->log_item, 0, 50) . '...' : 'N/A',
                     'amount' => $order->total_amount,
                     'status' => $order->status,

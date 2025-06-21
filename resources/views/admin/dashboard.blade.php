@@ -5,6 +5,69 @@
         <div class="section-header">
             <h1>Dashboard</h1>
         </div>
+         <!-- Statistics Cards -->
+         <div class="row">
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-primary">
+                        <i class="far fa-file-alt"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['total_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Completed</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['completed_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Pending</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['pending_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-info">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Revenue</h4>
+                        </div>
+                        <div class="card-body">
+                            ₦{{ number_format($stats['total_revenue']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {{-- <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <a href="{{ route('admin.order.index') }}">

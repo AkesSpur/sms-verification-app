@@ -22,8 +22,8 @@
                 </li>
 
                 <li class="menu-header">Ecommerce</li>
-
-                <li class="dropdown {{ setActive(['admin.digital-product-categories.*', 'admin.digital-product-subcategories.*', 'admin.digital-products.*', 'admin.digital-product-logs.*']) }}">
+  
+                <li class="dropdown {{ setActive(['admin.digital-product-categories.*', 'admin.digital-product-subcategories.*', 'admin.digital-products.*', 'admin.digital-product-logs.*', 'admin.digital-product-orders.*']) }}">
                     <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-digital-tachograph"></i>
                         <span>Digital Products</span></a>
                     <ul class="dropdown-menu">
@@ -38,6 +38,9 @@
                         </li>
                         <li class="{{ setActive(['admin.digital-product-logs.*']) }}"><a class="nav-link"
                                 href="{{ route('admin.digital-product-logs.index') }}">Product Logs</a>
+                        </li>
+                        <li class="{{ setActive(['admin.digital-product-orders.*']) }}"><a class="nav-link"
+                                href="{{ route('admin.digital-product-orders.index') }}">Orders</a>
                         </li>
                     </ul>
                 </li>

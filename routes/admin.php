@@ -14,6 +14,7 @@ use App\Http\Controllers\Backend\DigitalProductCategoryController;
 use App\Http\Controllers\Backend\DigitalProductSubcategoryController;
 use App\Http\Controllers\Backend\DigitalProductController;
 use App\Http\Controllers\Backend\DigitalProductLogController;
+use App\Http\Controllers\Backend\DigitalProductOrderController;
 use App\Http\Controllers\Backend\GiftController;
 use App\Http\Controllers\Backend\BannerController;
 use Illuminate\Support\Facades\Route;
@@ -82,6 +83,11 @@ Route::get('digital-product-logs/add-logs', [DigitalProductLogController::class,
 Route::post('digital-product-logs/add-logs', [DigitalProductLogController::class, 'addLogs'])->name('digital-product-logs.store-multiple');
 Route::post('digital-product-logs/{digitalProductLog}/mark-available', [DigitalProductLogController::class, 'markAsAvailable'])->name('digital-product-logs.mark-available');
 Route::resource('digital-product-logs', DigitalProductLogController::class);
+
+/* Digital Product Order Management Routes */
+Route::get('digital-product-orders/export', [DigitalProductOrderController::class, 'export'])->name('digital-product-orders.export');
+Route::put('digital-product-orders/{order}/status', [DigitalProductOrderController::class, 'updateStatus'])->name('digital-product-orders.update-status');
+Route::resource('digital-product-orders', DigitalProductOrderController::class)->only(['index', 'show', 'destroy']);
 
 /* Gift Management Routes */
 Route::delete('gifts/images/{image}', [GiftController::class, 'deleteImage'])->name('gifts.delete-image');

@@ -101,13 +101,7 @@
                             </button>
                         @endif
                         
-                        <!-- User Balance Display -->
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-blue-700 font-medium">Your Wallet Balance:</span>
-                                <span id="userBalance" class="text-blue-900 font-bold">₦{{ number_format(auth()->user()->balance) }}</span>
-                            </div>
-                        </div>
+                        
                     @else
                         <div class="text-center mb-4">
                             <p class="text-gray-600 mb-3">Please log in to make a purchase</p>
@@ -274,13 +268,75 @@ function handlePurchase() {
         return;
     }
     
-    // Show confirmation
-    if (!confirm(`Are you sure you want to purchase ${quantity} ${productName} for ₦${totalAmount.toLocaleString()}?`)) {
-        return;
-    }
+    // Show confirmation modal
+    showConfirmationModal(quantity, productName, totalAmount, () => {
+        // Disable button and show loading
+        setLoadingState(true);
+        
+        // Continue with purchase
+        processPurchase(quantity, productName, totalAmount);
+    });
+}
+
+// Show confirmation modal
+function showConfirmationModal(quantity, productName, totalAmount, onConfirm) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shopping-cart text-blue-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Confirm Purchase</h3>
+                <p class="text-gray-600">Are you sure you want to proceed with this purchase?</p>
+            </div>
+            
+            <div class="border-t pt-4 mb-4">
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Product:</span>
+                        <span class="font-medium">${productName}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Quantity:</span>
+                        <span class="font-medium">${quantity}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Amount:</span>
+                        <span class="font-medium text-lg">₦${totalAmount.toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="closeModal(this)" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmPurchase(this)" class="flex-1 bg-slate-800 text-white py-2 px-4 rounded-lg hover:bg-slate-900 transition-colors">
+                    Confirm Purchase
+                </button>
+            </div>  
+        </div>
+    `;
     
-    // Disable button and show loading
-    setLoadingState(true);
+    document.body.appendChild(modal);
+    
+    // Store the callback function
+    window.currentPurchaseCallback = onConfirm;
+}
+
+// Confirm purchase from modal
+function confirmPurchase(button) {
+    closeModal(button);
+    if (window.currentPurchaseCallback) {
+        window.currentPurchaseCallback();
+        window.currentPurchaseCallback = null;
+    }
+}
+
+// Process the actual purchase
+function processPurchase(quantity, productName, totalAmount) {
     
     // Make AJAX request
     fetch('{{ route("digital-products.purchase") }}', {

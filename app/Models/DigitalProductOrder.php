@@ -77,6 +77,29 @@ class DigitalProductOrder extends Model
     }
 
     /**
+     * Get the log data for delivery, handling recalled logs.
+     */
+    public function getDeliverableLogAttribute()
+    {
+        $log = $this->log;
+        if ($log && $log->status === 'sold') {
+            return $log;
+        }
+        if ($log) {
+            $message = "The {$log->log_item} has been recalled, if you feel this decision is wrong contact support.";
+            // Return a custom object mimicking the log structure
+            return (object) [
+                'log_item' => $message,
+                'details' => $message,
+                'status' => $log->status,
+                'id' => $log->id,
+                'product_id' => $log->product_id
+            ];
+        }
+        return null;
+    }
+
+    /**
      * Scope a query to only include completed orders.
      */
     public function scopeCompleted($query)
@@ -105,7 +128,7 @@ class DigitalProductOrder extends Model
      */
     public function isCompleted()
     {
-        return $this->status === 'completed';
+        return $this->status == 'completed';
     }
 
     /**
@@ -113,7 +136,7 @@ class DigitalProductOrder extends Model
      */
     public function isPending()
     {
-        return $this->status === 'pending';
+        return $this->status == 'pending';
     }
 
     /**
@@ -121,7 +144,7 @@ class DigitalProductOrder extends Model
      */
     public function isFailed()
     {
-        return $this->status === 'failed';
+        return $this->status == 'failed';
     }
 
     /**

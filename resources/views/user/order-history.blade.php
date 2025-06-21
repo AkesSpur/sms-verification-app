@@ -2,6 +2,82 @@
 
 @section('title', 'Order History')
 
+@push('styles')
+<style>
+    /* Custom styles for log content display */
+    #logItemContent img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.375rem;
+        margin: 0.5rem 0;
+    }
+    
+    #logItemContent p {
+        margin-bottom: 0.75rem;
+    }
+    
+    #logItemContent ul, #logItemContent ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    #logItemContent li {
+        margin-bottom: 0.25rem;
+    }
+    
+    #logItemContent h1, #logItemContent h2, #logItemContent h3, 
+    #logItemContent h4, #logItemContent h5, #logItemContent h6 {
+        font-weight: 600;
+        margin: 1rem 0 0.5rem 0;
+    }
+    
+    #logItemContent h1 { font-size: 1.5rem; }
+    #logItemContent h2 { font-size: 1.25rem; }
+    #logItemContent h3 { font-size: 1.125rem; }
+    
+    #logItemContent strong, #logItemContent b {
+        font-weight: 600;
+    }
+    
+    #logItemContent em, #logItemContent i {
+        font-style: italic;
+    }
+    
+    #logItemContent a {
+        color: #2563eb;
+        text-decoration: underline;
+    }
+    
+    #logItemContent a:hover {
+        color: #1d4ed8;
+    }
+    
+    #logItemContent blockquote {
+        border-left: 4px solid #e5e7eb;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #6b7280;
+    }
+    
+    #logItemContent pre {
+        background-color: #f3f4f6;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        overflow-x: auto;
+        margin: 0.5rem 0;
+    }
+    
+    #logItemContent code {
+        background-color: #f3f4f6;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="space-y-6">
     <!-- Page Header -->
@@ -11,31 +87,31 @@
                 <h1 class="text-2xl font-bold text-gray-900">Order History</h1>
                 <p class="text-gray-600 mt-1">View all your SMS verifications, logs, and gift orders</p>
             </div>
-            <div class="flex items-center space-x-3">
-                <button class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-download mr-2"></i>Export
-                </button>
-            </div>
         </div>
     </div>
 
     <!-- Tabs Navigation -->
     <div class="bg-white rounded-lg shadow-sm" id="orderHistoryContainer">
-        <div class="border-b border-gray-200">
-            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+        <div class="border-b border-gray-200 px-4">
+            <nav class="flex space-x-4  overflow-x-auto scrollbar-hide" aria-label="Tabs" style="scrollbar-width: none; -ms-overflow-style: none;">
                 <button onclick="switchTab('sms')" id="sms-tab"
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-primary-500 text-primary-600">
                     <i class="fas fa-sms mr-2"></i>SMS Orders
                 </button>
                 <button onclick="switchTab('logs')" id="logs-tab"
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    <i class="fas fa-list-alt mr-2"></i>Activity Logs
+                    <i class="fas fa-list-alt mr-2"></i>Log Orders
                 </button>
                 <button onclick="switchTab('gifts')" id="gifts-tab"
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     <i class="fas fa-gift mr-2"></i>Gift Orders
                 </button>
             </nav>
+            <style>
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+            </style>
         </div>
 
         <!-- SMS Orders Tab -->
@@ -138,7 +214,6 @@
                                 <span class="text-lg">🇺🇸</span>
                                 <span class="font-medium text-gray-900">+1 555 123 4567</span>
                             </div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-sm mb-3">
                             <div>
@@ -149,9 +224,12 @@
                                 <span class="text-gray-500">SMS Code:</span>
                                 <span class="ml-1 font-mono font-medium">123456</span>
                             </div>
-                            <div>
-                                <span class="text-gray-500">Date:</span>
-                                <span class="ml-1">2024-01-15 14:30</span>
+                            <div class="flex justify-between items-center col-span-2">
+                                <div>
+                                    <span class="text-gray-500">Date:</span>
+                                    <span class="ml-1">2024-01-15 14:30</span>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
                             </div>
                         </div>
                         <div class="flex space-x-2">
@@ -171,7 +249,6 @@
                                 <span class="text-lg">🇬🇧</span>
                                 <span class="font-medium text-gray-900">+44 7700 900123</span>
                             </div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-sm mb-3">
                             <div>
@@ -182,9 +259,12 @@
                                 <span class="text-gray-500">SMS Code:</span>
                                 <span class="ml-1 text-gray-500">Waiting...</span>
                             </div>
-                            <div>
-                                <span class="text-gray-500">Date:</span>
-                                <span class="ml-1">2024-01-15 15:45</span>
+                            <div class="flex justify-between items-center col-span-2">
+                                <div>
+                                    <span class="text-gray-500">Date:</span>
+                                    <span class="ml-1">2024-01-15 15:45</span>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
                             </div>
                         </div>
                         <div class="flex space-x-2">
@@ -248,9 +328,9 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦{{ number_format($product['amount'], 0) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($product['status'] === 'completed')
+                                    @if($product['status'] == 'completed')
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
-                                    @elseif($product['status'] === 'pending')
+                                    @elseif($product['status'] == 'pending')
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>
@@ -262,7 +342,7 @@
                                             class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors mr-3">
                                         <i class="fas fa-eye"></i> View
                                     </button>
-                                    @if($product['status'] === 'completed' && $product['full_log_item'])
+                                    @if($product['status'] == 'completed' && $product['full_log_item'])
                                     <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="text-blue-600 hover:text-blue-900">
                                         <i class="fas fa-copy"></i>
                                     </button>
@@ -295,9 +375,9 @@
                                 </div>
                                 <span class="font-medium text-gray-900">{{ $product['name'] }}</span>
                             </div>
-                            @if($product['status'] === 'completed')
+                            @if($product['status'] == 'completed')
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
-                            @elseif($product['status'] === 'pending')
+                            @elseif($product['status'] == 'pending')
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>
@@ -322,7 +402,7 @@
                                     class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
-                            @if($product['status'] === 'completed' && $product['full_log_item'])
+                            @if($product['status'] == 'completed' && $product['full_log_item'])
                             <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
                                 <i class="fas fa-copy mr-1"></i>Copy
                             </button>
@@ -398,8 +478,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦{{ number_format($gift['amount']) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                        @if($gift['status'] === 'delivered') bg-green-100 text-green-800
-                                        @elseif($gift['status'] === 'processing') bg-yellow-100 text-yellow-800
+                                        @if($gift['status'] == 'delivered') bg-green-100 text-green-800
+                                        @elseif($gift['status'] == 'processing') bg-yellow-100 text-yellow-800
                                         @else bg-red-100 text-red-800 @endif">
                                         {{ ucfirst($gift['status']) }}
                                     </span>
@@ -420,26 +500,39 @@
                 <!-- Mobile Cards -->
                 <div class="md:hidden space-y-4">
                     @foreach($giftOrders as $gift)
-                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-semibold text-gray-900">{{ $gift['item_name'] }}</h3>
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                @if($gift['status'] === 'delivered') bg-green-100 text-green-800
-                                @elseif($gift['status'] === 'processing') bg-yellow-100 text-yellow-800
-                                @else bg-red-100 text-red-800 @endif">
-                                {{ ucfirst($gift['status']) }}
-                            </span>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-500">#{{ str_pad($gift['id'], 3, '0', STR_PAD_LEFT) }}🎁</span>                                
+                                <span class="font-medium text-gray-900">{{ $gift['item_name'] }}</span>
+                            </div>
                         </div>
-                        <p class="text-sm text-gray-600 mb-2">{{ $gift['item_description'] }}</p>
-                        <div class="flex justify-between text-xs text-gray-500 mb-2">
-                            <span>Recipient: {{ $gift['recipient'] }}</span>
-                            <span>₦{{ number_format($gift['amount']) }}</span>
+                        <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                            <div>
+                                <span class="text-gray-500">Recipient:</span>
+                                <span class="ml-1 font-medium">{{ $gift['recipient'] }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Amount:</span>
+                                <span class="ml-1 font-medium">₦{{ number_format($gift['amount']) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center col-span-2">
+                                <div>
+                                    <span class="text-gray-500">Date:</span>
+                                    <span class="ml-1">{{ $gift['created_at']->format('M d, Y H:i') }}</span>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    @if($gift['status'] == 'delivered') bg-green-100 text-green-800
+                                    @elseif($gift['status'] == 'processing') bg-yellow-100 text-yellow-800
+                                    @else bg-red-100 text-red-800 @endif">
+                                    {{ ucfirst($gift['status']) }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-gray-500">{{ $gift['created_at']->format('M d, Y H:i') }}</span>
+                        <div class="flex space-x-2">
                             <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ $gift['item_name'] }}', '{{ $gift['item_description'] }}', '{{ $gift['recipient'] }}', '{{ $gift['tracking_code'] ?? 'TRK' . strtoupper(substr(md5($gift['id']), 0, 8)) }}', '{{ $gift['status'] }}')" 
-                                    class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors text-sm">
-                                View
+                                    class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-eye mr-1"></i>View
                             </button>
                         </div>
                     </div>
@@ -477,38 +570,39 @@
 
     <!-- Log Modal -->
     <div id="logModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;" onclick="closeLogModal()">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
+        <div class="relative top-10 mx-auto p-6 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
             <div class="mt-3">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Digital Product Details</h3>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-medium text-gray-900">Digital Product Details</h3>
                     <button onclick="closeLogModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                        <p class="text-sm text-gray-900" id="logProductName"></p>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                        <p class="text-base text-gray-900 font-medium" id="logProductName"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Additional Details</label>
                         <p class="text-sm text-gray-900" id="logProductDetails"></p>
                     </div>
-                    <div id="logAccessCodeSection">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Access Code</label>
-                        <div class="flex items-center space-x-2">
-                            <input type="text" id="logAccessCode" readonly 
-                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
-                            <button onclick="copyToClipboard(document.getElementById('logAccessCode').value)" 
-                                    class="px-3 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                                <i class="fas fa-copy"></i>
-                            </button>
+                    <div id="logItemSection">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Content</label>
+                        <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
+                            <div id="logItemContent" class="prose prose-sm max-w-none"></div>
                         </div>
+                        <div class="mt-3 flex justify-end">
+                             <button onclick="copyLogItemToClipboard(event)" 
+                                     class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm">
+                                 <i class="fas fa-copy mr-2"></i>Copy Content
+                             </button>
+                         </div>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end">
+                <div class="mt-8 flex justify-end space-x-3">
                     <button onclick="closeLogModal()" 
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                            class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
                         Close
                     </button>
                 </div>
@@ -587,9 +681,46 @@
     // Log modal functions
     function openLogModal(id, name, details, accessCode, fullLogItem) {
         document.getElementById('logProductName').textContent = name;
-        document.getElementById('logProductDetails').textContent = details;
-        document.getElementById('logAccessCode').value = fullLogItem || accessCode || 'N/A';
+        document.getElementById('logProductDetails').textContent = details || 'No additional details provided';
+        
+        // Display HTML content from log_item
+        const logItemContent = document.getElementById('logItemContent');
+        if (fullLogItem && fullLogItem.trim() !== '') {
+            logItemContent.innerHTML = fullLogItem;
+        } else {
+            logItemContent.innerHTML = '<p class="text-gray-500 italic">No content available</p>';
+        }
+        
         document.getElementById('logModal').style.display = 'block';
+    }
+    
+    // Copy log item content to clipboard
+    function copyLogItemToClipboard(event) {
+        const logItemContent = document.getElementById('logItemContent');
+        const textContent = logItemContent.innerText || logItemContent.textContent || '';
+        
+        if (textContent.trim() === '' || textContent === 'No content available') {
+            alert('No content to copy');
+            return;
+        }
+        
+        navigator.clipboard.writeText(textContent).then(function() {
+            // Show success feedback
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+            button.classList.remove('bg-primary-600', 'hover:bg-primary-700');
+            button.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            setTimeout(function() {
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                button.classList.add('bg-primary-600', 'hover:bg-primary-700');
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            alert('Failed to copy content');
+        });
     }
     
     function closeLogModal() {
@@ -626,15 +757,25 @@
         document.getElementById('giftModal').style.display = 'none';
     }
     
+    // Helper function to strip HTML tags
+    function stripHtmlTags(html) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        return tempDiv.textContent || tempDiv.innerText || '';
+    }
+    
     // Copy to clipboard function
     function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
+        // Strip HTML tags from the text before copying
+        const cleanText = stripHtmlTags(text);
+        
+        navigator.clipboard.writeText(cleanText).then(() => {
             alert('Copied to clipboard!');
         }).catch(err => {
             console.error('Failed to copy: ', err);
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
-            textArea.value = text;
+            textArea.value = cleanText;
             document.body.appendChild(textArea);
             textArea.select();
             document.execCommand('copy');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\DigitalProductOrder;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Service;
@@ -61,6 +62,14 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
+            $stats = [
+                'total_orders' => DigitalProductOrder::count(),
+                'completed_orders' => DigitalProductOrder::where('status', 'completed')->count(),
+                'pending_orders' => DigitalProductOrder::where('status', 'pending')->count(),
+                'failed_orders' => DigitalProductOrder::where('status', 'failed')->count(),
+                'total_revenue' => DigitalProductOrder::where('status', 'completed')->sum('total_amount'),
+            ];
+
         return view('admin.dashboard',compact(
             'todaysOrders',
             'todaysPendingOrders',
@@ -76,7 +85,8 @@ class AdminController extends Controller
             'totalAdmins',
             'pendingReviews',
             'recentOrders',
-            'popularServices'
+            'popularServices',
+            'stats'
         ));
     }
 

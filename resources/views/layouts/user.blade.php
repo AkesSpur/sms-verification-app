@@ -15,23 +15,6 @@
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f8fafc',
-                            500: '#334155',
-                            600: '#1e293b',
-                            700: '#0f172a'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
     <!-- Custom Styles -->
 <style>
     /* Use consistent primary colors that match the sidebar theme */
@@ -68,7 +51,7 @@
              }">
             
             <!-- Logo -->
-            <div class="flex items-center h-16 px-4 bg-primary-600" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'">
+            <a href="/" class="flex items-center h-16 px-4 bg-primary-600" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'">
                 <h1 class="text-xl font-bold text-white" x-show="!sidebarCollapsed">SMS Verify</h1>
                 <div class="flex items-center justify-center" x-show="sidebarCollapsed">
                     <i class="fas fa-sms text-white text-xl"></i>
@@ -76,7 +59,7 @@
                 <button @click="sidebarCollapsed = !sidebarCollapsed" class="hidden lg:block text-white hover:text-gray-200">
                     <i class="fas" :class="sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
                 </button>
-            </div>
+            </a>
             
             <!-- Navigation -->
             <nav class="mt-8" :class="sidebarCollapsed ? 'px-2' : 'px-4'">
@@ -126,7 +109,7 @@
                     </div>
                     <div class="ml-3" x-show="!sidebarCollapsed">
                         <p class="text-sm font-medium text-gray-700">{{ auth()->user()->name ?? 'User' }}</p>
-                        <p class="text-xs text-gray-500">₦{{ number_format(auth()->user()->balance ?? 0, 2) }}</p>
+                        <p class="text-xs text-gray-500">₦{{ number_format(auth()->user()->balance ?? 0, 0) }}</p>
                     </div>
                 </div>
                 
@@ -164,15 +147,9 @@
                         <!-- Balance display -->
                         <div class="flex items-center px-3 py-2 bg-green-50 rounded-lg">
                             <i class="fas fa-wallet text-green-600 mr-2"></i>
-                            <span class="text-sm font-medium text-green-800">₦{{ number_format(auth()->user()->balance ?? 0, 2) }}</span>
+                            <span class="text-sm font-medium text-green-800">₦{{ number_format(auth()->user()->balance ?? 0, 0) }}</span>
                         </div>
-                        
-                        <!-- Notifications -->
-                        <button class="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-lg">
-                            <i class="fas fa-bell w-5 h-5"></i>
-                        </button>
                     </div>
-                </div>
             </header>
 
             <!-- Page content -->
@@ -189,8 +166,8 @@
         // Toast notification function
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
-            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle';
+            const bgColor = type == 'success' ? 'bg-green-500' : type == 'error' ? 'bg-red-500' : 'bg-blue-500';
+            const icon = type == 'success' ? 'fa-check-circle' : type == 'error' ? 'fa-times-circle' : 'fa-info-circle';
             
             toast.className = `${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 transform transition-all duration-300 translate-x-full`;
             toast.innerHTML = `
@@ -215,9 +192,19 @@
             }, 5000);
         }
 
+        // Helper function to strip HTML tags
+        function stripHtmlTags(html) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            return tempDiv.textContent || tempDiv.innerText || '';
+        }
+        
         // Copy to clipboard function
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
+            // Strip HTML tags from the text before copying
+            const cleanText = stripHtmlTags(text);
+            
+            navigator.clipboard.writeText(cleanText).then(() => {
                 showToast('Copied to clipboard!', 'success');
             }).catch(() => {
                 showToast('Failed to copy', 'error');
