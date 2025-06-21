@@ -101,12 +101,11 @@ class UsersController extends Controller
                     'name' => $order->product->name,
                     'type' => $order->product->subcategory ? $order->product->subcategory->name : 'Digital Product',
                     'details' => $order->log ? $order->log->details : null,
-                    'access_code' => $order->log ? substr($order->log->log_item, 0, 50) . '...' : 'N/A',
                     'amount' => $order->total_amount,
                     'status' => $order->status,
                     'created_at' => $order->created_at,
                     'order_id' => $order->id,
-                    'full_log_item' => $order->log ? $order->log->log_item : null
+                    'full_log_item' => ($order->log && $order->log->status == 'sold' && $order->log->sold_to_user_id == Auth::id()) ? $order->log->log_item : 'Access to this log has been denied. If you believe this is a mistake, please contact support.',
                 ];
             });
         

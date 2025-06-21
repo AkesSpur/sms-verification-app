@@ -5,7 +5,7 @@
 @section('content')
     <!-- Image Banner Carousel Section -->
     @if($banners->count() > 0)
-    <section class="py-16 bg-gradient-to-r from-slate-50 to-gray-100 relative overflow-hidden">
+    <section class="pt-16 pb-4 bg-gradient-to-r from-slate-50 to-gray-100 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Carousel Container -->
             <div class="relative" data-aos="fade-up">
@@ -19,17 +19,14 @@
                                     <a href="{{ $banner->link_url }}" target="_blank" class="block w-full h-full">
                                         <img src="{{ $banner->image_url }}" 
                                              alt="{{ $banner->title ?? 'Banner' }}" 
-                                             class="w-[100%] h-full object-cover hover:scale-105 transition-transform duration-300"
-                                             >
+                                             class="w-[100%] h-full object-cover hover:scale-105 transition-transform duration-300">
                                     </a>
                                 @else
                                     <img src="{{ $banner->image_url }}" 
                                          alt="{{ $banner->title ?? 'Banner' }}" 
                                          class="w-full h-full object-cover"
                                          loading="lazy">
-                                @endif
-                                
-                                
+                                @endif                                                                
                             </div>
                         </div>
                         @endforeach
@@ -57,7 +54,7 @@
     </section>
     @else
     <!-- Fallback Hero Section when no banners -->
-    <section class="relative py-20 overflow-hidden">
+    <section class="relative pt-16 pb-4 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-gray-100"></div>
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
@@ -79,19 +76,26 @@
     @endif
 
     <!-- All Categories Section -->
-    <section class="py-20 relative">
+    <section class="pt-6 pb-4 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             @foreach($digitalCategories as $index => $category)
             <!-- {{ $category->name }} Categories -->
-            <div class="mb-16" data-aos="fade-up" data-aos-delay="{{ $index * 200 }}">
-                <div class="mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ $category->name }}</h2>
+            <div class="mb-12" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold text-gray-900 mb-1">{{ $category->name }}</h2>
                     <p class="text-gray-600">{{ $category->description ?? 'Digital gift cards for ' . strtolower($category->name) }}</p>
                 </div>
                 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    @foreach($category->activeSubcategories as $subcategory)
-                        @if($subcategory->activeProducts->count() > 0)
+                <!-- Initial 8 subcategories -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="subcategories-grid-{{ $index }}">
+                    @php
+                        $activeSubcategories = $category->activeSubcategories->filter(function($subcategory) {
+                            return $subcategory->activeProducts->count() > 0;
+                        });
+                        $totalSubcategories = $activeSubcategories->count();
+                    @endphp
+                    
+                    @foreach($activeSubcategories->take(8) as $subcategory)
                         <!-- {{ $subcategory->name }} Gift Card -->
                         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
                             <div class="p-6 text-center">
@@ -110,9 +114,41 @@
                                 </div>
                             </div>
                         </div>
-                        @endif
                     @endforeach
                 </div>
+                
+                <!-- Hidden additional subcategories -->
+                @if($totalSubcategories > 8)
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6 hidden" id="additional-subcategories-{{ $index }}">
+                    @foreach($activeSubcategories->skip(8) as $subcategory)
+                        <!-- {{ $subcategory->name }} Gift Card -->
+                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
+                            <div class="p-6 text-center">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
+                                    @if($subcategory->image)
+                                        <img src="{{ asset( $subcategory->image) }}" alt="{{ $subcategory->name }}" class="w-full h-full object-contain">
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                            <span class="text-white font-bold text-lg">{{ substr($subcategory->name, 0, 2) }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <h4 class="font-bold text-gray-900 mb-2">{{ $subcategory->name }}</h4>
+                                <div class="text-xs text-green-600 font-semibold">
+                                    <i class="fas fa-check-circle mr-1"></i>Instant Delivery
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <!-- View More/Less Button -->
+                <div class="text-center mt-8">
+                    <button id="toggle-button-{{ $index }}" onclick="toggleSubcategories({{ $index }})" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-6 py-3 rounded-lg font-semibold transition-all hover-scale shadow-lg">
+                        <i class="fas fa-chevron-down mr-2" id="toggle-icon-{{ $index }}"></i>View More ({{ $totalSubcategories - 8 }} more)
+                    </button>
+                </div>
+                @endif
             </div>
             @endforeach
 
@@ -248,6 +284,25 @@
                 closeProductModal();
             }
         });
+        
+        // Toggle subcategories visibility
+        function toggleSubcategories(categoryIndex) {
+            const additionalSubcategories = document.getElementById(`additional-subcategories-${categoryIndex}`);
+            const toggleButton = document.getElementById(`toggle-button-${categoryIndex}`);
+            const toggleIcon = document.getElementById(`toggle-icon-${categoryIndex}`);
+            
+            if (additionalSubcategories.classList.contains('hidden')) {
+                // Show additional subcategories
+                additionalSubcategories.classList.remove('hidden');
+                toggleButton.innerHTML = '<i class="fas fa-chevron-up mr-2"></i>View Less';
+            } else {
+                // Hide additional subcategories
+                additionalSubcategories.classList.add('hidden');
+                const totalSubcategories = additionalSubcategories.children.length + 8;
+                const remainingCount = totalSubcategories - 8;
+                toggleButton.innerHTML = `<i class="fas fa-chevron-down mr-2"></i>View More (${remainingCount} more)`;
+            }
+        }
         
         // Carousel functionality
         @if($banners->count() > 0)

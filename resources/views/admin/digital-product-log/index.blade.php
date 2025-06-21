@@ -38,8 +38,8 @@
                     <div class="card-body">
                         <!-- Filters -->
                         <div class="row mb-3">
-                            <div class="col-md-3">
-                                <select class="form-control" id="productFilter">
+                            <div class="col-md-3 mb-1">
+                                <select class="form-control select2" id="productFilter">
                                     <option value="">All Products</option>
                                     @foreach($products as $prod)
                                         <option value="{{ $prod->id }}" {{ request('product_id') == $prod->id ? 'selected' : '' }}>
@@ -48,14 +48,14 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 mb-1">
                                 <select class="form-control" id="statusFilter">
                                     <option value="">All Status</option>
                                     <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
                                     <option value="sold" {{ request('status') == 'sold' ? 'selected' : '' }}>Sold</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 mb-1">
                                 <input type="date" class="form-control" id="dateFilter" value="{{ request('date') }}" placeholder="Filter by date">
                             </div>
                             <div class="col-md-3">
@@ -75,7 +75,6 @@
                                             <th>Log Item</th>
                                             <th>Details</th>
                                             <th>Status</th>
-                                            <th>Created</th>
                                             <th>Sold Date</th>
                                             <th>Sold To</th>
                                             <th>Action</th>
@@ -84,7 +83,7 @@
                                     <tbody>
                                         @foreach($logs as $log)
                                         <tr>
-                                            <td class="text-center">{{ $loop->iteration }}</td>
+                                            <td class="text-center">{{ $log->id }}</td>
                                             <td>
                                                 <a href="{{ route('admin.digital-products.show', $log->product) }}" class="text-decoration-none">
                                                     <strong>{{ $log->product->name }}</strong>
@@ -106,17 +105,17 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($log->status === 'available')
+                                                @if($log->status == 'available')
                                                     <span class="badge badge-success">Available</span>
                                                 @else
                                                     <span class="badge badge-danger">Sold</span>
                                                 @endif
                                             </td>
-                                            <td>
+                                            {{-- <td>
                                                 <span title="{{ $log->created_at->format('M d, Y H:i:s') }}">
                                                     {{ $log->created_at->format('M d, Y') }}
                                                 </span>
-                                            </td>
+                                            </td> --}}
                                             <td>
                                                 @if($log->sold_at)
                                                     <span title="{{ $log->sold_at->format('M d, Y H:i:s') }}">
@@ -143,7 +142,7 @@
                                                     <a href="{{ route('admin.digital-product-logs.edit', $log) }}" class="btn btn-warning btn-sm mb-1" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
-                                                    @if($log->status === 'sold')
+                                                    @if($log->status == 'sold')
                                                         <form action="{{ route('admin.digital-product-logs.mark-available', $log) }}" method="POST" class="d-inline">
                                                             @csrf
                                                             <button type="submit" class="btn btn-success btn-sm mb-1" title="Mark as Available" onclick="return confirm('Are you sure you want to mark this log as available?')">
@@ -160,27 +159,27 @@
                                                     </form>
                                                 </div>
                                                 <div class="btn-group d-none d-md-block" role="group">
-                                                    <a href="{{ route('admin.digital-product-logs.show', $log) }}" class="btn btn-primary btn-sm" title="View Details">
+                                                    <a href="{{ route('admin.digital-product-logs.show', $log) }}" class="btn btn-primary mb-1 btn-sm" title="View Details">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <a href="{{ route('admin.digital-product-logs.edit', $log) }}" class="btn btn-warning btn-sm" title="Edit">
+                                                    <a href="{{ route('admin.digital-product-logs.edit', $log) }}" class="btn btn-warning mb-1 btn-sm" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
-                                                    @if($log->status === 'sold')
-                                                        <form action="{{ route('admin.digital-product-logs.mark-available', $log) }}" method="POST" class="d-inline">
+                                                    @if($log->status == 'sold')
+                                                        <form action="{{ route('admin.digital-product-logs.mark-available', $log) }}" method="POST" class="d-inline mark-available-form">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-success btn-sm" title="Mark as Available" onclick="return confirm('Are you sure you want to mark this log as available?')">
+                                                            <button type="button" class="btn btn-success btn-sm mb-1 mark-available-btn" title="Mark as Available" data-log-id="{{ $log->id }}">
                                                                 <i class="fas fa-check"></i>
                                                             </button>
                                                         </form>
-                                                    @endif
-                                                    <form action="{{ route('admin.digital-product-logs.destroy', $log) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" title="Delete" onclick="return confirm('Are you sure you want to delete this log?')">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </form>
+                                                        @endif
+                                                        <form action="{{ route('admin.digital-product-logs.destroy', $log) }}" method="POST" class="d-inline delete-log-form">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="button" class="btn btn-danger btn-sm delete-log-btn" title="Delete" data-log-id="{{ $log->id }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
                                                 </div>
                                             </td>
                                         </tr>
@@ -188,11 +187,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <!-- Pagination -->
-                            <div class="d-flex justify-content-center">
-                                {{ $logs->appends(request()->query())->links() }}
-                            </div>
+                                                    
                         @else
                             <div class="text-center py-5">
                                 <i class="fas fa-inbox fa-4x text-muted mb-4"></i>
@@ -228,9 +223,10 @@
         // Initialize DataTable with your custom settings
         $("#table-1").DataTable({
             "columnDefs": [
-                { "sortable": false, "targets": [8] }
+                { "sortable": false, "targets": [7] }
             ],
-            "order": [[ 5, "desc" ]] // Sort by created date descending
+            "order": [[ 0, "desc" ]], // Sort by created date descending
+            "pageLength": 25
         });
         
         // Filter functionality
@@ -263,6 +259,69 @@
             
             window.location.href = url;
         }
+        // Modal logic
+        function showModal(modalId, confirmCallback) {
+            $(modalId).modal('show');
+            $(modalId + ' .confirm-btn').off('click').on('click', function() {
+                confirmCallback();
+                $(modalId).modal('hide');
+            });
+            $(modalId + ' .cancel-btn').off('click').on('click', function() {
+                $(modalId).modal('hide');
+            });
+        }
+        $('.delete-log-btn').on('click', function() {
+            var form = $(this).closest('form');
+            showModal('#deleteLogModal', function() {
+                form.submit();
+            });
+        });
+        $('.mark-available-btn').on('click', function() {
+            var form = $(this).closest('form');
+            showModal('#markAvailableModal', function() {
+                form.submit();
+            });
+        });
     });
 </script>
+<!-- Delete Log Modal -->
+<div class="modal fade" id="deleteLogModal" tabindex="-1" role="dialog" aria-labelledby="deleteLogModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteLogModalLabel">Confirm Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this log? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary cancel-btn" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger confirm-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Mark as Available Modal -->
+<div class="modal fade" id="markAvailableModal" tabindex="-1" role="dialog" aria-labelledby="markAvailableModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="markAvailableModalLabel">Confirm Mark as Available</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to mark this log as available?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary cancel-btn" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success confirm-btn">Mark as Available</button>
+      </div>
+    </div>
+  </div>
+</div>
 @endpush

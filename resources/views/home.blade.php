@@ -980,20 +980,20 @@
         
         <!-- Celebration Background Elements -->
         <div class="absolute inset-0 pointer-events-none">
-            <!-- Floating Gift Icons -->
+            <!-- Floating Login Icons -->
             <div class="absolute top-20 left-10 gift-bounce" style="animation-delay: 0s;">
                 <svg class="w-8 h-8 text-purple-300" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V7C3 8.1 3.9 9 5 9H8V22H16V9H21Z"/>
+                    <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.4 7 14.8 8.6 14.8 10V11.5C15.4 11.5 16 12.4 16 13V16C16 16.6 15.6 17 15 17H9C8.4 17 8 16.6 8 16V13C8 12.4 8.4 11.5 9 11.5V10C9 8.6 10.6 7 12 7M12 8.2C11.2 8.2 10.2 9.2 10.2 10V11.5H13.8V10C13.8 9.2 12.8 8.2 12 8.2Z"/>
                 </svg>
             </div>
             <div class="absolute top-32 right-16 gift-bounce" style="animation-delay: 1s;">
                 <svg class="w-6 h-6 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V7C3 8.1 3.9 9 5 9H8V22H16V9H21Z"/>
+                    <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.4 7 14.8 8.6 14.8 10V11.5C15.4 11.5 16 12.4 16 13V16C16 16.6 15.6 17 15 17H9C8.4 17 8 16.6 8 16V13C8 12.4 8.4 11.5 9 11.5V10C9 8.6 10.6 7 12 7M12 8.2C11.2 8.2 10.2 9.2 10.2 10V11.5H13.8V10C13.8 9.2 12.8 8.2 12 8.2Z"/>
                 </svg>
             </div>
             <div class="absolute bottom-20 left-1/4 gift-bounce" style="animation-delay: 2s;">
                 <svg class="w-7 h-7 text-pink-300" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V7C3 8.1 3.9 9 5 9H8V22H16V9H21Z"/>
+                    <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.4 7 14.8 8.6 14.8 10V11.5C15.4 11.5 16 12.4 16 13V16C16 16.6 15.6 17 15 17H9C8.4 17 8 16.6 8 16V13C8 12.4 8.4 11.5 9 11.5V10C9 8.6 10.6 7 12 7M12 8.2C11.2 8.2 10.2 9.2 10.2 10V11.5H13.8V10C13.8 9.2 12.8 8.2 12 8.2Z"/>
                 </svg>
             </div>
             
@@ -1022,20 +1022,20 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center mb-16" data-aos="fade-up">
                 <span class="premium-badge mb-6">
-                    <i class="fas fa-gift"></i>
-                    Digital Products
+                    <i class="fas fa-shield-alt"></i>
+                    Digital Logins
                 </span>
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">Digital <span class="gradient-text">Gift Cards</span></h2>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Secure <span class="gradient-text">Login Access</span></h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Discover our wide selection of digital gift cards for your favorite platforms
+                    Access premium login credentials for your favorite platforms and services
                 </p>
             </div>
 
             <!-- Category Header with Action Buttons -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-12" data-aos="fade-up" data-aos-delay="100">
                 <div class="mb-6 md:mb-0">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Popular Gift Cards</h3>
-                    <p class="text-gray-600">Choose from our most requested digital gift cards</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Popular Login Services</h3>
+                    <p class="text-gray-600">Choose from our most requested secure login credentials</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4">
                      <a href="{{ route('all-categories') }}" class="bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-300 px-6 py-3 rounded-lg font-semibold transition-all hover-scale shadow-sm">
@@ -1054,13 +1054,13 @@
                                     <img src="{{ asset($subcategory->image) }}" alt="{{ $subcategory->name }}" class="w-full h-full object-contain">
                                 @else
                                     <div class="w-full h-full bg-gradient-to-br from-slate-100 to-gray-200 flex items-center justify-center rounded-lg">
-                                        <i class="fas fa-gift text-3xl text-gray-400"></i>
+                                        <i class="fas fa-shield-alt text-3xl text-gray-400"></i>
                                     </div>
                                 @endif
                             </div>
                             <h4 class="font-bold text-gray-900 mb-2">{{ $subcategory->name }}</h4>
                             <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-clock mr-1"></i>Instant Delivery
+                                <i class="fas fa-lock mr-1"></i>Secure Access
                             </div>
                         </div>
                     </div>
@@ -1077,13 +1077,13 @@
                                     <img src="{{ asset($subcategory->image) }}" alt="{{ $subcategory->name }}" class="w-full h-full object-contain">
                                 @else
                                     <div class="w-full h-full bg-gradient-to-br from-slate-100 to-gray-200 flex items-center justify-center rounded-lg">
-                                        <i class="fas fa-gift text-3xl text-gray-400"></i>
+                                        <i class="fas fa-shield-alt text-3xl text-gray-400"></i>
                                     </div>
                                 @endif
                             </div>
                             <h4 class="font-bold text-gray-900 mb-2">{{ $subcategory->name }}</h4>
                             <div class="text-xs text-green-600 font-semibold">
-                                <i class="fas fa-clock mr-1"></i>Instant Delivery
+                                <i class="fas fa-lock mr-1"></i>Secure Access
                             </div>
                         </div>
                     </div>
@@ -1093,7 +1093,7 @@
             <!-- View More/Less Button -->
             <div class="text-center mt-8 {{$activeSubcategories->count() < 5 ? 'hidden' : '' }}" data-aos="fade-up">
                 <button id="toggleButton" onclick="toggleCategories()" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-6 py-3 rounded-lg font-semibold transition-all hover-scale shadow-lg">
-                    <i class="fas fa-chevron-down mr-2"></i>View All Gift Cards
+                    <i class="fas fa-chevron-down mr-2"></i>View All Login Services
                 </button>
             </div>
 

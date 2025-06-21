@@ -52,7 +52,7 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>#ID</th>
+                                            <th>#ORD-</th>
                                             <th>User</th>
                                             <th style="min-width:160px;">Product Name</th>
                                             <th>Quantity</th>
@@ -66,7 +66,7 @@
                                         @forelse($orders as $order)
                                             <tr>
                                                 <td>
-                                                    <strong>#{{ $order->id }}</strong>
+                                                    <strong>{{ $order->id }}</strong>
                                                 </td>
                                                 <td>
                                                     <div>

@@ -245,7 +245,7 @@
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-2">
-                                <span class="text-sm font-medium text-gray-500">#SMS002</span>
+                                <span class="text-sm font-medium text-gray-500">#SMS002 </span>
                                 <span class="text-lg">🇬🇧</span>
                                 <span class="font-medium text-gray-900">+44 7700 900123</span>
                             </div>
@@ -304,8 +304,8 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -315,6 +315,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($digitalProducts as $product)
                             <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-sm text-gray-900">#ORD{{ $product['order_id'] }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
@@ -322,9 +323,6 @@
                                         </div>
                                         <span class="text-sm font-medium text-gray-900">{{ $product['name'] }}</span>
                                     </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ $product['type'] }}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦{{ number_format($product['amount'], 0) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -338,7 +336,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product['created_at']->format('Y-m-d H:i:s') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['access_code']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
+                                    <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
                                             class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors mr-3">
                                         <i class="fas fa-eye"></i> View
                                     </button>
@@ -375,13 +373,8 @@
                                 </div>
                                 <span class="font-medium text-gray-900">{{ $product['name'] }}</span>
                             </div>
-                            @if($product['status'] == 'completed')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
-                            @elseif($product['status'] == 'pending')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
-                            @else
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>
-                            @endif
+                            
+                            <span class="text-sm font-medium text-gray-500">#ORD{{ $product['order_id'] }}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-sm mb-3">
                             <div>
@@ -392,13 +385,22 @@
                                 <span class="text-gray-500">Amount:</span>
                                 <span class="ml-1 font-medium">₦{{ number_format($product['amount'], 0) }}</span>
                             </div>
-                            <div>
-                                <span class="text-gray-500">Date:</span>
-                                <span class="ml-1">{{ $product['created_at']->format('Y-m-d H:i:s') }}</span>
+                            <div class="flex justify-between items-center col-span-2">
+                                <div>
+                                    <span class="text-gray-500">Date:</span>
+                                    <span class="ml-1">{{ $product['created_at']->format('Y-m-d H:i:s') }}</span>
+                                </div>                                                                                                
+                                @if($product['status'] == 'completed')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                            @elseif($product['status'] == 'pending')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>
+                            @endif
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['access_code']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
+                            <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
                                     class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
@@ -569,91 +571,97 @@
     </div>
 
     <!-- Log Modal -->
-    <div id="logModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;" onclick="closeLogModal()">
-        <div class="relative top-10 mx-auto p-6 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
-            <div class="mt-3">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-medium text-gray-900">Digital Product Details</h3>
-                    <button onclick="closeLogModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-                        <p class="text-base text-gray-900 font-medium" id="logProductName"></p>
+    <div id="logModal" style="display: none;" class="z-50">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 49;"></div>
+        <div class="fixed inset-0 flex items-center justify-center z-50" onclick="closeLogModal()">
+            <div class="relative mx-auto p-6 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
+                <div class="mt-3">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-medium text-gray-900">Digital Product Details</h3>
+                        <button onclick="closeLogModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Additional Details</label>
-                        <p class="text-sm text-gray-900" id="logProductDetails"></p>
-                    </div>
-                    <div id="logItemSection">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Content</label>
-                        <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
-                            <div id="logItemContent" class="prose prose-sm max-w-none"></div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                            <p class="text-base text-gray-900 font-medium" id="logProductName"></p>
                         </div>
-                        <div class="mt-3 flex justify-end">
-                             <button onclick="copyLogItemToClipboard(event)" 
-                                     class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm">
-                                 <i class="fas fa-copy mr-2"></i>Copy Content
-                             </button>
-                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Additional Details</label>
+                            <p class="text-sm text-gray-900" id="logProductDetails"></p>
+                        </div>
+                        <div id="logItemSection">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Content</label>
+                            <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
+                                <div id="logItemContent" class="prose prose-sm max-w-none"></div>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                 <button onclick="copyLogItemToClipboard(event)" 
+                                         class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm">
+                                     <i class="fas fa-copy mr-2"></i>Copy Content
+                                 </button>
+                             </div>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-8 flex justify-end space-x-3">
-                    <button onclick="closeLogModal()" 
-                            class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-                        Close
-                    </button>
+                    <div class="mt-8 flex justify-end space-x-3">
+                        <button onclick="closeLogModal()" 
+                                class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Gift Modal -->
-    <div id="giftModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;" onclick="closeGiftModal()">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
-            <div class="mt-3">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Gift Details</h3>
-                    <button onclick="closeGiftModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Gift Item</label>
-                        <p class="text-sm text-gray-900" id="giftItemName"></p>
+    <div id="giftModal" style="display: none;" class="z-50">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 49;"></div>
+        <div class="fixed inset-0 flex items-center justify-center z-50" onclick="closeGiftModal()">
+            <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
+                <div class="mt-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Gift Details</h3>
+                        <button onclick="closeGiftModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                        <p class="text-sm text-gray-900" id="giftItemDescription"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Recipient</label>
-                        <p class="text-sm text-gray-900" id="giftRecipient"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tracking Code</label>
-                        <div class="flex items-center space-x-2">
-                            <input type="text" id="giftTrackingCode" readonly 
-                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
-                            <button onclick="copyToClipboard(document.getElementById('giftTrackingCode').value)" 
-                                    class="px-3 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                                <i class="fas fa-copy"></i>
-                            </button>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gift Item</label>
+                            <p class="text-sm text-gray-900" id="giftItemName"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <p class="text-sm text-gray-900" id="giftItemDescription"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Recipient</label>
+                            <p class="text-sm text-gray-900" id="giftRecipient"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tracking Code</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="giftTrackingCode" readonly 
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
+                                <button onclick="copyToClipboard(document.getElementById('giftTrackingCode').value)" 
+                                        class="px-3 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <span id="giftStatus" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"></span>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <span id="giftStatus" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"></span>
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="closeGiftModal()" 
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                            Close
+                        </button>
                     </div>
-                </div>
-                <div class="mt-6 flex justify-end">
-                    <button onclick="closeGiftModal()" 
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-                        Close
-                    </button>
                 </div>
             </div>
         </div>
@@ -679,13 +687,13 @@
     }
     
     // Log modal functions
-    function openLogModal(id, name, details, accessCode, fullLogItem) {
+    function openLogModal(id, name, details, fullLogItem) {
         document.getElementById('logProductName').textContent = name;
         document.getElementById('logProductDetails').textContent = details || 'No additional details provided';
         
         // Display HTML content from log_item
         const logItemContent = document.getElementById('logItemContent');
-        if (fullLogItem && fullLogItem.trim() !== '') {
+        if (fullLogItem && fullLogItem.trim() != '') {
             logItemContent.innerHTML = fullLogItem;
         } else {
             logItemContent.innerHTML = '<p class="text-gray-500 italic">No content available</p>';
@@ -699,7 +707,7 @@
         const logItemContent = document.getElementById('logItemContent');
         const textContent = logItemContent.innerText || logItemContent.textContent || '';
         
-        if (textContent.trim() === '' || textContent === 'No content available') {
+        if (textContent.trim() == '' || textContent == 'No content available') {
             alert('No content to copy');
             return;
         }
@@ -742,9 +750,9 @@
         statusElement.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full';
         
         // Add appropriate status class
-        if (status === 'delivered') {
+        if (status == 'delivered') {
             statusElement.className += ' bg-green-100 text-green-800';
-        } else if (status === 'processing') {
+        } else if (status == 'processing') {
             statusElement.className += ' bg-yellow-100 text-yellow-800';
         } else {
             statusElement.className += ' bg-red-100 text-red-800';

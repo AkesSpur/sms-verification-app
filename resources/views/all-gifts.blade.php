@@ -53,7 +53,7 @@
 <div>
 
     <!-- Hero Section -->
-    <section class="relative py-20 overflow-hidden">
+    <section class="relative pt-20 pb-6 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-gray-100"></div>
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
@@ -85,7 +85,7 @@
     </section>
 
     <!-- Gifts Collection -->
-    <section class="py-20">
+    <section class="py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-aos="fade-up" data-aos-delay="200">
                 @forelse($gifts as $gift)
@@ -117,9 +117,6 @@
         </div>
     </section>
 
-        </div>
-    </section>
-</div>
 
 <!-- Footer -->
 <footer class="bg-slate-800 text-white py-12">
@@ -151,6 +148,8 @@
         </div>
     </div>
 </footer>
+
+</div>
 @endsection
 
 @section('scripts')

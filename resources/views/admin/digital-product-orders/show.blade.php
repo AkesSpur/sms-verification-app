@@ -20,6 +20,11 @@
                         <div class="card-header">
                             <h4>Order Information</h4>
                             <div class="card-header-action">
+                                @if($order->log)
+    <a href="{{ route('admin.digital-product-logs.show', $order->log->id) }}" class="btn btn-info ">
+        <i class="fas fa-eye"></i> View Log
+    </a>
+@endif
                                 <a href="{{ route('admin.digital-product-orders.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left"></i> Back to Orders
                                 </a>
