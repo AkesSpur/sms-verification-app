@@ -124,6 +124,7 @@ class UsersController extends Controller
                     'amount' => $order->total_amount,
                     'status' => $order->status,
                     'tracking_code' => $order->tracking_number,
+                    'notes' => $order->notes,
                     'icon' => collect(['gift', 'gifts', 'hand-holding-heart', 'surprise', 'heart', 'star'])->random(),
                     'created_at' => $order->created_at
                 ];

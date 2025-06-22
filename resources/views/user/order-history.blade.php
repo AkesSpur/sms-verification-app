@@ -489,7 +489,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $gift['created_at']->format('M d, Y H:i') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}')" 
+                                    <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}', '{{ addslashes($gift['notes'] ?? '') }}')" 
                                             class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors">
                                         View
                                     </button>
@@ -536,7 +536,7 @@
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}')"
+                            <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}', '{{ addslashes($gift['notes'] ?? '') }}')"
                                     class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
@@ -689,6 +689,22 @@
                                         <i class="fas fa-copy mr-2"></i>Copy Tracking Code
                                     </button>
                                 </div>
+
+                                <div id="giftNotesSection" style="display: none;">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Order Notes</label>
+                                    <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                                        <div id="giftNotes" class="text-sm text-gray-900"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notes Section -->
+                                <div id="giftNotesContainer" style="display: none;">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Order Notes</label>
+                                    <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                                        <div id="giftNotesContent" class="text-sm text-gray-900"></div>
+                                    </div>
+                                </div>
+        
                             </div>
                         </div>
                     </div>
@@ -771,12 +787,75 @@
         document.getElementById('logModal').style.display = 'none';
     }
     
+    // HTML sanitization function
+    function sanitizeHtml(html) {
+        if (!html) return '';
+        
+        // Create a temporary div to parse HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        
+        // Define allowed tags and attributes
+        const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'span', 'div'];
+        const allowedAttributes = ['class', 'style'];
+        
+        // Function to clean element recursively
+        function cleanElement(element) {
+            // Remove script tags and their content
+            const scripts = element.querySelectorAll('script');
+            scripts.forEach(script => script.remove());
+            
+            // Process all elements
+            const allElements = element.querySelectorAll('*');
+            allElements.forEach(el => {
+                // Remove disallowed tags
+                if (!allowedTags.includes(el.tagName.toLowerCase())) {
+                    el.replaceWith(...el.childNodes);
+                    return;
+                }
+                
+                // Remove disallowed attributes
+                Array.from(el.attributes).forEach(attr => {
+                    if (!allowedAttributes.includes(attr.name.toLowerCase())) {
+                        el.removeAttribute(attr.name);
+                    }
+                });
+                
+                // Remove javascript: and data: URLs
+                if (el.hasAttribute('href')) {
+                    const href = el.getAttribute('href');
+                    if (href.startsWith('javascript:') || href.startsWith('data:')) {
+                        el.removeAttribute('href');
+                    }
+                }
+            });
+        }
+        
+        cleanElement(temp);
+        return temp.innerHTML;
+    }
+    
     // Gift modal functions
-    function openGiftModal(id, name, description, recipient, trackingCode, status, amount, orderDate) {
+    function openGiftModal(id, name, description, recipient, trackingCode, status, amount, orderDate, notes) {
         document.getElementById('giftItemName').textContent = name;
         document.getElementById('giftItemDescription').textContent = description || 'No description provided';
         document.getElementById('giftRecipient').textContent = recipient;
-        document.getElementById('giftTrackingCode').textContent = trackingCode;
+        
+        // Handle tracking code with HTML sanitization
+        const trackingElement = document.getElementById('giftTrackingCode');
+        trackingElement.innerHTML = sanitizeHtml(trackingCode);
+        
+        // Handle notes display with HTML sanitization
+        const notesContainer = document.getElementById('giftNotesContainer');
+        const notesContent = document.getElementById('giftNotesContent');
+        
+        if (notes && notes.trim() != '') {
+            notesContainer.style.display = 'block';
+            notesContent.innerHTML = sanitizeHtml(notes);
+        } else {
+            notesContainer.style.display = 'block';
+            notesContent.innerHTML = '<em class="text-gray-500">No additional notes available for this order.</em>';
+        }
         document.getElementById('giftAmount').textContent = '₦' + amount;
         document.getElementById('giftOrderDate').textContent = orderDate;
         

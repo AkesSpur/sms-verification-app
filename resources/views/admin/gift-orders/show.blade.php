@@ -441,14 +441,14 @@
                     
                     <div class="form-group">
                         <label>Tracking Number (Optional)</label>
-                        <input type="text" id="trackingNumber" class="form-control" 
-                               placeholder="Enter tracking number" value="{{ $order->tracking_number }}">
+                        <textarea id="trackingNumber" class="form-control summernote-simple" 
+                                  placeholder="Enter tracking number" style="height: 80px;">{{ $order->tracking_number }}</textarea>
                     </div>
                     
                     <div class="form-group">
                         <label>Notes (Optional)</label>
-                        <textarea id="statusNotes" class="form-control" rows="3" 
-                                  placeholder="Add any notes about this status update">{{ $order->notes }}</textarea>
+                        <textarea id="statusNotes" class="form-control summernote-simple" 
+                                  placeholder="Add any notes about this status update" style="height: 100px;">{{ $order->notes }}</textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -463,6 +463,20 @@
 
 @push('scripts')
 <script>
+// Initialize Summernote
+$(document).ready(function() {
+    $('.summernote-simple').summernote({
+        height: 80,
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline']],
+            ['para', ['ul', 'ol']],
+            ['insert', ['link']]
+        ],
+        placeholder: 'Enter content...',
+        disableResizeEditor: true
+    });
+});
+
 // Copy individual field to clipboard
 function copyToClipboard(elementId, buttonElement) {
     const element = document.getElementById(elementId);
@@ -598,8 +612,8 @@ $('#statusForm').on('submit', function(e) {
     e.preventDefault();
     
     const status = $('#newStatus').val();
-    const trackingNumber = $('#trackingNumber').val();
-    const notes = $('#statusNotes').val();
+    const trackingNumber = $('#trackingNumber').summernote('code');
+    const notes = $('#statusNotes').summernote('code');
     
     if (!status) {
         alert('Please select a status');

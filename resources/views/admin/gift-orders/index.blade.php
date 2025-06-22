@@ -306,12 +306,12 @@
                     
                     <div class="form-group">
                         <label>Tracking Number (Optional)</label>
-                        <input type="text" id="trackingNumber" class="form-control" placeholder="Enter tracking number">
+                        <textarea id="trackingNumber" class="form-control summernote-simple" placeholder="Enter tracking number" style="height: 80px;"></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label>Notes (Optional)</label>
-                        <textarea id="statusNotes" class="form-control" rows="3" placeholder="Add any notes about this status update"></textarea>
+                        <textarea id="statusNotes" class="form-control summernote-simple" placeholder="Add any notes about this status update" style="height: 100px;"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -326,6 +326,20 @@
 
 @push('scripts')
 <script>
+// Initialize Summernote
+$(document).ready(function() {
+    $('.summernote-simple').summernote({
+        height: 80,
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline']],
+            ['para', ['ul', 'ol']],
+            ['insert', ['link']]
+        ],
+        placeholder: 'Enter content...',
+        disableResizeEditor: true
+    });
+});
+
 function updateStatus(orderId, status) {
     $('#orderId').val(orderId);
     $('#newStatus').val(status);
@@ -361,8 +375,8 @@ $('#statusForm').on('submit', function(e) {
     
     const orderId = $('#orderId').val();
     const status = $('#newStatus').val();
-    const trackingNumber = $('#trackingNumber').val();
-    const notes = $('#statusNotes').val();
+    const trackingNumber = $('#trackingNumber').summernote('code');
+    const notes = $('#statusNotes').summernote('code');
     
     $.ajax({
         url: `/admin/gift-orders/${orderId}/status`,
