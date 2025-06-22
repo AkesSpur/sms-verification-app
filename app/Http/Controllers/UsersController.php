@@ -97,7 +97,7 @@ class UsersController extends Controller
             ->get()
             ->map(function ($order) {
                 return [
-                    'id' => $order->order_number,
+                    'id' => $order->id,
                     'name' => $order->product->name,
                     'type' => $order->product->subcategory ? $order->product->subcategory->name : 'Digital Product',
                     'details' => $order->log ? $order->log->details : null,
@@ -108,43 +108,26 @@ class UsersController extends Controller
                     'full_log_item' => ($order->log && $order->log->status == 'sold' && $order->log->sold_to_user_id == Auth::id()) ? $order->log->log_item : 'Access to this log has been denied. If you believe this is a mistake, please contact support.',
                 ];
             });
-        
-        // Mock data for gift orders (you can replace with actual gift order model)
-        $giftOrders = collect([
-            [
-                'id' => 'GIFT001',
-                'item_name' => 'Beautiful Flower Bouquet',
-                'item_description' => 'Mixed roses and lilies',
-                'recipient' => 'John Doe',
-                'amount' => 15000,
-                'status' => 'delivered',
-                'tracking_code' => 'TRK' . strtoupper(substr(md5('GIFT001'), 0, 8)),
-                'icon' => 'seedling',
-                'created_at' => now()->subDay()
-            ],
-            [
-                'id' => 'GIFT002',
-                'item_name' => 'Amazon Gift Card',
-                'item_description' => '$50 USD',
-                'recipient' => 'Jane Smith',
-                'amount' => 25000,
-                'status' => 'processing',
-                'tracking_code' => 'TRK' . strtoupper(substr(md5('GIFT002'), 0, 8)),
-                'icon' => 'gift-card',
-                'created_at' => now()->subHours(3)
-            ],
-            [
-                'id' => 'GIFT003',
-                'item_name' => 'Luxury Watch',
-                'item_description' => 'Premium stainless steel watch',
-                'recipient' => 'Mike Johnson',
-                'amount' => 45000,
-                'status' => 'delivered',
-                'tracking_code' => 'TRK' . strtoupper(substr(md5('GIFT003'), 0, 8)),
-                'icon' => 'clock',
-                'created_at' => now()->subDays(2)
-            ]
-        ]);
+       
+        // Get actual gift orders from database
+        $giftOrders = auth()->user()->giftOrders()
+            ->with(['gift'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'item_name' => $order->gift ? $order->gift->name : 'Gift Item',
+                    'item_description' => $order->gift ? $order->gift->description : 'Custom Gift',
+                    'recipient' => $order->recipient_name,
+                    'amount' => $order->total_amount,
+                    'status' => $order->status,
+                    'tracking_code' => $order->tracking_number,
+                    'icon' => collect(['gift', 'gifts', 'hand-holding-heart', 'surprise', 'heart', 'star'])->random(),
+                    'created_at' => $order->created_at
+                ];
+            });
         
         return view('user.order-history', compact(
             'smsOrders',

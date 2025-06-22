@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Backend\GiftOrderController;
 use App\Http\Controllers\Backend\LocalBankSettingController;
 use App\Http\Controllers\Backend\PaymentSettingController;
 use App\Http\Controllers\Backend\PaystackSettingController;
@@ -94,6 +95,11 @@ Route::delete('gifts/images/{image}', [GiftController::class, 'deleteImage'])->n
 Route::post('gifts/images/{image}/set-featured', [GiftController::class, 'setFeaturedImage'])->name('gifts.set-featured-image');
 Route::post('gifts/images/{image}/unset-featured', [GiftController::class, 'unsetFeaturedImage'])->name('gifts.unset-featured-image');
 Route::resource('gifts', GiftController::class);
+
+/* Gift Order Management Routes */
+Route::get('gift-orders/export', [GiftOrderController::class, 'export'])->name('gift-orders.export');
+Route::put('gift-orders/{giftOrder}/status', [GiftOrderController::class, 'updateStatus'])->name('gift-orders.update-status');
+Route::resource('gift-orders', GiftOrderController::class)->only(['index', 'show', 'destroy']);
 
 /* Banner Management Routes */
 Route::post('banners/{banner}/toggle-status', [BannerController::class, 'toggleStatus'])->name('banners.toggle-status');

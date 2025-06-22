@@ -105,7 +105,7 @@
                         </div>
                         <div class="p-4">
                             <h4 class="font-bold text-gray-900 mb-2 text-sm">{{ $gift->name }}</h4>
-                            <p class="text-lg font-bold text-slate-700">₦{{ number_format($gift->price, 2) }}</p>
+                            <p class="text-lg font-bold text-slate-700">₦{{ number_format($gift->price, 0) }}</p>
                         </div>
                     </div>
                 @empty

@@ -3,6 +3,7 @@
 @section('title', ($gift->name ?? 'Gift Details') . ' - SMS Verification')
 
 @section('content')
+
 <!-- Custom Styles -->
 <style>
     .carousel-container {
@@ -123,7 +124,7 @@
             <!-- Product Info -->
             <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
                 <h1 class="text-xl font-bold text-gray-900 mb-3" id="giftName">{{ $gift->name }}</h1>
-                <div class="text-2xl font-bold text-slate-700 mb-4" id="giftPrice">₦{{ number_format($gift->price, 2) }}</div>
+                <div class="text-2xl font-bold text-slate-700 mb-4" id="giftPrice">₦{{ number_format($gift->price, 0) }}</div>
                 
                 <div class="flex items-center gap-4 mb-6">
                     <div class="flex items-center text-green-600">
@@ -174,7 +175,7 @@
                     <i class="fas fa-heart mr-2 text-red-500"></i>Send This Gift
                 </h2>
                 
-                <form id="giftForm" action="{{ route('gift.order') }}" method="POST" enctype="multipart/form-data">
+                <form id="giftForm" action="{{ route('gift-order.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="gift_id" id="hiddenGiftId" value="{{ $gift->id }}">
                     <input type="hidden" name="gift_name" id="hiddenGiftName" value="{{ $gift->name }}">
@@ -188,10 +189,12 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Recipient's Name</label>
                                 <input type="text" name="recipient_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="recipient_name"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Recipient's Number</label>
                                 <input type="tel" name="recipient_phone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="recipient_phone"></div>
                             </div>
                         </div>
                     </div>
@@ -204,16 +207,19 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
                                 <input type="text" name="sender_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="sender_name"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                                 <input type="tel" name="sender_phone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="sender_phone"></div>
                             </div>
                         </div>
                         
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <input type="email" name="sender_email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="sender_email"></div>
                         </div>
                     </div>
                     
@@ -224,16 +230,25 @@
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
                             <input type="text" name="delivery_address" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="delivery_address"></div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Apartment/Suite (Optional)</label>
+                            <input type="text" name="delivery_apartment" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Apt, Suite, Unit, Building, Floor, etc.">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="delivery_apartment"></div>
                         </div>
                         
                         <div class="grid md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
                                 <input type="text" name="delivery_city" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="delivery_city"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
                                 <input type="text" name="delivery_state" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="delivery_state"></div>
                             </div>
                         </div>
                         
@@ -241,10 +256,12 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
                                 <input type="text" name="delivery_country" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="Nigeria">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="delivery_country"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
                                 <input type="text" name="delivery_zip" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="delivery_zip"></div>
                             </div>
                         </div>
                     </div>
@@ -256,7 +273,7 @@
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900">Customize Gift</h3>
                                     <p class="text-sm text-gray-600">Add a personal touch to your gift</p>
-                                    <p class="text-sm font-medium text-slate-600">Customization fee: ₦{{ number_format($gift->customization_cost ?? 5000, 2) }}</p>
+                                    <p class="text-sm font-medium text-slate-600">Customization fee: ₦{{ number_format($gift->customization_cost ?? 5000, 0) }}</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" name="customize_gift" id="customizeToggle" class="sr-only peer" onchange="toggleCustomization()">
@@ -271,10 +288,11 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Upload Custom Image</label>
                                 <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('customImage').click()">
                                     <input type="file" name="custom_image" id="customImage" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden" data-field="custom_image"></div>
                                     <div id="uploadContent">
                                         <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
                                         <p class="text-gray-600 mb-2">Click to upload or drag and drop</p>
-                                        <p class="text-sm text-gray-500">PNG, JPG or GIF (MAX. 2MB)</p>
+                                        <p class="text-sm text-gray-500">PNG, JPG or GIF (MAX. 5MB)</p>
                                     </div>
                                     <div id="imagePreview" class="hidden">
                                         <img id="previewImg" src="" alt="Preview" class="max-w-full max-h-48 mx-auto rounded-lg">
@@ -282,19 +300,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Custom Message (Optional)</label>
-                                    <textarea name="custom_message" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Add a personal message to your gift..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <!-- Gift Message Only -->
-                        <div class="mb-6">
-                            <div class="p-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-slate-200">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Gift Message</h3>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Add a personal message (Optional)</label>
-                                <textarea name="gift_message" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Add a personal message to your gift..."></textarea>
+
                             </div>
                         </div>
                     @endif
@@ -305,18 +311,18 @@
                         <div class="space-y-2">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Gift Price:</span>
-                                <span class="font-medium" id="summaryPrice">₦{{ number_format($gift->price, 2) }}</span>
+                                <span class="font-medium" id="summaryPrice">₦{{ number_format($gift->price, 0) }}</span>
                             </div>
                             @if($gift->customizable)
                                 <div class="flex justify-between" id="customizationFee" style="display: none;">
                                     <span class="text-gray-600">Customization Fee:</span>
-                                    <span class="font-medium">₦{{ number_format($gift->customization_cost ?? 5000, 2) }}</span>
+                                    <span class="font-medium">₦{{ number_format($gift->customization_cost ?? 5000, 0) }}</span>
                                 </div>
                             @endif
                             <div class="border-t pt-2 mt-2">
                                 <div class="flex justify-between text-lg font-bold">
                                     <span>Total:</span>
-                                    <span id="totalPrice">₦{{ number_format($gift->price, 2) }}</span>
+                                    <span id="totalPrice">₦{{ number_format($gift->price, 0) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -336,152 +342,143 @@
         </div>
     </div>
 </div>
+@endsection
 
+@section('scripts')
 <script>
-    let currentSlide = 0;
-    let totalSlides = 4;
+// Gift data for JavaScript calculations
+const giftPrice = {{ $gift->price }};
+const customizationCost = {{ $gift->customization_cost ?? 0 }};
+const giftName = '{{ addslashes($gift->name) }}';
+const giftId = {{ $gift->id }};
+@auth
+const userBalance = {{ auth()->user()->balance }};
+const isAuthenticated = true;
+@else
+const userBalance = 0;
+const isAuthenticated = false;
+@endauth
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    updateTotalPrice();
+    initializeGiftForm();
     
-    // Initialize gift data
-    document.addEventListener('DOMContentLoaded', function() {
-        const giftPrice = {{ $gift['price'] ?? 45.99 }};
-        
-        // Update page content
-        document.getElementById('summaryPrice').textContent = `₦${giftPrice.toFixed(2)}`;
-        document.getElementById('totalPrice').textContent = `₦${giftPrice.toFixed(2)}`;
-        
-        // Initialize carousel if gift images are available
-        @if(isset($gift['images']) && is_array($gift['images']))
-            totalSlides = {{ count($gift['images']) }};
-        @endif
+    // Add event listeners to form fields for real-time error clearing
+    const formFields = document.querySelectorAll('input[name], select[name], textarea[name]');
+    formFields.forEach(field => {
+        field.addEventListener('input', function() {
+            clearFieldError(this.name);
+        });
+        field.addEventListener('change', function() {
+            clearFieldError(this.name);
+        });
     });
+});
+
+// Carousel functionality
+let currentSlide = 0;
+const slides = document.querySelectorAll('.carousel-slide');
+const totalSlides = slides.length;
+
+function updateCarousel() {
+    const track = document.getElementById('mainCarousel');
+    track.style.transform = `translateX(-${currentSlide * 100}%)`;
     
-    function getGiftIdFromUrl() {
-        const pathParts = window.location.pathname.split('/');
-        return pathParts[pathParts.length - 1];
+    // Update thumbnails
+    document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+        thumb.classList.toggle('active', index === currentSlide);
+    });
+}
+
+function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    updateCarousel();
+}
+
+function previousSlide() {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    updateCarousel();
+}
+
+function goToSlide(index) {
+    currentSlide = index;
+    updateCarousel();
+}
+
+// Customization toggle
+function toggleCustomization() {
+    const toggle = document.getElementById('customizeToggle');
+    const section = document.getElementById('customImageSection');
+    const feeRow = document.getElementById('customizationFee');
+    
+    if (toggle.checked) {
+        section.style.display = 'block';
+        if (feeRow) feeRow.style.display = 'flex';
+    } else {
+        section.style.display = 'none';
+        if (feeRow) feeRow.style.display = 'none';
+        // Clear the file input
+        document.getElementById('customImage').value = '';
+        resetImageUpload();
     }
     
-    function goToSlide(slideIndex) {
-        currentSlide = slideIndex;
-        const track = document.getElementById('mainCarousel');
-        const translateX = -slideIndex * 100;
-        track.style.transform = `translateX(${translateX}%)`;
-        
-        // Update thumbnail active state
-        document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
-            thumb.classList.toggle('active', index === slideIndex);
-        });
-    }
-    
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % totalSlides;
-        goToSlide(currentSlide);
-    }
-    
-    function previousSlide() {
-        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-        goToSlide(currentSlide);
-    }
-    
-    // Toggle customization section
-    function toggleCustomization() {
-        const toggle = document.getElementById('customizeToggle');
-        const section = document.getElementById('customImageSection');
-        const fee = document.getElementById('customizationFee');
-        
-        if (toggle.checked) {
-            section.style.display = 'block';
-            fee.style.display = 'flex';
-            updateTotalPrice();
-        } else {
-            section.style.display = 'none';
-            fee.style.display = 'none';
-            updateTotalPrice();
+    updateTotalPrice();
+}
+
+// Image upload handling
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('File size must be less than 5MB', 'error');
+            event.target.value = '';
+            return;
         }
-    }
-    
-    // Social sharing functions
-    function shareOnFacebook() {
-        const url = encodeURIComponent(window.location.href);
-        const title = encodeURIComponent(document.getElementById('giftName').textContent);
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
-    }
-    
-    function shareOnTwitter() {
-        const url = encodeURIComponent(window.location.href);
-        const title = encodeURIComponent(document.getElementById('giftName').textContent);
-        const text = encodeURIComponent(`Check out this amazing gift: ${title}`);
-        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
-    }
-    
-    function shareOnWhatsApp() {
-        const url = encodeURIComponent(window.location.href);
-        const title = encodeURIComponent(document.getElementById('giftName').textContent);
-        const text = encodeURIComponent(`Check out this amazing gift: ${title} ${url}`);
-        window.open(`https://wa.me/?text=${text}`, '_blank');
-    }
-    
-    function copyLink() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            // Show a temporary notification
-            const button = event.target.closest('button');
-            const originalIcon = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-check"></i>';
-            button.classList.add('bg-green-600');
-            setTimeout(() => {
-                button.innerHTML = originalIcon;
-                button.classList.remove('bg-green-600');
-            }, 2000);
-        });
-    }
-    
-    // Update total price
-    function updateTotalPrice() {
-        const basePrice = {{ $gift->price }};
-        @if($gift->customizable)
-            const customizationCost = {{ $gift->customization_cost ?? 5000 }};
-            const isCustomizing = document.getElementById('customizeToggle').checked;
-            
-            const total = isCustomizing ? basePrice + customizationCost : basePrice;
-        @else
-            const total = basePrice;
-        @endif
-        document.getElementById('totalPrice').textContent = '₦' + total.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
-    
-    // Handle image upload
-    function handleImageUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const uploadContent = document.getElementById('uploadContent');
-                const imagePreview = document.getElementById('imagePreview');
-                const previewImg = document.getElementById('previewImg');
-                
-                previewImg.src = e.target.result;
-                uploadContent.classList.add('hidden');
-                imagePreview.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Please select a valid image file (JPEG, PNG, JPG, or GIF)', 'error');
+            event.target.value = '';
+            return;
         }
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('uploadContent').style.display = 'none';
+            document.getElementById('imagePreview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
     }
-    
-    // Drag and drop functionality
-    const uploadArea = document.getElementById('imageUploadArea');
-    
+}
+
+function resetImageUpload() {
+    document.getElementById('uploadContent').style.display = 'block';
+    document.getElementById('imagePreview').classList.add('hidden');
+    document.getElementById('previewImg').src = '';
+}
+
+// Drag and drop functionality
+const uploadArea = document.getElementById('imageUploadArea');
+
+if (uploadArea) {
     uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
-        uploadArea.classList.add('dragover');
+        this.classList.add('dragover');
     });
     
     uploadArea.addEventListener('dragleave', function(e) {
         e.preventDefault();
-        uploadArea.classList.remove('dragover');
+        this.classList.remove('dragover');
     });
     
     uploadArea.addEventListener('drop', function(e) {
         e.preventDefault();
-        uploadArea.classList.remove('dragover');
+        this.classList.remove('dragover');
         
         const files = e.dataTransfer.files;
         if (files.length > 0) {
@@ -489,5 +486,403 @@
             handleImageUpload({ target: { files: files } });
         }
     });
+}
+
+// Update total price
+function updateTotalPrice() {
+    const isCustomized = document.getElementById('customizeToggle')?.checked || false;
+    const total = giftPrice + (isCustomized ? customizationCost : 0);
+    
+    document.getElementById('totalPrice').textContent = `₦${total.toLocaleString()}`;
+}
+
+// Social sharing functions
+function shareOnFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Check out this amazing gift: ${giftName}!`);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+}
+
+function shareOnTwitter() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Check out this amazing gift: ${giftName}!`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+}
+
+function shareOnWhatsApp() {
+    const url = window.location.href;
+    const text = encodeURIComponent(`Check out this amazing gift: ${giftName}! ${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        showNotification('Link copied to clipboard!', 'success');
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        showNotification('Failed to copy link', 'error');
+    });
+}
+
+// Initialize gift form
+function initializeGiftForm() {
+    const giftForm = document.getElementById('giftForm');
+    if (giftForm && isAuthenticated) {
+        giftForm.addEventListener('submit', handleGiftOrder);
+    }
+}
+
+// Handle gift order process
+function handleGiftOrder(e) {
+    e.preventDefault();
+    
+    // Clear any existing errors
+    clearValidationErrors();
+    
+    // Calculate total amount
+    const isCustomized = document.getElementById('customizeToggle')?.checked || false;
+    const totalAmount = giftPrice + (isCustomized ? customizationCost : 0);
+    
+    // Basic client-side validation
+    const requiredFields = document.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('border-red-500');
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+    
+    if (!isValid) {
+        showNotification('Please fill in all required fields.', 'error');
+        return;
+    }
+    
+    // Check user balance
+    if (userBalance < totalAmount) {
+        const needed = totalAmount - userBalance;
+        showNotification(`Insufficient balance. You need ₦${needed.toLocaleString()} more to complete this purchase.`, 'error');
+        return;
+    }
+    
+    // Show confirmation modal
+    showGiftConfirmationModal(giftName, totalAmount, isCustomized, () => {
+        // Disable button and show loading
+        setGiftLoadingState(true);
+        
+        // Continue with gift order
+        processGiftOrder(totalAmount);
+    });
+}
+
+// Show gift confirmation modal
+function showGiftConfirmationModal(giftName, totalAmount, isCustomized, onConfirm) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-gifts text-pink-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Confirm Gift Order</h3>
+                <p class="text-gray-600">Are you sure you want to send this gift?</p>
+            </div>
+            
+            <div class="border-t pt-4 mb-4">
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Gift:</span>
+                        <span class="font-medium">${giftName}</span>
+                    </div>
+                    ${isCustomized ? `
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Customization:</span>
+                        <span class="font-medium text-purple-600">Yes (+₦${customizationCost.toLocaleString()})</span>
+                    </div>
+                    ` : ''}
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Amount:</span>
+                        <span class="font-medium text-lg">₦${totalAmount.toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="closeModal(this)" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmGiftOrder(this)" class="flex-1 bg-slate-800 text-white py-2 px-4 rounded-lg hover:bg-slate-900 transition-colors">
+                    <i class="fas fa-heart mr-1"></i>Send Gift
+                </button>
+            </div>  
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Store the callback function
+    window.currentGiftOrderCallback = onConfirm;
+}
+
+// Confirm gift order from modal
+function confirmGiftOrder(button) {
+    closeModal(button);
+    if (window.currentGiftOrderCallback) {
+        window.currentGiftOrderCallback();
+        window.currentGiftOrderCallback = null;
+    }
+}
+
+// Process the actual gift order
+function processGiftOrder(totalAmount) {
+    const formData = new FormData(document.getElementById('giftForm'));
+    
+    // Explicitly set the customize_gift boolean value
+    const isCustomized = document.getElementById('customizeToggle')?.checked || false;
+    formData.set('customize_gift', isCustomized ? '1' : '0');
+    
+    // Make AJAX request
+    fetch('{{ route("gift-order.store") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        setGiftLoadingState(false);
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            
+            // Update UI with new data
+            if (data.data) {
+                updateUserBalance(data.data.remaining_balance);
+                
+                // Show gift order details
+                setTimeout(() => {
+                    showGiftOrderDetails(data.data);
+                }, 1500);
+            }
+        } else {
+            showNotification(data.message || 'Gift order failed. Please try again.', 'error');
+            if (data.errors) {
+                // Display validation errors
+                displayValidationErrors(data.errors);
+                displayValidationErrorsAsToast(data.errors);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Gift order error:', error);
+        setGiftLoadingState(false);
+        showNotification('An unexpected error occurred. Please try again.', 'error');
+    });
+}
+
+// Set gift loading state
+function setGiftLoadingState(loading) {
+    const submitBtn = document.querySelector('#giftForm button[type="submit"]');
+    
+    if (loading) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing Gift Order...';
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-heart mr-2"></i>Send Gift';
+    }
+}
+
+// Update user balance display
+function updateUserBalance(newBalance) {
+    const balanceElement = document.getElementById('userBalance');
+    if (balanceElement) {
+        balanceElement.textContent = `₦${newBalance.toLocaleString()}`;
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
+    
+    // Set notification style based on type
+    if (type == 'success') {
+        notification.className += ' bg-green-500 text-white';
+        notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    } else if (type == 'error') {
+        notification.className += ' bg-red-500 text-white';
+        notification.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+    } else {
+        notification.className += ' bg-blue-500 text-white';
+        notification.innerHTML = `<i class="fas fa-info-circle mr-2"></i>${message}`;
+    }
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Remove after delay
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 5000);
+}
+
+// Show gift order details modal
+function showGiftOrderDetails(data) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Gift Order Successful!</h3>
+                <p class="text-gray-600">Your gift has been ordered and will be delivered soon.</p>
+            </div>
+            
+            <div class="border-t pt-4 mb-4">
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Gift:</span>
+                        <span class="font-medium">${data.gift_name}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Order Number:</span>
+                        <span class="font-medium">#${data.order_number}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Paid:</span>
+                        <span class="font-medium">₦${data.total_amount.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Remaining Balance:</span>
+                        <span class="font-medium">₦${data.remaining_balance.toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="closeModal(this)" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    Close
+                </button>
+                <a href="{{ route('user.order-history') }}" class="flex-1 bg-slate-800 text-white py-2 px-4 rounded-lg hover:bg-slate-900 transition-colors text-center">
+                    View Orders
+                </a>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Close modal
+function closeModal(button) {
+    const modal = button.closest('.fixed');
+    if (modal && document.body.contains(modal)) {
+        document.body.removeChild(modal);
+    }
+}
+
+// Clear specific field error
+function clearFieldError(fieldName) {
+    const fieldElement = document.querySelector(`[name="${fieldName}"]`);
+    const errorContainer = document.querySelector(`[data-field="${fieldName}"]`);
+    
+    if (fieldElement) {
+        fieldElement.classList.remove('border-red-500', 'border-red-400');
+        fieldElement.classList.add('border-gray-300');
+    }
+    
+    if (errorContainer) {
+        errorContainer.classList.add('hidden');
+        errorContainer.textContent = '';
+    }
+}
+
+// Clear validation errors
+function clearValidationErrors() {
+    // Remove error styling from input fields
+    const inputFields = document.querySelectorAll('input[name], select[name], textarea[name]');
+    inputFields.forEach(field => {
+        field.classList.remove('border-red-500', 'border-red-400');
+        field.classList.add('border-gray-300');
+    });
+    
+    // Hide all error messages
+    const errorMessages = document.querySelectorAll('.error-message');
+    errorMessages.forEach(errorMsg => {
+        errorMsg.classList.add('hidden');
+        errorMsg.textContent = '';
+    });
+}
+
+// Display validation errors
+function displayValidationErrors(errors) {
+    Object.keys(errors).forEach(field => {
+        const fieldElement = document.querySelector(`[name="${field}"]`);
+        const errorContainer = document.querySelector(`[data-field="${field}"]`);
+        
+        if (fieldElement) {
+            // Add error styling to input field
+            fieldElement.classList.remove('border-gray-300');
+            fieldElement.classList.add('border-red-500');
+            
+            // Focus on first error field
+            if (Object.keys(errors)[0] === field) {
+                fieldElement.focus();
+                fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        if (errorContainer && errors[field][0]) {
+            // Show error message
+            errorContainer.textContent = errors[field][0];
+            errorContainer.classList.remove('hidden');
+        }
+    });
+}
+
+// Display validation errors as notifications
+function displayValidationErrorsAsToast(errors) {
+    Object.keys(errors).forEach(field => {
+        const fieldErrors = errors[field];
+        if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+            // Get field label for better user experience
+            const fieldElement = document.querySelector(`[name="${field}"]`);
+            let fieldLabel = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
+            if (fieldElement) {
+                const label = fieldElement.closest('.mb-4, .mb-6')?.querySelector('label');
+                if (label) {
+                    fieldLabel = label.textContent.replace('*', '').trim();
+                }
+            }
+            
+            // Show notification for each error
+            fieldErrors.forEach(error => {
+                showNotification(`${fieldLabel}: ${error}`, 'error');
+            });
+        }
+    });
+}
 </script>
+
+
 @endsection

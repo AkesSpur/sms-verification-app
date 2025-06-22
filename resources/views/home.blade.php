@@ -1189,7 +1189,7 @@
                         </div>
                         <div class="p-4">
                             <h4 class="font-bold text-gray-900 mb-2 text-sm">{{ $gift->name }}</h4>
-                            <p class="text-lg font-bold text-slate-700">₦{{ number_format($gift->price, 2) }}</p>
+                            <p class="text-lg font-bold text-slate-700">₦{{ number_format($gift->price, 0) }}</p>
                         </div>
                     </div>
                 @empty
@@ -1248,7 +1248,7 @@
     </section>
 
     <!-- Features Section -->
-    <section class="py-16 bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
+    <section class="py-16 bg-gradient-to-br from-gray-25 to-slate-25 relative overflow-hidden" style="background: linear-gradient(135deg, #fafafa 0%, #f8fafc 100%);">
         <!-- Celebration Background Elements -->
         <div class="absolute inset-0 pointer-events-none">
             <!-- Floating Icons -->
@@ -1295,56 +1295,45 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 text-white py-16 relative overflow-hidden">
-        <!-- Enhanced Background Elements -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-        
-        <!-- Subtle Animation Elements -->
-        <div class="absolute inset-0 pointer-events-none">
-            <div class="absolute top-20 left-20 celebration-sparkle" style="animation-delay: 0s;">
-                <div class="w-2 h-2 bg-blue-400 rounded-full opacity-30"></div>
-            </div>
-            <div class="absolute bottom-20 right-20 celebration-sparkle" style="animation-delay: 2s;">
-                <div class="w-3 h-3 bg-purple-400 rounded-full opacity-20"></div>
-            </div>
-            <div class="absolute top-1/2 right-1/4 celebration-sparkle" style="animation-delay: 1s;">
-                <div class="w-2 h-2 bg-pink-400 rounded-full opacity-25"></div>
-            </div>
+    <!-- Website Builder Contact -->
+    <div class="bg-gradient-to-r from-gray-100 to-gray-200 py-3 text-center text-sm text-gray-700 border-t border-gray-200">
+        <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
+            <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
+            <p>
+                Need a custom SMS platform? <a href="mailto:dev@blizzsms.com" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
+                    Contact the developer
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                </a>
+            </p>
+            <i class="fas fa-code text-blue-600 animate-bounce"></i>
         </div>
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <!-- Company Info -->
-            <div class="mb-8">
-                <h3 class="text-2xl font-bold mb-4 gradient-text">{{$settings->site_name}}</h3>
-                <p class="text-gray-300 mb-6">The most reliable SMS verification service for your online accounts.</p>
-                
-                <!-- Email Contact -->
-                <div class="flex items-center justify-center mb-6">
-                    <i class="fas fa-envelope mr-2 text-gray-300"></i>
-                    <a href="mailto:support@smsverify.com" class="text-gray-300 hover:text-white transition-colors">support@smsverify.com</a>
+    </div>
+
+   
+    <!-- Footer -->
+    <footer class="bg-white py-12 border-t border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Logo and Company Name -->
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-2xl font-bold text-slate-900">
+                        <i class="fas fa-mobile-alt mr-2 text-blue-600"></i>
+                        {{$settings->site_name}}
+                    </h3>
                 </div>
                 
-                <!-- Social Media Links -->
-                <div class="flex justify-center space-x-6 mb-8">
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-xl">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-xl">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-xl">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors text-xl">
-                        <i class="fab fa-linkedin-in"></i>
+                <!-- Contact Info -->
+                <div class="flex items-center space-x-8 mb-6 md:mb-0">
+                    <a href="mailto:support@blizzsms.com" class="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        support@blizzsms.com
                     </a>
                 </div>
-            </div>
-            
-            <!-- Copyright -->
-            <div class="border-t border-slate-700 pt-8">
-                <p class="text-gray-300 text-sm">&copy; {{ date('Y') }} {{$settings->site_name}}. All rights reserved.</p>
+                
+                <!-- Copyright -->
+                <div class="text-slate-500 text-sm">
+                    &copy; {{ date('Y') }} {{$settings->site_name}}. All rights reserved.
+                </div>
             </div>
         </div>
     </footer>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DigitalProductOrderController;
+use App\Http\Controllers\GiftOrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
@@ -14,7 +15,6 @@ Route::get('/product/{slug}', [HomeController::class, 'showProduct'])->name('pro
 Route::get('/all-categories', [HomeController::class, 'allCategories'])->name('all-categories');
 Route::get('/all-gifts', [HomeController::class, 'allGifts'])->name('all-gifts');
 Route::get('/gift/{slug}', [HomeController::class, 'showGift'])->name('gift.show');
-Route::post('/gift/order', [HomeController::class, 'orderGift'])->name('gift.order');
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
@@ -42,12 +42,18 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::post('/order', [OrderController::class, 'store'])->name('order.store');
     Route::get('/order/{order}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/order/{order}/status', [OrderController::class, 'checkStatus'])->name('order.checkStatus');
+    
+    // Gift Order Routes
+    Route::post('/gift-order', [GiftOrderController::class, 'store'])->name('gift-order.store');
+    Route::get('/gift-order/{giftOrder}', [GiftOrderController::class, 'show'])->name('gift-order.show');
+    Route::get('/gift-order/{giftOrder}/status', [GiftOrderController::class, 'checkStatus'])->name('gift-order.checkStatus');
 });
 
 // API routes for AJAX calls
 Route::prefix('api/user')->middleware('auth')->group(function () {
     Route::get('/transactions', [UsersController::class, 'getTransactions'])->name('api.user.transactions');
     Route::get('/digital-orders', [DigitalProductOrderController::class, 'getUserOrders'])->name('api.user.digital-orders');
+    Route::get('/gift-orders', [GiftOrderController::class, 'getUserOrders'])->name('api.user.gift-orders');
     Route::get('/digital-orders/{id}', [DigitalProductOrderController::class, 'show'])->name('api.user.digital-orders.show');
 });
 

@@ -124,7 +124,7 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
-        </style>
+    </style>
         @yield('styles')
 </head>
 <body class="bg-white">

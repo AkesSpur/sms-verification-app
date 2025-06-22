@@ -146,7 +146,7 @@ class DigitalProductOrderController extends Controller
             
             // CSV headers
             fputcsv($file, [
-                'Order Number',
+                'Order ID',
                 'Customer Name',
                 'Customer Email',
                 'Product Name',
@@ -163,7 +163,7 @@ class DigitalProductOrderController extends Controller
             // CSV data
             foreach ($orders as $order) {
                 fputcsv($file, [
-                    $order->order_number,
+                    $order->id,
                     $order->user->name ?? 'N/A',
                     $order->user->email ?? 'N/A',
                     $order->product->name ?? 'N/A',

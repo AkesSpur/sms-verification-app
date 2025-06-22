@@ -57,7 +57,7 @@ class User extends Authenticatable
      */
     public function isAdmin()
     {
-        return $this->is_admin || $this->role === 'admin';
+        return $this->is_admin || $this->role == 'admin';
     }
 
     /**
@@ -65,7 +65,7 @@ class User extends Authenticatable
      */
     public function isActive()
     {
-        return $this->status === 'active';
+        return $this->status == 'active';
     }
 
     /**
@@ -82,6 +82,14 @@ class User extends Authenticatable
     public function digitalProductOrders()
     {
         return $this->hasMany(DigitalProductOrder::class);
+    }
+
+    /**
+     * Get the gift orders for the user.
+     */
+    public function giftOrders()
+    {
+        return $this->hasMany(GiftOrder::class);
     }
 
     /**

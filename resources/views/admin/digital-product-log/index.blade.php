@@ -49,7 +49,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3 mb-1">
-                                <select class="form-control" id="statusFilter">
+                                <select class="form-control select2" id="statusFilter">
                                     <option value="">All Status</option>
                                     <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
                                     <option value="sold" {{ request('status') == 'sold' ? 'selected' : '' }}>Sold</option>

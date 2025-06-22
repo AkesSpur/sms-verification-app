@@ -447,6 +447,7 @@
                     </div>
                 </div>
 
+                @if($giftOrders && count($giftOrders) > 0)
                 <!-- Desktop Table -->
                 <div class="hidden md:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -464,7 +465,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach($giftOrders as $gift)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $gift['id'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#GIFT{{ $gift['id'] }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
@@ -488,7 +489,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $gift['created_at']->format('M d, Y H:i') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ $gift['item_name'] }}', '{{ $gift['item_description'] }}', '{{ $gift['recipient'] }}', '{{ $gift['tracking_code'] ?? 'TRK' . strtoupper(substr(md5($gift['id']), 0, 8)) }}', '{{ $gift['status'] }}')" 
+                                    <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}')" 
                                             class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors">
                                         View
                                     </button>
@@ -505,9 +506,12 @@
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-2">
-                                <span class="text-sm font-medium text-gray-500">#{{ str_pad($gift['id'], 3, '0', STR_PAD_LEFT) }}🎁</span>                                
+                                <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-{{ $gift['icon'] ?? 'gift' }} text-pink-600 text-sm"></i>
+                                </div>
                                 <span class="font-medium text-gray-900">{{ $gift['item_name'] }}</span>
                             </div>
+                            <span class="text-sm font-medium text-gray-500">#GIFT{{ $gift['id'] }}</span>                                
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-sm mb-3">
                             <div>
@@ -532,7 +536,7 @@
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ $gift['item_name'] }}', '{{ $gift['item_description'] }}', '{{ $gift['recipient'] }}', '{{ $gift['tracking_code'] ?? 'TRK' . strtoupper(substr(md5($gift['id']), 0, 8)) }}', '{{ $gift['status'] }}')" 
+                            <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}')"
                                     class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
@@ -540,6 +544,20 @@
                     </div>
                     @endforeach
                 </div>
+                @else
+                <!-- Empty State -->
+                <div class="text-center py-12">
+                    <div class="mb-4">
+                        <i class="fas fa-gift text-gray-300" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No Gift Orders Yet</h3>
+                    <p class="text-gray-500 mb-6">You haven't placed any gift orders yet. Start spreading joy by sending gifts to your loved ones!</p>
+                    <a href="{{ route('gifts.index') }}" class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors">
+                        <i class="fas fa-heart mr-2"></i>
+                        Browse Gifts
+                    </a>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -572,9 +590,9 @@
 
     <!-- Log Modal -->
     <div id="logModal" style="display: none;" class="z-50">
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 49;"></div>
-        <div class="fixed inset-0 flex items-center justify-center z-50" onclick="closeLogModal()">
-            <div class="relative mx-auto p-6 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 999;"></div>
+        <div class="fixed inset-0 flex items-center justify-center" style="z-index: 1000;" onclick="closeLogModal()">
+            <div class="relative mx-auto p-6 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
                 <div class="mt-3">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-xl font-medium text-gray-900">Digital Product Details</h3>
@@ -617,48 +635,66 @@
 
     <!-- Gift Modal -->
     <div id="giftModal" style="display: none;" class="z-50">
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 49;"></div>
-        <div class="fixed inset-0 flex items-center justify-center z-50" onclick="closeGiftModal()">
-            <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 999;"></div>
+        <div class="fixed inset-0 flex items-center justify-center" style="z-index: 1000;" onclick="closeGiftModal()">
+            <div class="relative mx-auto p-6 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
                 <div class="mt-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Gift Details</h3>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-medium text-gray-900">Gift Order Details</h3>
                         <button onclick="closeGiftModal()" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-times"></i>
+                            <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Gift Item</label>
-                            <p class="text-sm text-gray-900" id="giftItemName"></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <p class="text-sm text-gray-900" id="giftItemDescription"></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Recipient</label>
-                            <p class="text-sm text-gray-900" id="giftRecipient"></p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tracking Code</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="text" id="giftTrackingCode" readonly 
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
-                                <button onclick="copyToClipboard(document.getElementById('giftTrackingCode').value)" 
-                                        class="px-3 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                                    <i class="fas fa-copy"></i>
-                                </button>
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Gift Item</label>
+                                <p class="text-base text-gray-900 font-medium" id="giftItemName"></p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                                <p class="text-base text-gray-900 font-medium" id="giftAmount"></p>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <span id="giftStatus" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"></span>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <p class="text-sm text-gray-900" id="giftItemDescription"></p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Recipient</label>
+                                <p class="text-sm text-gray-900" id="giftRecipient"></p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Order Date</label>
+                                <p class="text-sm text-gray-900" id="giftOrderDate"></p>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tracking Information</label>
+                            <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">Tracking Code</p>
+                                        <p class="text-lg font-mono text-gray-900" id="giftTrackingCode"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700 mb-2">Status</p>
+                                        <span id="giftStatus" class="inline-flex px-3 py-1 text-sm font-semibold rounded-full"></span>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex justify-end">
+                                    <button onclick="copyGiftTrackingToClipboard(event)" 
+                                            class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm">
+                                        <i class="fas fa-copy mr-2"></i>Copy Tracking Code
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-6 flex justify-end">
+                    <div class="mt-8 flex justify-end space-x-3">
                         <button onclick="closeGiftModal()" 
-                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                                class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
                             Close
                         </button>
                     </div>
@@ -736,18 +772,20 @@
     }
     
     // Gift modal functions
-    function openGiftModal(id, name, description, recipient, trackingCode, status) {
+    function openGiftModal(id, name, description, recipient, trackingCode, status, amount, orderDate) {
         document.getElementById('giftItemName').textContent = name;
-        document.getElementById('giftItemDescription').textContent = description;
+        document.getElementById('giftItemDescription').textContent = description || 'No description provided';
         document.getElementById('giftRecipient').textContent = recipient;
-        document.getElementById('giftTrackingCode').value = trackingCode;
+        document.getElementById('giftTrackingCode').textContent = trackingCode;
+        document.getElementById('giftAmount').textContent = '₦' + amount;
+        document.getElementById('giftOrderDate').textContent = orderDate;
         
         // Set status with appropriate styling
         const statusElement = document.getElementById('giftStatus');
         statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
         
         // Remove existing status classes
-        statusElement.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full';
+        statusElement.className = 'inline-flex px-3 py-1 text-sm font-semibold rounded-full';
         
         // Add appropriate status class
         if (status == 'delivered') {
@@ -759,6 +797,34 @@
         }
         
         document.getElementById('giftModal').style.display = 'block';
+    }
+    
+    // Copy gift tracking code to clipboard
+    function copyGiftTrackingToClipboard(event) {
+        const trackingCode = document.getElementById('giftTrackingCode').textContent;
+        
+        if (!trackingCode || trackingCode.trim() == '') {
+            alert('No tracking code to copy');
+            return;
+        }
+        
+        navigator.clipboard.writeText(trackingCode).then(function() {
+            // Show success feedback
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+            button.classList.remove('bg-primary-600', 'hover:bg-primary-700');
+            button.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            setTimeout(function() {
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                button.classList.add('bg-primary-600', 'hover:bg-primary-700');
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Could not copy tracking code: ', err);
+            alert('Failed to copy tracking code');
+        });
     }
     
     function closeGiftModal() {

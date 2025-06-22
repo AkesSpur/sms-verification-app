@@ -52,7 +52,7 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>#ORD-</th>
+                                            <th>#ORD-ID</th>
                                             <th>User</th>
                                             <th style="min-width:160px;">Product Name</th>
                                             <th>Quantity</th>
