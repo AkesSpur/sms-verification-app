@@ -57,6 +57,7 @@
                     <div class="card-icon bg-info">
                         <i class="fas fa-money-bill-wave"></i>
                     </div>
+                    
                     <div class="card-wrap">
                         <div class="card-header">
                             <h4>Total Revenue</h4>
