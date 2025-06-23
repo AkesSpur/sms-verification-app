@@ -9,11 +9,12 @@ use App\Notifications\OrderExpiredNotification;
 class Order extends Model
 {
 protected $fillable = [
-    'user_id', 'service_id', 'phone_number', 'activation_id', 'sms_code', 'status', 'refunded', 'needs_review', 'retry_attempts', 'expires_at', 'is_number_used'
+    'user_id', 'service_id', 'country', 'phone_number', 'activation_id', 'price', 'sms_code', 'status', 'refunded', 'needs_review', 'retry_attempts', 'expires_at', 'is_number_used'
 ];
 
 protected $casts = [
     'expires_at' => 'datetime',
+    'price' => 'decimal:2',
     'refunded' => 'boolean',
     'needs_review' => 'boolean',
     'is_number_used' => 'boolean',
@@ -33,6 +34,14 @@ public function user()
 public function service()
 {
     return $this->belongsTo(Service::class);
+}
+
+/**
+ * Get the country that the order belongs to.
+ */
+public function country()
+{
+    return $this->belongsTo(Country::class, 'country', 'code');
 }
 
 /**

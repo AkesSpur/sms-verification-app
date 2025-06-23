@@ -24,23 +24,8 @@ class UsersController extends Controller
     }
     public function usaNumbers()
     {
-        $services = Service::all();
-        $countries = Country::all();
-
-        // Filter orders for USA numbers only (assuming country code 7 is USA)
-        $orders = Order::where('user_id', Auth::user()->id)
-            ->whereHas('service', function($query) {
-                // You might need to adjust this based on how you store country info
-                // For now, we'll filter by phone number prefix or add country field to orders
-            })
-            ->latest()
-            ->paginate(10);
-
-        return view('user.usa-numbers', compact(
-            'services',
-            'orders',
-            'countries'
-        ));
+        // Redirect to the specialized USA number controller
+        return app(\App\Http\Controllers\UsaNumberController::class)->index();
     }
 
     public function allCountriesNumbers()

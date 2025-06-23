@@ -552,7 +552,7 @@
                     </div>
                     <h3 class="text-xl font-semibold text-gray-600 mb-2">No Gift Orders Yet</h3>
                     <p class="text-gray-500 mb-6">You haven't placed any gift orders yet. Start spreading joy by sending gifts to your loved ones!</p>
-                    <a href="{{ route('gifts.index') }}" class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors">
+                    <a href="{{ route('all-gifts') }}" class="inline-flex items-center px-6 py-3 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors">
                         <i class="fas fa-heart mr-2"></i>
                         Browse Gifts
                     </a>

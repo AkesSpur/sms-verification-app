@@ -47,6 +47,15 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::post('/gift-order', [GiftOrderController::class, 'store'])->name('gift-order.store');
     Route::get('/gift-order/{giftOrder}', [GiftOrderController::class, 'show'])->name('gift-order.show');
     Route::get('/gift-order/{giftOrder}/status', [GiftOrderController::class, 'checkStatus'])->name('gift-order.checkStatus');
+    
+    // USA Number Routes (specialized controller)
+    Route::prefix('usa')->group(function () {
+        Route::post('/check-availability', [\App\Http\Controllers\UsaNumberController::class, 'checkAvailability'])->name('usa.check-availability');
+        Route::post('/purchase', [\App\Http\Controllers\UsaNumberController::class, 'store'])->name('usa.purchase');
+        Route::get('/order/{order}/status', [\App\Http\Controllers\UsaNumberController::class, 'checkStatus'])->name('usa.order.status');
+        Route::post('/order/{order}/cancel', [\App\Http\Controllers\UsaNumberController::class, 'cancel'])->name('usa.order.cancel');
+        Route::get('/order/{order}', [\App\Http\Controllers\UsaNumberController::class, 'show'])->name('usa.order.show');
+    });
 });
 
 // API routes for AJAX calls
