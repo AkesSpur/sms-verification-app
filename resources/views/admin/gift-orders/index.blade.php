@@ -235,9 +235,8 @@
                                                         <i class="fas fa-eye mr-1" style="width: 16px;"></i> View Details
                                                     </a>
                                                     
-                                                    @if(in_array($order->status, ['pending', 'confirmed']))
+                                                    @if(in_array($order->status, ['pending']))
                                         <div class="dropdown-divider"></div>
-                                        {{-- <h6 class="dropdown-header text-muted small">Update Status</h6> --}}
                                         
                                         @if($order->status == 'pending')
                                             <a class="dropdown-item d-flex align-items-center" href="#" onclick="updateStatus({{ $order->id }}, 'confirmed')">
@@ -252,7 +251,7 @@
                                         @endif
                                     @endif
                                                     
-                                                    @if($order->status == 'cancelled')
+                                                    @if(($order->status == 'cancelled') || ($order->status == 'confirmed'))
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item d-flex align-items-center text-danger" href="#" onclick="deleteOrder({{ $order->id }})">
                                             <i class="fas fa-trash mr-2" style="width: 16px;"></i> Delete Order
