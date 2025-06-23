@@ -133,7 +133,7 @@
                     </div>
                     <div class="flex items-center text-blue-600">
                         <i class="fas fa-truck mr-1"></i>
-                        <span class="text-sm">Delivery: 1-3 days</span>
+                        <span class="text-sm">Delivery: 7-10 days</span>
                     </div>
                     @if($gift->customizable)
                         <div class="px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-800 rounded-full">
