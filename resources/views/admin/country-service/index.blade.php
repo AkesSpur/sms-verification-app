@@ -22,7 +22,7 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label for="countrySelect">Select Country:</label>
-                                <select id="countrySelect" class="form-control">
+                                <select id="countrySelect" class="form-control select2">
                                     <option value="">Choose a country...</option>
                                     @foreach($countries as $country)
                                         <option value="{{ $country->id }}">{{ $country->name }} ({{ $country->code }})</option>

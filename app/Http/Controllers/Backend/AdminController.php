@@ -8,13 +8,16 @@ use App\Models\Order;
 use App\Models\User;
 use App\Models\Service;
 use App\Models\ReviewQueue;
+use App\Models\GiftOrder;
+use App\Models\Transaction;
+use App\Models\DigitalProduct;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
     public function index(){
-
+        // SMS Verification Orders Statistics
         $todaysOrders = Order::whereDate('created_at', Carbon::today())->count();
         $todaysPendingOrders = Order::whereDate('created_at', Carbon::today())
             ->where('status', 'pending')->count();
@@ -42,7 +45,6 @@ class AdminController extends Controller
         $totalUsers = User::where('role', 'client')->count();
         $totalAdmins = User::where('role', 'admin')->count();
         
-        // $pendingReviews = ReviewQueue::where('status', 'pending')->count();
         $pendingReviews = ReviewQueue::count();
         
         // Recent orders for SMS verification
@@ -62,13 +64,51 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
-            $stats = [
-                'total_orders' => DigitalProductOrder::count(),
-                'completed_orders' => DigitalProductOrder::where('status', 'completed')->count(),
-                'pending_orders' => DigitalProductOrder::where('status', 'pending')->count(),
-                'failed_orders' => DigitalProductOrder::where('status', 'failed')->count(),
-                'total_revenue' => DigitalProductOrder::where('status', 'completed')->sum('total_amount'),
-            ];
+        // Comprehensive Statistics
+        $stats = [
+            // Digital Product Orders
+            'digital_total_orders' => DigitalProductOrder::count(),
+            'digital_completed_orders' => DigitalProductOrder::where('status', 'completed')->count(),
+            'digital_pending_orders' => DigitalProductOrder::where('status', 'pending')->count(),
+            'digital_failed_orders' => DigitalProductOrder::where('status', 'failed')->count(),
+            'digital_total_revenue' => DigitalProductOrder::where('status', 'completed')->sum('total_amount'),
+            'digital_today_orders' => DigitalProductOrder::whereDate('created_at', Carbon::today())->count(),
+            
+            // Gift Orders
+            'gift_total_orders' => GiftOrder::count(),
+            'gift_pending_orders' => GiftOrder::where('status', 'pending')->count(),
+            'gift_confirmed_orders' => GiftOrder::where('status', 'confirmed')->count(),
+            'gift_cancelled_orders' => GiftOrder::where('status', 'cancelled')->count(),
+            'gift_total_revenue' => GiftOrder::where('payment_status', 'paid')->sum('total_amount'),
+            'gift_pending_revenue' => GiftOrder::where('payment_status', 'pending')->sum('total_amount'),
+            'gift_today_orders' => GiftOrder::whereDate('created_at', Carbon::today())->count(),
+            
+            // Transactions
+            'total_transactions' => Transaction::count(),
+            'total_credits' => Transaction::where('type', 'credit')->sum('amount'),
+            'total_debits' => Transaction::where('type', 'debit')->sum('amount'),
+            'today_transactions' => Transaction::whereDate('created_at', Carbon::today())->count(),
+            'pending_transactions' => Transaction::where('status', 'pending')->count(),
+            'completed_transactions' => Transaction::where('status', 'completed')->count(),
+            'failed_transactions' => Transaction::where('status', 'failed')->count(),
+        ];
+
+        // Recent Digital Product Purchases (Last 24 hours)
+        $recentDigitalPurchases = DigitalProductOrder::with(['user', 'product'])
+            ->where('created_at', '>=', $twentyFourHoursAgo)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Most purchased digital products in last 24 hours
+        $popularDigitalProducts = DB::table('digital_product_orders')
+            ->join('digital_products', 'digital_product_orders.product_id', '=', 'digital_products.id')
+            ->select('digital_products.name as product_name', DB::raw('SUM(digital_product_orders.quantity) as total_quantity'), DB::raw('COUNT(*) as order_count'))
+            ->where('digital_product_orders.created_at', '>=', $twentyFourHoursAgo)
+            ->groupBy('digital_products.id', 'digital_products.name')
+            ->orderByDesc('total_quantity')
+            ->limit(5)
+            ->get();
 
         return view('admin.dashboard',compact(
             'todaysOrders',
@@ -86,7 +126,9 @@ class AdminController extends Controller
             'pendingReviews',
             'recentOrders',
             'popularServices',
-            'stats'
+            'stats',
+            'recentDigitalPurchases',
+            'popularDigitalProducts'
         ));
     }
 
