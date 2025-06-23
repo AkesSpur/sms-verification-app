@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SMS Verification') - Dashboard</title>
     
+      <link rel="icon" type="image/png" href="{{asset($logoSetting->favicon)}}">
+
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     

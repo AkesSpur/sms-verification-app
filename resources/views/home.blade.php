@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMS Verification - Secure & Fast</title>
-    
+
+    <link rel="icon" type="image/png" href="{{asset($logoSetting->favicon)}}">
+
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -317,7 +319,7 @@
                         </h1>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-1 md:space-x-4">
                     @auth
                         <!-- User Balance Display -->
                           <div class="flex items-center px-3 py-2 bg-blue-50 rounded-lg">
