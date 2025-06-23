@@ -103,6 +103,20 @@
                         <i class="fas fa-history w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
                         <span class="font-medium" x-show="!sidebarCollapsed">Order History</span>
                     </a>
+                    
+                    <a href="{{ route('all-gifts') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('all-gifts') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-gift w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Gift Store</span>
+                    </a>
+                    
+                    <a href="{{ route('all-categories') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('all-categories') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-store w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Logs Store</span>
+                    </a>
                 </div>
             </nav>
             
