@@ -11,18 +11,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">Transaction History</h1>
                 <p class="text-gray-600 mt-1">View all your transaction records and payment history</p>
             </div>
-            <div class="flex items-center space-x-3">
-                <!-- Filter Button -->
-                <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                    <i class="fas fa-filter mr-2"></i>
-                    Filter
-                </button>
-                <!-- Export Button -->
-                <button class="inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                    <i class="fas fa-download mr-2"></i>
-                    Export
-                </button>
-            </div>
+            
         </div>
     </div>
 
@@ -96,121 +85,35 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="transactionsTableBody">
-                    <!-- Sample data - will be replaced with dynamic data -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN001</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                <i class="fas fa-shopping-cart mr-1"></i>
-                                Purchase
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">WhatsApp</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦2.50</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                Completed
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Jan 15, 2024 10:30 AM</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-primary-600 hover:text-primary-900 mr-3">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="text-gray-600 hover:text-gray-900">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN002</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <i class="fas fa-undo mr-1"></i>
-                                Refund
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Telegram</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦1.80</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                <i class="fas fa-clock mr-1"></i>
-                                Pending
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Jan 14, 2024 3:45 PM</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-primary-600 hover:text-primary-900 mr-3">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="text-gray-600 hover:text-gray-900">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN003</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                <i class="fas fa-plus mr-1"></i>
-                                Top-up
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">-</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦25.00</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                Completed
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Jan 13, 2024 9:15 AM</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-primary-600 hover:text-primary-900 mr-3">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="text-gray-600 hover:text-gray-900">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </td>
-                    </tr>
+                   
                 </tbody>
             </table>
         </div>
         
         <!-- Pagination -->
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6" id="paginationContainer" style="display: none;">
             <div class="flex items-center justify-between">
                 <div class="flex-1 flex justify-between sm:hidden">
-                    <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                         Previous
                     </button>
-                    <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                         Next
                     </button>
                 </div>
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-sm text-gray-700">
-                            Showing <span class="font-medium">1</span> to <span class="font-medium">3</span> of <span class="font-medium">3</span> results
+                        <p class="text-sm text-gray-700" id="paginationInfo">
+                            Showing <span class="font-medium" id="showingFrom">0</span> to <span class="font-medium" id="showingTo">0</span> of <span class="font-medium" id="totalResults">0</span> results
                         </p>
                     </div>
                     <div>
-                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                            <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button class="bg-primary-50 border-primary-500 text-primary-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                1
-                            </button>
-                            <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="paginationNav">
+                            <!-- Pagination buttons will be dynamically generated -->
                         </nav>
                     </div>
                 </div>
@@ -218,7 +121,9 @@
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <!-- Custom Styles -->
 <style>
     /* Use consistent primary colors that match the sidebar theme */
@@ -234,6 +139,7 @@
     .text-primary-700 { color: #0f172a; }
     .hover\:text-primary-700:hover { color: #0f172a; }
 </style>
+
 
 <!-- JavaScript for enhanced functionality -->
 <script>
@@ -270,15 +176,21 @@ $(document).ready(function() {
         }
     });
     
+    // Global pagination state
+    let currentPage = 1;
+    let totalPages = 1;
+    
     // Load transactions data via AJAX
-    function loadTransactions() {
+    function loadTransactions(page = 1) {
         $.ajax({
             url: '/api/user/transactions',
             method: 'GET',
+            data: { page: page },
             success: function(response) {
                 if (response.success) {
                     updateTransactionsTable(response.data.transactions);
                     updateStats(response.data.stats);
+                    updatePagination(response.data.pagination);
                 }
             },
             error: function(xhr, status, error) {
@@ -298,14 +210,120 @@ $(document).ready(function() {
                 tbody.append(row);
             });
         } else {
-            tbody.append('<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No transactions found</td></tr>');
+            tbody.append('<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No transactions found</td></tr>');
         }
     }
     
+    function updatePagination(pagination) {
+        currentPage = pagination.current_page;
+        totalPages = pagination.last_page;
+        
+        // Update pagination info
+        const from = ((currentPage - 1) * pagination.per_page) + 1;
+        const to = Math.min(currentPage * pagination.per_page, pagination.total);
+        
+        $('#showingFrom').text(pagination.total > 0 ? from : 0);
+        $('#showingTo').text(to);
+        $('#totalResults').text(pagination.total);
+        
+        // Show/hide pagination container
+        if (totalPages > 1) {
+            $('#paginationContainer').show();
+            generatePaginationButtons(pagination);
+        } else {
+            $('#paginationContainer').hide();
+        }
+        
+        // Update mobile pagination buttons
+        $('#prevPageMobile').prop('disabled', currentPage <= 1);
+        $('#nextPageMobile').prop('disabled', currentPage >= totalPages);
+    }
+    
+    function generatePaginationButtons(pagination) {
+        const nav = $('#paginationNav');
+        nav.empty();
+        
+        // Previous button
+        const prevDisabled = currentPage <= 1;
+        nav.append(`
+            <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${prevDisabled ? 'opacity-50 cursor-not-allowed' : ''}" 
+                    onclick="${prevDisabled ? '' : 'changePage(' + (currentPage - 1) + ')'}" ${prevDisabled ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `);
+        
+        // Page numbers
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        
+        // First page if not in range
+        if (startPage > 1) {
+            nav.append(`
+                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" 
+                        onclick="changePage(1)">1</button>
+            `);
+            if (startPage > 2) {
+                nav.append('<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>');
+            }
+        }
+        
+        // Page range
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === currentPage;
+            nav.append(`
+                <button class="${isActive ? 'bg-primary-50 border-primary-500 text-primary-600' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'} relative inline-flex items-center px-4 py-2 border text-sm font-medium" 
+                        onclick="${isActive ? '' : 'changePage(' + i + ')'}" ${isActive ? 'disabled' : ''}>
+                    ${i}
+                </button>
+            `);
+        }
+        
+        // Last page if not in range
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                nav.append('<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>');
+            }
+            nav.append(`
+                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" 
+                        onclick="changePage(${totalPages})">${totalPages}</button>
+            `);
+        }
+        
+        // Next button
+        const nextDisabled = currentPage >= totalPages;
+        nav.append(`
+            <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${nextDisabled ? 'opacity-50 cursor-not-allowed' : ''}" 
+                    onclick="${nextDisabled ? '' : 'changePage(' + (currentPage + 1) + ')'}" ${nextDisabled ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `);
+    }
+    
+    // Global function to change page
+    window.changePage = function(page) {
+        if (page >= 1 && page <= totalPages && page !== currentPage) {
+            loadTransactions(page);
+        }
+    };
+    
+    // Mobile pagination event handlers
+    $('#prevPageMobile').on('click', function() {
+        if (currentPage > 1) {
+            changePage(currentPage - 1);
+        }
+    });
+    
+    $('#nextPageMobile').on('click', function() {
+        if (currentPage < totalPages) {
+            changePage(currentPage + 1);
+        }
+    });
+    
     function createTransactionRow(transaction) {
         const statusClass = getStatusClass(transaction.status);
-        const typeClass = getTypeClass(transaction.type);
-        const typeIcon = getTypeIcon(transaction.type);
+        const typeClass = getTypeClass(transaction.transaction_type);
+        const typeIcon = getTypeIcon(transaction.transaction_type);
+        const amountDisplay = transaction.transaction_type === 'credit' ? '+₦' : '-₦';
         
         return `
             <tr class="hover:bg-gray-50">
@@ -317,7 +335,7 @@ $(document).ready(function() {
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.service || '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦${parseFloat(transaction.amount).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${transaction.transaction_type === 'credit' ? 'text-green-600' : 'text-red-600'}">${amountDisplay}${parseFloat(transaction.amount).toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
                         <i class="fas fa-${transaction.status === 'completed' ? 'check-circle' : transaction.status === 'pending' ? 'clock' : 'times-circle'} mr-1"></i>
@@ -325,14 +343,7 @@ $(document).ready(function() {
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(transaction.created_at)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button class="text-primary-600 hover:text-primary-900 mr-3" onclick="viewTransaction('${transaction.id}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="text-gray-600 hover:text-gray-900" onclick="downloadReceipt('${transaction.id}')">
-                        <i class="fas fa-download"></i>
-                    </button>
-                </td>
+
             </tr>
         `;
     }
@@ -348,18 +359,16 @@ $(document).ready(function() {
     
     function getTypeClass(type) {
         switch(type.toLowerCase()) {
-            case 'purchase': return 'bg-blue-100 text-blue-800';
-            case 'refund': return 'bg-green-100 text-green-800';
-            case 'top-up': return 'bg-purple-100 text-purple-800';
+            case 'credit': return 'bg-green-100 text-green-800';
+            case 'debit': return 'bg-red-100 text-red-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     }
     
     function getTypeIcon(type) {
         switch(type.toLowerCase()) {
-            case 'purchase': return 'fas fa-shopping-cart';
-            case 'refund': return 'fas fa-undo';
-            case 'top-up': return 'fas fa-plus';
+            case 'credit': return 'fas fa-arrow-up';
+            case 'debit': return 'fas fa-arrow-down';
             default: return 'fas fa-circle';
         }
     }
@@ -367,9 +376,9 @@ $(document).ready(function() {
     function updateStats(stats) {
         if (stats) {
             $('#totalTransactions').text(stats.total_transactions || 0);
-            $('#totalSpent').text('$' + parseFloat(stats.total_spent || 0).toFixed(2));
-            $('#totalRefunds').text('$' + parseFloat(stats.total_refunds || 0).toFixed(2));
-            $('#pendingAmount').text('$' + parseFloat(stats.pending_amount || 0).toFixed(2));
+            $('#totalSpent').text('₦' + parseFloat(stats.total_spent || 0).toFixed(2));
+            $('#totalRefunds').text('₦' + parseFloat(stats.total_refunds || 0).toFixed(2));
+            $('#pendingAmount').text('₦' + parseFloat(stats.pending_amount || 0).toFixed(2));
         }
     }
     
@@ -384,20 +393,10 @@ $(document).ready(function() {
         });
     }
     
-    // Global functions for button actions
-    window.viewTransaction = function(id) {
-        // Implement view transaction details
-        console.log('View transaction:', id);
-    };
-    
-    window.downloadReceipt = function(id) {
-        // Implement download receipt
-        console.log('Download receipt:', id);
-    };
+
     
     // Load transactions on page load
-    // loadTransactions();
+    loadTransactions();
 });
 </script>
-@endsection
-
+@endpush

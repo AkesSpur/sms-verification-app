@@ -18,6 +18,7 @@ use App\Http\Controllers\Backend\DigitalProductLogController;
 use App\Http\Controllers\Backend\DigitalProductOrderController;
 use App\Http\Controllers\Backend\GiftController;
 use App\Http\Controllers\Backend\BannerController;
+use App\Http\Controllers\Admin\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -47,6 +48,12 @@ Route::get('add-fund/{id}', [FundManagementController::class, 'addIndex'])->name
 Route::post('fund-user/{id}', [FundManagementController::class, 'addFund'])->name('fund-user');
 Route::get('withdraw-fund/{id}', [FundManagementController::class, 'withdrawIndex'])->name('withdraw-fund.index');
 Route::post('withdraw-user-fund/{id}', [FundManagementController::class, 'withdrawFund'])->name('withdraw-user-fund');
+
+/** Transaction management routes */
+Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+Route::get('transactions/data', [TransactionController::class, 'getData'])->name('transactions.data');
+Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
+Route::get('transactions/export/csv', [TransactionController::class, 'export'])->name('transactions.export');
 
 /** manage user routes */
 Route::get('manage-user', [ManageUserController::class, 'index'])->name('manage-user.index');

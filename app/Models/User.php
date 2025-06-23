@@ -93,6 +93,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the transactions for the user.
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Get transactions where this user was the admin.
+     */
+    public function adminTransactions()
+    {
+        return $this->hasMany(Transaction::class, 'admin_id');
+    }
+
+    /**
      * Check if user has sufficient balance for purchase.
      */
     public function hasSufficientBalance($amount)
@@ -101,15 +117,58 @@ class User extends Authenticatable
     }
 
     /**
-     * Deduct amount from user balance.
+     * Deduct amount from user balance with transaction logging.
      */
-    public function deductBalance($amount)
+    public function deductBalance($amount, $category = null, $description = null, $reference = null, $admin = null)
     {
         if (!$this->hasSufficientBalance($amount)) {
             throw new \Exception('Insufficient balance');
         }
         
+        $balanceBefore = $this->balance;
         $this->decrement('balance', $amount);
+        $this->refresh();
+        
+        // Create transaction record if category and description are provided
+        if ($category && $description) {
+            Transaction::createTransaction(
+                $this,
+                'debit',
+                $category,
+                $amount,
+                $description,
+                [],
+                $reference,
+                $admin
+            );
+        }
+        
+        return $this;
+    }
+
+    /**
+     * Add amount to user balance with transaction logging.
+     */
+    public function addBalance($amount, $category = null, $description = null, $reference = null, $admin = null)
+    {
+        $balanceBefore = $this->balance;
+        $this->increment('balance', $amount);
+        $this->refresh();
+        
+        // Create transaction record if category and description are provided
+        if ($category && $description) {
+            Transaction::createTransaction(
+                $this,
+                'credit',
+                $category,
+                $amount,
+                $description,
+                [],
+                $reference,
+                $admin
+            );
+        }
+        
         return $this;
     }
 }

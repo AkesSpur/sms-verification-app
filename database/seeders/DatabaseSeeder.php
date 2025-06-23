@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             CountriesTableSeeder::class,
             ServiceSeeder::class,
+            TransactionSeeder::class,
         ]);
 
         // Create a test user

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Gift;
 use App\Models\GiftOrder;
+use App\Models\Transaction;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -122,8 +123,13 @@ class GiftOrderController extends Controller
                     'custom_image' => $customImagePath
                 ]);
 
-                // Deduct balance from user
-                $user->deductBalance($totalAmount);
+                // Deduct balance from user with transaction logging
+                $user->deductBalance(
+                    $totalAmount,
+                    'gift_purchase',
+                    "Gift purchase: {$gift->name} for {$validated['recipient_name']}",
+                    $giftOrder
+                );
 
                 // Mark order as confirmed (payment successful)
                 $giftOrder->markAsPaid();
@@ -311,8 +317,13 @@ class GiftOrderController extends Controller
             DB::beginTransaction();
 
             try {
-                // Refund the amount to user's balance
-                $user->increment('balance', $order->total_amount);
+                // Refund the amount to user's balance with transaction logging
+                $user->addBalance(
+                    $order->total_amount,
+                    'gift_refund',
+                    "Gift order cancellation refund: {$order->gift->name}",
+                    $order
+                );
 
                 // Update order status
                 $order->update([

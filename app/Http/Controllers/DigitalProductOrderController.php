@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DigitalProduct;
 use App\Models\DigitalProductLog;
 use App\Models\DigitalProductOrder;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -107,8 +108,13 @@ class DigitalProductOrderController extends Controller
                     $orders[] = $order;
                 }
 
-                // Deduct balance from user
-                $user->deductBalance($totalAmount);
+                // Deduct balance from user with transaction logging
+                $user->deductBalance(
+                    $totalAmount,
+                    'digital_purchase',
+                    "Digital product purchase: {$product->name} (Qty: {$quantity})",
+                    collect($orders)->first() // Use first order as reference
+                );
 
                 // Mark all orders as completed
                 foreach ($orders as $order) {

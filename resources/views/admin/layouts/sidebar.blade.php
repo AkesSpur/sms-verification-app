@@ -54,6 +54,12 @@
                         <span>Gift Management</span>
                     </a>
                 </li>
+                <li class="{{ setActive(['admin.transactions.*']) }}">
+                    <a href="{{ route('admin.transactions.index') }}" class="nav-link">
+                        <i class="fas fa-money-bill"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
 
                 <li class="{{ setActive(['admin.banners.*']) }}">
                     <a href="{{ route('admin.banners.index') }}" class="nav-link">

@@ -63,13 +63,13 @@ class UsersController extends Controller
     {
         $user = Auth::user();
         
-        // Get user's transactions/orders for statistics
-        $orders = Order::where('user_id', $user->id)->get();
+        // Get user's transactions for statistics
+        $transactions = $user->transactions;
         
-        $totalTransactions = $orders->count();
-        $totalSpent = $orders->where('status', 'completed')->sum('amount');
-        $totalRefunds = $orders->where('status', 'refunded')->sum('amount');
-        $pendingAmount = $orders->where('status', 'pending')->sum('amount');
+        $totalTransactions = $transactions->count();
+        $totalSpent = $transactions->where('type', 'debit')->sum('amount');
+        $totalRefunds = $transactions->where('type', 'credit')->whereIn('category', ['gift_refund', 'digital_refund', 'sms_refund'])->sum('amount');
+        $pendingAmount = $transactions->where('status', 'pending')->sum('amount');
         
         return view('user.transaction', compact(
             'totalTransactions',
@@ -150,39 +150,41 @@ class UsersController extends Controller
             }
             
             $user = Auth::user();
-            $orders = Order::where('user_id', $user->id)
-                ->with('service')
+            $transactions = $user->transactions()
+                ->with(['admin'])
                 ->latest()
                 ->paginate(10);
             
-            $transactions = $orders->map(function($order) {
+            $transactionData = $transactions->map(function($transaction) {
                 return [
-                    'id' => 'TXN' . str_pad($order->id, 3, '0', STR_PAD_LEFT),
-                    'type' => $this->getTransactionType($order->status),
-                    'service' => $order->service->name ?? 'N/A',
-                    'amount' => $order->amount,
-                    'status' => $order->status,
-                    'created_at' => $order->created_at->toISOString()
+                    'id' => $transaction->transaction_id,
+                    'type' => $transaction->category_display,
+                    'service' => $this->getServiceFromCategory($transaction->category),
+                    'amount' => $transaction->amount,
+                    'status' => $transaction->status,
+                    'description' => $transaction->description,
+                    'transaction_type' => $transaction->type, // credit or debit
+                    'created_at' => $transaction->created_at->toISOString()
                 ];
             });
             
             $stats = [
-                'total_transactions' => $orders->total(),
-                'total_spent' => Order::where('user_id', $user->id)->where('status', 'completed')->sum('amount'),
-                'total_refunds' => Order::where('user_id', $user->id)->where('status', 'refunded')->sum('amount'),
-                'pending_amount' => Order::where('user_id', $user->id)->where('status', 'pending')->sum('amount')
+                'total_transactions' => $user->transactions()->count(),
+                'total_spent' => $user->transactions()->where('type', 'debit')->sum('amount'),
+                'total_refunds' => $user->transactions()->where('type', 'credit')->whereIn('category', ['gift_refund', 'digital_refund', 'sms_refund'])->sum('amount'),
+                'pending_amount' => $user->transactions()->where('status', 'pending')->sum('amount')
             ];
             
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'transactions' => $transactions,
+                    'transactions' => $transactionData,
                     'stats' => $stats,
                     'pagination' => [
-                        'current_page' => $orders->currentPage(),
-                        'last_page' => $orders->lastPage(),
-                        'per_page' => $orders->perPage(),
-                        'total' => $orders->total()
+                        'current_page' => $transactions->currentPage(),
+                        'last_page' => $transactions->lastPage(),
+                        'per_page' => $transactions->perPage(),
+                        'total' => $transactions->total()
                     ]
                 ]
             ]);
@@ -196,17 +198,14 @@ class UsersController extends Controller
         }
     }
     
-    private function getTransactionType($status)
+    private function getServiceFromCategory($category)
     {
-        switch($status) {
-            case 'completed':
-                return 'purchase';
-            case 'refunded':
-                return 'refund';
-            case 'pending':
-                return 'purchase';
-            default:
-                return 'purchase';
-        }
+        return match($category) {
+            'gift_purchase', 'gift_refund' => 'Gift Service',
+            'digital_purchase', 'digital_refund' => 'Digital Products',
+            'sms_purchase', 'sms_refund' => 'SMS Service',
+            'fund_addition', 'fund_withdrawal' => 'Wallet Management',
+            default => 'General'
+        };
     }
 }

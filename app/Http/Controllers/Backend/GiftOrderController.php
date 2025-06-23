@@ -114,7 +114,13 @@ class GiftOrderController extends Controller
                     ]);
                     // Refund user if payment was made
                     if ($giftOrder->payment_status == 'paid') {
-                        $giftOrder->user->increment('balance', $giftOrder->total_amount);
+                        $giftOrder->user->addBalance(
+                            $giftOrder->total_amount,
+                            'gift_refund',
+                            "Admin refund for gift order: {$giftOrder->gift->name}",
+                            $giftOrder,
+                            auth()->user()
+                        );
                         $giftOrder->update(['payment_status' => 'refunded']);
                     }
                     break;

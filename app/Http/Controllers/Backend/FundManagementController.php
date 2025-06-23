@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class FundManagementController extends Controller
 {
@@ -26,26 +28,27 @@ class FundManagementController extends Controller
         ]);
         
         $user = User::findOrFail($id);
-        $oldBalance = $user->balance;
-        $newBalance = $oldBalance + $request->amount;
+        $admin = Auth::user();
+        
+        // Add balance with transaction logging
+        $user->addBalance(
+            $request->amount,
+            'fund_addition',
+            "Admin {$admin->name} added funds to {$user->name}'s account",
+            null,
+            $admin
+        );
 
-        $user->update([
-            'balance' => $newBalance
-        ]);
-
-        // Log the transaction (you can create a Transaction model later if needed)
+        // Log the transaction for additional logging
         Log::info('Admin added funds', [
             'user_id' => $id,
             'amount' => $request->amount,
-            'old_balance' => $oldBalance,
-            'new_balance' => $newBalance,
-            'admin_id' => auth()->id()
+            'admin_id' => $admin->id,
+            'new_balance' => $user->fresh()->balance
         ]);
 
-        // return response(['status' => 'success', 'message' => 'Balance successfully added']);
         toastr()->success('Funds successfully added');
         return redirect()->back();
-
     }
     
     // return view page
@@ -64,28 +67,30 @@ class FundManagementController extends Controller
         ]);
         
         $user = User::findOrFail($id);
-        $oldBalance = $user->balance;
+        $admin = Auth::user();
 
-        if ($request->amount > $oldBalance) {
-            return response(['status' => 'error', 'message' => 'User has insufficient balance']);
+        if ($request->amount > $user->balance) {
+            toastr()->error('User has insufficient balance');
+            return redirect()->back();
         }
 
-        $newBalance = $oldBalance - $request->amount;
+        // Deduct balance with transaction logging
+        $user->deductBalance(
+            $request->amount,
+            'fund_withdrawal',
+            "Admin {$admin->name} withdrew funds from {$user->name}'s account",
+            null,
+            $admin
+        );
 
-        $user->update([
-            'balance' => $newBalance
-        ]);
-
-        // Log the transaction (you can create a Transaction model later if needed)
+        // Log the transaction for additional logging
         Log::info('Admin withdrew funds', [
             'user_id' => $id,
             'amount' => $request->amount,
-            'old_balance' => $oldBalance,
-            'new_balance' => $newBalance,
-            'admin_id' => auth()->id()
+            'admin_id' => $admin->id,
+            'new_balance' => $user->fresh()->balance
         ]);
 
-        // return response(['status' => 'success', 'message' => 'Funds successfully withdrawn']);
         toastr()->success('Funds successfully withdrawn');
         return redirect()->back();
     }
