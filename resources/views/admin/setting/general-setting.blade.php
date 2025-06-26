@@ -35,6 +35,13 @@
                 <label>Currency Icon</label>
                 <input type="text" class="form-control" name="currency_icon" value="{{@$generalSettings->currency_icon}}">
             </div>
+            <div class="form-group">
+                <label>Naira to Dollar Exchange Rate</label>
+                <input type="number" class="form-control" name="naira_to_dollar_rate" 
+                       value="{{@$generalSettings->naira_to_dollar_rate}}" 
+                       step="0.01" min="0" placeholder="e.g. 1500.00">
+                <small class="form-text text-muted">Current exchange rate from Naira to Dollar (1 USD = X NGN).</small>
+            </div>
             <hr>
             <h5>Pricing Settings</h5>
             <div class="form-group">

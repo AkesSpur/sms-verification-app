@@ -7,6 +7,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\Gateways\PaystackController;
+use App\Http\Controllers\UsaNumberController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -50,20 +52,31 @@ Route::prefix('user')->middleware('auth')->group(function () {
     
     // USA Number Routes (specialized controller)
     Route::prefix('usa')->group(function () {
-        Route::post('/check-availability', [\App\Http\Controllers\UsaNumberController::class, 'checkAvailability'])->name('usa.check-availability');
-        Route::post('/purchase', [\App\Http\Controllers\UsaNumberController::class, 'store'])->name('usa.purchase');
-        Route::get('/order/{order}/status', [\App\Http\Controllers\UsaNumberController::class, 'checkStatus'])->name('usa.order.status');
-        Route::post('/order/{order}/cancel', [\App\Http\Controllers\UsaNumberController::class, 'cancel'])->name('usa.order.cancel');
-        Route::get('/order/{order}', [\App\Http\Controllers\UsaNumberController::class, 'show'])->name('usa.order.show');
+        Route::post('/check-availability', [UsaNumberController::class, 'checkAvailability'])->name('usa.check-availability');
+        Route::post('/purchase', [UsaNumberController::class, 'store'])->name('usa.purchase');
+        Route::get('/order/{order}/status', [UsaNumberController::class, 'checkStatus'])->name('usa.order.status');
+        Route::post('/order/{order}/cancel', [UsaNumberController::class, 'cancel'])->name('usa.order.cancel');
+        Route::get('/order/{order}', [UsaNumberController::class, 'show'])->name('usa.order.show');
     });
 });
 
 // API routes for AJAX calls
-Route::prefix('api/user')->middleware('auth')->group(function () {
-    Route::get('/transactions', [UsersController::class, 'getTransactions'])->name('api.user.transactions');
-    Route::get('/digital-orders', [DigitalProductOrderController::class, 'getUserOrders'])->name('api.user.digital-orders');
-    Route::get('/gift-orders', [GiftOrderController::class, 'getUserOrders'])->name('api.user.gift-orders');
-    Route::get('/digital-orders/{id}', [DigitalProductOrderController::class, 'show'])->name('api.user.digital-orders.show');
+Route::prefix('api')->group(function () {
+    // Add API routes here if needed
+    
+    Route::prefix('user')->middleware('auth')->group(function () {
+        Route::get('/transactions', [UsersController::class, 'getTransactions'])->name('api.user.transactions');
+        Route::get('/digital-orders', [DigitalProductOrderController::class, 'getUserOrders'])->name('api.user.digital-orders');
+        Route::get('/gift-orders', [GiftOrderController::class, 'getUserOrders'])->name('api.user.gift-orders');
+        Route::get('/digital-orders/{id}', [DigitalProductOrderController::class, 'show'])->name('api.user.digital-orders.show');
+        Route::post('/set-deposit-amount', [UsersController::class, 'setDepositAmount'])->name('user.set-deposit-amount');
+    });
+});
+
+// Paystack routes
+Route::prefix('user')->middleware('auth')->group(function () {
+    Route::get('paystack/redirect', [PaystackController::class, 'paystackRedirect'])->name('user.paystack.redirect');
+    Route::get('paystack/callback', [PaystackController::class, 'verifyTransaction'])->name('user.paystack.callback');
 });
 
 // Digital Product Order routes

@@ -9,8 +9,8 @@
         <div>
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                    <li class="inline-flex items-center">
-                        <a href="{{ route('usa.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    <li class="inlinae-flex items-center">
+                        <a href="{{ route('user.usa-numbers') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
                             <i class="fas fa-mobile-alt mr-2"></i>
                             USA Numbers
                         </a>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-sm font-medium text-gray-500">Price</dt>
-                    <dd class="text-sm text-gray-900">${{ number_format($order->price, 2) }}</dd>
+                    <dd class="text-sm text-gray-900">₦{{ number_format($order->price, 2) }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-sm font-medium text-gray-500">Activation ID</dt>
@@ -250,7 +250,7 @@ function stopAutoRefresh() {
 
 // Check order status
 function checkOrderStatus(orderId, showNotification = true) {
-    fetch(`{{ route('usa.check-status', '') }}/${orderId}`, {
+    fetch(`{{ route('usa.order.status', '') }}/${orderId}`, {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Accept': 'application/json'
@@ -287,7 +287,7 @@ function cancelOrder(orderId) {
         return;
     }
     
-    fetch(`{{ route('usa.cancel', '') }}/${orderId}`, {
+    fetch(`{{ route('usa.order.cancel', '') }}/${orderId}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -299,10 +299,10 @@ function cancelOrder(orderId) {
         if (data.success) {
             showNotification(data.message || 'Order cancelled successfully', 'success');
             if (data.refunded) {
-                showNotification(`Refund of $${data.refund_amount} processed`, 'info');
+                showNotification(`Refund of ₦${data.refund_amount} processed`, 'info');
             }
             setTimeout(() => {
-                window.location.href = '{{ route("usa.index") }}';
+                window.location.href = '{{ route("user.usa-numbers") }}';
             }, 2000);
         } else {
             showNotification(data.message || 'Failed to cancel order', 'error');
@@ -316,7 +316,7 @@ function cancelOrder(orderId) {
 
 // Request SMS retry
 function requestSmsRetry(orderId) {
-    fetch(`{{ route('usa.check-status', '') }}/${orderId}`, {
+    fetch(`{{ route('usa.order.status', '') }}/${orderId}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

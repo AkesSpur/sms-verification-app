@@ -43,13 +43,13 @@
                 <select id="service" name="service" x-model="selectedService" @change="servicePrice = $event.target.options[$event.target.selectedIndex].dataset.price; statusChecked = false" 
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     <option value="">Choose a service...</option>
-                    <option value="whatsapp" data-price="3.50">WhatsApp - $3.50</option>
-                    <option value="telegram" data-price="2.80">Telegram - $2.80</option>
-                    <option value="discord" data-price="4.00">Discord - $4.00</option>
-                    <option value="instagram" data-price="3.20">Instagram - $3.20</option>
-                    <option value="facebook" data-price="3.80">Facebook - $3.80</option>
-                    <option value="twitter" data-price="3.60">Twitter - $3.60</option>
-                    <option value="tiktok" data-price="4.20">TikTok - $4.20</option>
+                    <option value="whatsapp" data-price="5950.00">WhatsApp - ₦5,950.00</option>
+                <option value="telegram" data-price="4760.00">Telegram - ₦4,760.00</option>
+                <option value="discord" data-price="6800.00">Discord - ₦6,800.00</option>
+                <option value="instagram" data-price="5440.00">Instagram - ₦5,440.00</option>
+                <option value="facebook" data-price="6460.00">Facebook - ₦6,460.00</option>
+                <option value="twitter" data-price="6120.00">Twitter - ₦6,120.00</option>
+                <option value="tiktok" data-price="7140.00">TikTok - ₦7,140.00</option>
                 </select>
             </div>
 
@@ -57,7 +57,7 @@
             <div x-show="selectedService" x-cloak class="bg-gray-50 rounded-lg p-4">
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-600">Price:</span>
-                    <span class="text-lg font-semibold text-gray-900" x-text="'$' + servicePrice"></span>
+                    <span class="text-lg font-semibold text-gray-900" x-text="'₦' + servicePrice.toLocaleString()"></span>
                 </div>
             </div>
 

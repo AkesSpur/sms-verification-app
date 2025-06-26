@@ -11,10 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('country', 10)->nullable()->after('service_id');
-            $table->index('country');
-        });
     }
 
     /**
@@ -22,9 +18,5 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropIndex(['country']);
-            $table->dropColumn('country');
-        });
     }
 };

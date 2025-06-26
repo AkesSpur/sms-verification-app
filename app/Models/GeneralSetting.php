@@ -18,6 +18,7 @@ class GeneralSetting extends Model
         'currency_icon',
         'api_price_markup_percentage',
         'enable_dynamic_pricing',
+        'naira_to_dollar_rate',
     ];
 
     protected $casts = [
@@ -25,5 +26,6 @@ class GeneralSetting extends Model
         'updated_at' => 'datetime',
         'api_price_markup_percentage' => 'decimal:2',
         'enable_dynamic_pricing' => 'boolean',
+        'naira_to_dollar_rate' => 'decimal:2',
     ];
 }

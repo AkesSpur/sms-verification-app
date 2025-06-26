@@ -25,6 +25,13 @@ class SmsActivateService
     
     // USA country code for SMSActivate
     private const USA_COUNTRY_CODE = 187;
+    private const DEFAULT_TIMEOUT = 30;
+    private const DEFAULT_RETRY_DELAY = 1000; // milliseconds
+    
+    private const ERROR_CODES = [
+        'NO_NUMBERS', 'NO_BALANCE', 'BAD_ACTION', 'BAD_SERVICE', 
+        'BAD_KEY', 'ERROR_SQL', 'NO_ACTIVATION', 'BAD_STATUS'
+    ];
     
     // Status mappings
     private const STATUS_MAPPING = [
@@ -173,10 +180,21 @@ class SmsActivateService
                             'is_available' => $count > 0
                         ]);
                         
+                        try {
+                            $price = $this->getServicePrice($serviceCode, $countryCode);
+                        } catch (Exception $e) {
+                            Log::warning('Price unavailable for availability check', [
+                                'service_code' => $serviceCode,
+                                'country_code' => $countryCode,
+                                'error' => $e->getMessage()
+                            ]);
+                            $price = null;
+                        }
+                        
                         return [
                             'available' => $count > 0,
                             'count' => $count,
-                            'price' => $this->getServicePrice($serviceCode, $countryCode)
+                            'price' => $price
                         ];
                     }
                 }
@@ -197,10 +215,21 @@ class SmsActivateService
                                 'is_available' => $count > 0
                             ]);
                             
+                            try {
+                                $price = $this->getServicePrice($serviceCode, $countryCode);
+                            } catch (Exception $e) {
+                                Log::warning('Price unavailable for availability check (legacy direct)', [
+                                    'service_code' => $serviceCode,
+                                    'country_code' => $countryCode,
+                                    'error' => $e->getMessage()
+                                ]);
+                                $price = null;
+                            }
+                            
                             return [
                                 'available' => $count > 0,
                                 'count' => $count,
-                                'price' => $this->getServicePrice($serviceCode, $countryCode)
+                                'price' => $price
                             ];
                         }
                         // Fallback to nested format (legacy)
@@ -214,10 +243,21 @@ class SmsActivateService
                                 'is_available' => $count > 0
                             ]);
                             
+                            try {
+                                $price = $this->getServicePrice($serviceCode, $countryCode);
+                            } catch (Exception $e) {
+                                Log::warning('Price unavailable for availability check (legacy nested)', [
+                                    'service_code' => $serviceCode,
+                                    'country_code' => $countryCode,
+                                    'error' => $e->getMessage()
+                                ]);
+                                $price = null;
+                            }
+                            
                             return [
                                 'available' => $count > 0,
                                 'count' => $count,
-                                'price' => $this->getServicePrice($serviceCode, $countryCode)
+                                'price' => $price
                             ];
                         }
                     }
@@ -250,7 +290,7 @@ class SmsActivateService
                     'service' => $serviceCode
                 ]);
                 
-                if (strpos($response, 'ACCESS_PRICES:') === 0) {
+                if (strpos($response, 'ACCESS_PRICES:') == 0) {
                     $data = json_decode(str_replace('ACCESS_PRICES:', '', $response), true);
                     
                     if (isset($data[$countryCode][$serviceCode]['cost'])) {
@@ -258,16 +298,8 @@ class SmsActivateService
                     }
                 }
                 
-                // Fallback to default pricing
-                $defaultPrices = [
-                    'wa' => 2.50,  // WhatsApp
-                    'tg' => 1.80,  // Telegram
-                    'dc' => 3.00,  // Discord
-                    'ig' => 2.20,  // Instagram
-                    'fb' => 2.80,  // Facebook
-                ];
-                
-                return $defaultPrices[$serviceCode] ?? 2.00;
+                // If we reach here, the API didn't return a valid price
+                throw new \Exception("Price not available from API for service {$serviceCode} in country {$countryCode}");
             });
         } catch (Exception $e) {
             Log::error('SMS Activate price check failed', [
@@ -275,34 +307,54 @@ class SmsActivateService
                 'country_code' => $countryCode,
                 'error' => $e->getMessage()
             ]);
-            return 2.00; // Default price
-     }
+            throw $e; // Re-throw the exception instead of returning default price
+        }
     }
      
      /**
-      * Purchase a number for a specific service and country
-      */
-     public function purchaseNumber($serviceCode, $userId, $countryCode = null)
-     {
-         try {
-             $countryCode = $countryCode ?? self::USA_COUNTRY_CODE;
-             
-             // Check user balance first
-             $user = User::find($userId);
-             if (!$user) {
-                 throw new RequestError('User not found');
-             }
-             
-             // Verify country is supported
-             $country = $this->getCountryByCode($countryCode);
-             if (!$country) {
-                 throw new RequestError('Country not supported');
-             }
-             
-             $price = $this->getServicePrice($serviceCode, $countryCode);
-             if ($user->balance < $price) {
-                 throw new RequestError('Insufficient balance');
-             }
+     * Purchase a number for a specific service and country
+     */
+    public function purchaseNumber($serviceCode, $userId, $countryCode = null, $priceInNaira = null, $orderSource = 'web')
+    {
+        try {
+            $countryCode = $countryCode ?? self::USA_COUNTRY_CODE;
+            
+            // Check user balance first
+            $user = User::find($userId);
+            if (!$user) {
+                throw new RequestError('User not found');
+            }
+            
+            // Verify country is supported
+            $country = $this->getCountryByCode($countryCode);
+            if (!$country) {
+                throw new RequestError('Country not supported');
+            }
+            
+            // Find service by code
+            $service = Service::where('code', $serviceCode)->first();
+            if (!$service) {
+                throw new RequestError('Service not found');
+            }
+            
+            // Get pricing details from PricingService
+            $pricingService = app(PricingService::class);
+            $pricingDetails = $this->getPricingDetails($service, $country, $pricingService);
+            
+            // Use provided price in Naira or calculated price
+            $finalPriceInNaira = $priceInNaira ?? $pricingDetails['final_price'];
+            
+            if (!$finalPriceInNaira) {
+                Log::error('Failed to get service price for purchase', [
+                    'service_code' => $serviceCode,
+                    'country_code' => $countryCode
+                ]);
+                throw new RequestError('Service pricing not available');
+            }
+            
+            if ($user->balance < $finalPriceInNaira) {
+                throw new RequestError('Insufficient balance');
+            }
              
              // Check availability
              $availability = $this->checkAvailability($serviceCode, $countryCode);
@@ -310,7 +362,14 @@ class SmsActivateService
                  throw new RequestError('Service not available');
              }
              
-             // Purchase number from SMSActivate
+             Log::info('SMS Activate purchase request', [
+                 'service_code' => $serviceCode,
+                 'country_code' => $countryCode,
+                 'user_id' => $userId,
+                 'pricing_details' => $pricingDetails
+             ]);
+             
+             // Purchase number from SMSActivate (without max price restriction)
              $response = $this->makeRequest('getNumber', [
                  'service' => $serviceCode,
                  'country' => $countryCode
@@ -328,22 +387,22 @@ class SmsActivateService
                      throw new RequestError('Number is blacklisted');
                  }
                  
-                 // Find service by code
-                 $service = Service::where('code', $serviceCode)->first();
-                 if (!$service) {
-                     throw new RequestError('Service not found');
-                 }
-                 
-                 // Create order record
+                 // Create order record with enhanced pricing details
                  $order = Order::create([
                      'user_id' => $userId,
                      'service_id' => $service->id,
-                     'country' => $countryCode,
+                     'country_id' => $country->id,
                      'phone_number' => $phoneNumber,
                      'activation_id' => $activationId,
-                     'price' => $price,
+                     'price' => $finalPriceInNaira, // Final price charged to user
+                     'api_price' => $pricingDetails['api_price_usd'], // Original API price in USD
+                     'markup_percentage' => $pricingDetails['markup_percentage'], // Markup applied
+                     'final_price' => $finalPriceInNaira, // Same as price for consistency
+                     'api_response' => json_encode($response), // Store API response
+                     'order_source' => $orderSource, // Source of the order
                      'status' => 'pending',
-                     'expires_at' => Carbon::now()->addMinutes(20)
+                     'expires_at' => Carbon::now()->addMinutes(20),
+                     'sms_window_expires_at' => Carbon::now()->addMinutes(20)
                  ]);
                  
                  // Log transaction and deduct balance
@@ -351,14 +410,14 @@ class SmsActivateService
                      $user,
                      'debit',
                      'sms_purchase',
-                     $price,
+                     $finalPriceInNaira,
                      "SMS verification for {$serviceCode} ({$country->name})",
                      ['service_code' => $serviceCode, 'country_code' => $countryCode],
                      $order
                  );
                  
                  // Update user balance
-                 $user->decrement('balance', $price);
+                 $user->decrement('balance', $finalPriceInNaira);
                  
                  return [
                      'success' => true,
@@ -539,7 +598,7 @@ class SmsActivateService
              Log::info('SMS Activate API request', [
                  'action' => $action,
                  'params' => array_diff_key($params, ['api_key' => '']),
-                 'response' => substr($result, 0, 1400)
+                 'response' => substr($result, 0, 400)
              ]);
              
              if (!$result) {
@@ -548,6 +607,11 @@ class SmsActivateService
              
              // Handle specific cases for getNumber
              if ($getNumber == 1) {
+                 // Check for error responses first
+                 if (in_array($result, self::ERROR_CODES)) {
+                     throw new RequestError($result);
+                 }
+                 
                  if (strpos($result, 'ACCESS_NUMBER:') !== false) {
                      $parsedResponse = explode(':', $result);
                      if (count($parsedResponse) >= 3) {
@@ -558,6 +622,11 @@ class SmsActivateService
              }
              
              if ($getNumber == 2) {
+                 // Check for error responses first
+                 if (in_array($result, self::ERROR_CODES)) {
+                     throw new RequestError($result);
+                 }
+                 
                  $parsedResponse = explode(':', $result);
                  if (count($parsedResponse) >= 2) {
                      return ['status' => $parsedResponse[0], 'code' => $parsedResponse[1]];
@@ -566,6 +635,11 @@ class SmsActivateService
              }
              
              if ($getNumber == 3) {
+                 // Check for error responses first
+                 if (in_array($result, self::ERROR_CODES)) {
+                     throw new RequestError($result);
+                 }
+                 
                  $parsedResponse = explode(':', $result);
                  return ['status' => $parsedResponse[0]];
              }
@@ -758,5 +832,41 @@ class SmsActivateService
       public function isCountrySupported($countryCode)
       {
           return Country::where('code', $countryCode)->exists();
+      }
+      
+      /**
+       * Get detailed pricing information for order creation
+       */
+      private function getPricingDetails($service, $country, $pricingService)
+      {
+          try {
+              // Get the final price from PricingService
+              $finalPrice = $pricingService->getServicePrice($service->id, $country->id);
+              
+              // Get API price in USD
+              $apiPriceUsd = $this->getServicePrice($service->code, $country->code);
+              
+              // Get general settings for markup percentage
+              $generalSettings = \App\Models\GeneralSetting::first();
+              $markupPercentage = $generalSettings->api_price_markup_percentage ?? 20.00;
+              
+              return [
+                  'final_price' => $finalPrice,
+                  'api_price_usd' => $apiPriceUsd,
+                  'markup_percentage' => $markupPercentage
+              ];
+          } catch (Exception $e) {
+              Log::error('Failed to get pricing details', [
+                  'service_code' => $service->code,
+                  'country_code' => $country->code,
+                  'error' => $e->getMessage()
+              ]);
+              
+              return [
+                  'final_price' => null,
+                  'api_price_usd' => null,
+                  'markup_percentage' => 20.00
+              ];
+          }
       }
   }

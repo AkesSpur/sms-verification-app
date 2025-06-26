@@ -38,6 +38,7 @@ class SettingController extends Controller
             'contact_address' => ['nullable', 'max:500'],
             'api_price_markup_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'enable_dynamic_pricing' => ['nullable', 'boolean'],
+            'naira_to_dollar_rate' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         GeneralSetting::updateOrCreate(
@@ -51,6 +52,7 @@ class SettingController extends Controller
                 'currency_icon' => $request->currency_icon,
                 'api_price_markup_percentage' => $request->api_price_markup_percentage ?? 20.00,
                 'enable_dynamic_pricing' => $request->boolean('enable_dynamic_pricing', true),
+                'naira_to_dollar_rate' => $request->naira_to_dollar_rate,
             ]
         );
 

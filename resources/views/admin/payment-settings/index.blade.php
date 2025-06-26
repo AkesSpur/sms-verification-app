@@ -19,7 +19,7 @@
                           <div class="list-group" id="list-tab" role="tablist">
                             <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab">Paystack</a>
                             <a class="list-group-item list-group-item-action" id="list-localbank-list" data-toggle="list" href="#list-localbank" role="tab">LocalBank</a>
-                            <a class="list-group-item list-group-item-action" id="list-localbank2-list" data-toggle="list" href="#list-localbank2" role="tab">LocalBank2</a>
+                            {{-- <a class="list-group-item list-group-item-action" id="list-localbank2-list" data-toggle="list" href="#list-localbank2" role="tab">LocalBank2</a> --}}
                           </div>
                         </div>
                         <div class="col-10">
@@ -29,7 +29,7 @@
 
                             @include('admin.payment-settings.sections.localbank-setting')
 
-                            @include('admin.payment-settings.sections.localbank2-setting')
+                            {{-- @include('admin.payment-settings.sections.localbank2-setting') --}}
 
                           </div>
                         </div>

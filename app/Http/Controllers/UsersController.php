@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Country;
+use App\Models\Localbank;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\User;
@@ -25,7 +26,7 @@ class UsersController extends Controller
     public function usaNumbers()
     {
         // Redirect to the specialized USA number controller
-        return app(\App\Http\Controllers\UsaNumberController::class)->index();
+        return app(UsaNumberController::class)->index();
     }
 
     public function allCountriesNumbers()
@@ -56,11 +57,15 @@ class UsersController extends Controller
         $totalRefunds = $transactions->where('type', 'credit')->whereIn('category', ['gift_refund', 'digital_refund', 'sms_refund'])->sum('amount');
         $pendingAmount = $transactions->where('status', 'pending')->sum('amount');
         
+        // Get local bank settings
+        $localbankSetting = Localbank::getActive();
+        
         return view('user.transaction', compact(
             'totalTransactions',
             'totalSpent', 
             'totalRefunds',
-            'pendingAmount'
+            'pendingAmount',
+            'localbankSetting'
         ));
     }
     
@@ -193,4 +198,29 @@ class UsersController extends Controller
             default => 'General'
         };
     }
+    
+    public function setDepositAmount(Request $request)
+    {
+        try {
+            $request->validate([
+                'amount' => 'required|numeric|min:100|max:1000000'
+            ]);
+            
+            // Store deposit amount in session
+            session(['deposit_amount' => $request->amount]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Deposit amount set successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to set deposit amount: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+    
+
 }

@@ -52,9 +52,8 @@ class ManageUserController extends Controller
             ]);
         }
 
-        return response([
-            'status' => 'success', 
-            'message' => 'User successfully created'
-        ]);
+        toastr()->success('User successfully created');
+
+        return redirect()->route('admin.manage-user.index');
     }
 }

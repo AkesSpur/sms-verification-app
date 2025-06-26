@@ -37,7 +37,7 @@ return [
 
     'smsactivate' => [
         'api_key' => env('SMS_ACTIVATE_API_KEY'),
-        'base_url' => env('SMS_ACTIVATE_BASE_URL', 'https://api.sms-activate.ae/stubs/handler_api.php'),
+        'base_url' => env('SMS_ACTIVATE_BASE_URL', 'https://api.sms-activate.org/stubs/handler_api.php'),
         'timeout' => env('SMS_ACTIVATE_TIMEOUT', 30),
         'max_retries' => env('SMS_ACTIVATE_MAX_RETRIES', 3),
         'retry_delay' => env('SMS_ACTIVATE_RETRY_DELAY', 1000), // milliseconds

@@ -11,7 +11,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Balance</p>
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format(auth()->user()->balance ?? 0, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900">₦{{ number_format(auth()->user()->balance ?? 0, 2) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-wallet text-green-600 text-xl"></i>
@@ -83,11 +83,11 @@
                             <select id="usa_service" name="service" x-model="selectedService" @change="servicePrice = $event.target.options[$event.target.selectedIndex].dataset.price; statusChecked = false" 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                                 <option value="">Choose a service...</option>
-                                <option value="whatsapp" data-price="2.50">WhatsApp - $2.50</option>
-                                <option value="telegram" data-price="1.80">Telegram - $1.80</option>
-                                <option value="discord" data-price="3.00">Discord - $3.00</option>
-                                <option value="instagram" data-price="2.20">Instagram - $2.20</option>
-                                <option value="facebook" data-price="2.80">Facebook - $2.80</option>
+                                <option value="whatsapp" data-price="4250.00">WhatsApp - ₦4,250.00</option>
+                        <option value="telegram" data-price="3060.00">Telegram - ₦3,060.00</option>
+                        <option value="discord" data-price="5100.00">Discord - ₦5,100.00</option>
+                        <option value="instagram" data-price="3740.00">Instagram - ₦3,740.00</option>
+                        <option value="facebook" data-price="4760.00">Facebook - ₦4,760.00</option>
                             </select>
                         </div>
 
@@ -95,7 +95,7 @@
                         <div x-show="selectedService" x-cloak class="bg-gray-50 rounded-lg p-4">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Price:</span>
-                                <span class="text-lg font-semibold text-gray-900" x-text="'$' + servicePrice"></span>
+                                <span class="text-lg font-semibold text-gray-900" x-text="'₦' + servicePrice.toLocaleString()"></span>
                             </div>
                         </div>
 
@@ -232,11 +232,11 @@
                             <select id="all_service" name="service" x-model="selectedService" @change="servicePrice = $event.target.options[$event.target.selectedIndex].dataset.price; statusChecked = false" 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                                 <option value="">Choose a service...</option>
-                                <option value="whatsapp" data-price="2.50">WhatsApp - $2.50</option>
-                                <option value="telegram" data-price="1.80">Telegram - $1.80</option>
-                                <option value="discord" data-price="3.00">Discord - $3.00</option>
-                                <option value="instagram" data-price="2.20">Instagram - $2.20</option>
-                                <option value="facebook" data-price="2.80">Facebook - $2.80</option>
+                                <option value="whatsapp" data-price="5950.00">WhatsApp - ₦5,950.00</option>
+                        <option value="telegram" data-price="4760.00">Telegram - ₦4,760.00</option>
+                        <option value="discord" data-price="6800.00">Discord - ₦6,800.00</option>
+                        <option value="instagram" data-price="5440.00">Instagram - ₦5,440.00</option>
+                        <option value="facebook" data-price="6460.00">Facebook - ₦6,460.00</option>
                             </select>
                         </div>
 
@@ -244,7 +244,7 @@
                         <div x-show="selectedCountry && selectedService" x-cloak class="bg-gray-50 rounded-lg p-4">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Price:</span>
-                                <span class="text-lg font-semibold text-gray-900" x-text="'$' + servicePrice"></span>
+                                <span class="text-lg font-semibold text-gray-900" x-text="'₦' + servicePrice.toLocaleString()"></span>
                             </div>
                         </div>
 

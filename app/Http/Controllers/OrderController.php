@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Service;
 use App\Services\SmsActivateService;
+use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -13,10 +14,12 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
     protected $smsService;
+    protected $pricingService;
 
-    public function __construct(SmsActivateService $smsService)
+    public function __construct(SmsActivateService $smsService, PricingService $pricingService)
     {
         $this->smsService = $smsService;
+        $this->pricingService = $pricingService;
     }
 
     public function create()
@@ -33,40 +36,36 @@ class OrderController extends Controller
             'country' => 'required|string',
         ]);
     
-        $service = Service::findOrFail($request->service); 
+        $service = Service::findOrFail($request->service);
+        $user = Auth::user();
 
         try {
-            $response = $this->smsService->getNumber($service['code'], $request->country);
+            // Get price in Naira using PricingService
+            $priceInNaira = $this->pricingService->getServicePrice($service->code, $request->country);
+            
+            // Check if user has sufficient balance
+            if ($user->balance < $priceInNaira) {
+                toastr()->error('Insufficient balance. Required: ₦' . number_format($priceInNaira, 2));
+                return back();
+            }
+            
+            // Convert Naira price to USD for API call
+            $priceInUsd = $this->pricingService->convertNairaToUsd($priceInNaira);
+            
+            $response = $this->smsService->purchaseNumber($service->code, $user->id, $request->country, $priceInNaira);
         
             // Log the raw response for debugging
             Log::info('SMS Activate Raw Response:', ['response' => $response, 'type' => gettype($response)]);
 
-            // Ensure the response is an array and contains the necessary keys
-            if (is_array($response) && isset($response['id']) && isset($response['number'])) {
-                $activationId = $response['id']; // Correct way to extract activation ID
-                $phoneNumber = $response['number']; // Correct way to extract phone number
-            } 
-            elseif (is_string($response) && preg_match('/\\\\u[0-9a-fA-F]{4}/', $response)) {
-                    // Handle Unicode-encoded error messages
-                    $decodedResponse = json_decode('"' . $response . '"');
-                    throw new \Exception($decodedResponse);
-            }
-            else {
-                throw new \Exception("Unexpected response format from SMS Activate API.");
-            }
-
-            // Save the order to the database
-            $order = Order::create([
-                'user_id' => Auth::id(),
-                'service_id' => $request->service,
-                'phone_number' => $phoneNumber,
-                'activation_id' => $activationId,
-                'expires_at' => now()->addMinutes(20),
-            ]);
-            
-            // Flash success message
-            toastr()->success('Order created successfully!');
-            return redirect()->route('user.number');
+            // Check if purchase was successful
+            if ($response['success']) {
+                $order = $response['order'];
+                
+                toastr()->success('Order created successfully! Price: ₦' . number_format($priceInNaira, 2));
+                return redirect()->route('user.number');
+            } else {
+                 throw new \Exception('Failed to purchase number from SMS Activate API.');
+             }
         
         } catch (\Exception $e) {
             // Flash error message

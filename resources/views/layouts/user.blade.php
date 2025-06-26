@@ -17,8 +17,6 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Custom Styles -->
 <style>
@@ -180,6 +178,8 @@
 
     <!-- Toast notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
         // Toast notification function

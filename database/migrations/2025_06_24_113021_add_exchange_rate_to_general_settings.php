@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('general_settings', function (Blueprint $table) {
-            $table->decimal('api_price_markup_percentage', 5, 2)->default(20.00)->after('site_name');
-            $table->boolean('enable_dynamic_pricing')->default(true)->after('api_price_markup_percentage');
-            $table->decimal('naira_to_dollar_rate', 8, 2)->default(1700.00)->after('enable_dynamic_pricing');
+            if (!Schema::hasColumn('general_settings', 'naira_to_dollar_rate')) {
+                $table->decimal('naira_to_dollar_rate', 8, 2)->default(1700.00)->after('enable_dynamic_pricing');
+            }
         });
     }
 
@@ -24,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('general_settings', function (Blueprint $table) {
-            $table->dropColumn(['api_price_markup_percentage', 'enable_dynamic_pricing']);
+            if (Schema::hasColumn('general_settings', 'naira_to_dollar_rate')) {
+                $table->dropColumn(['naira_to_dollar_rate']);
+            }
         });
     }
 };

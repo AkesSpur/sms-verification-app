@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Transaction;
 use App\Models\BlacklistedNumber;
 use App\Services\SmsActivateService;
+use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -22,16 +23,25 @@ use Carbon\Carbon;
 class UsaNumberController extends Controller
 {
     protected $smsService;
+    protected $pricingService;
     protected $usaCountryCode = 187; // USA country code for SMS Activate
     protected $maxOrdersPerHour = 5;
     protected $maxOrdersPerDay = 20;
-    protected $minBalanceRequired = 1.00;
+    protected $minBalanceRequired = 100.00; // Minimum balance in Naira
 
-    public function __construct(SmsActivateService $smsService)
+    public function __construct(SmsActivateService $smsService, PricingService $pricingService)
     {
         $this->smsService = $smsService;
+        $this->pricingService = $pricingService;
         $this->middleware('auth');
-        $this->middleware('throttle:60,1')->only(['store', 'checkStatus']);
+        
+        // Apply throttle middleware only for non-admin users
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->role === 'admin') {
+                return $next($request);
+            }
+            return app('Illuminate\Routing\Middleware\ThrottleRequests')->handle($request, $next, 60, 1);
+        })->only(['store', 'checkStatus']);
     }
 
     /**
@@ -40,11 +50,19 @@ class UsaNumberController extends Controller
     public function index()
     {
         $user = auth()->user();
+        $usaCountryId = $this->getUsaCountryId();
         
         // Get user's active orders for USA numbers
         $activeOrders = Order::where('user_id', $user->id)
-            ->where('country', $this->usaCountryCode)
-            ->whereIn('status', ['pending', 'active', 'waiting'])
+            ->where('country_id', $usaCountryId)
+            ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_ACTIVE])
+            ->with(['service', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get all user's USA orders for history display
+        $allOrders = Order::where('user_id', $user->id)
+            ->where('country_id', $usaCountryId)
             ->with(['service', 'user'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -57,15 +75,15 @@ class UsaNumberController extends Controller
         // Get user statistics
         $stats = [
             'balance' => $user->balance ?? 0,
-            'total_orders' => Order::where('user_id', $user->id)->where('country', $this->usaCountryCode)->count(),
+            'total_orders' => Order::where('user_id', $user->id)->where('country_id', $usaCountryId)->count(),
             'active_orders' => $activeOrders->count(),
             'completed_orders' => Order::where('user_id', $user->id)
-                ->where('country', $this->usaCountryCode)
-                ->where('status', 'completed')
+                ->where('country_id', $usaCountryId)
+                ->where('status', Order::STATUS_COMPLETED)
                 ->count(),
         ];
         
-        return view('user.usa-numbers', compact('activeOrders', 'services', 'stats'));
+        return view('user.usa-numbers', compact('activeOrders', 'allOrders', 'services', 'stats'));
     }
 
     /**
@@ -80,15 +98,17 @@ class UsaNumberController extends Controller
         $user = Auth::user();
         $serviceCode = $request->service;
 
-        // Rate limiting for availability checks
-        $key = 'availability_check:' . $user->id;
-        if (RateLimiter::tooManyAttempts($key, 10)) {
-            return response()->json([
-                'available' => false,
-                'message' => 'Too many requests. Please wait before checking again.'
-            ], 429);
+        // Rate limiting for availability checks (skip for admin users)
+        if ($user->role !== 'admin') {
+            $key = 'availability_check:' . $user->id;
+            if (RateLimiter::tooManyAttempts($key, 10)) {
+                return response()->json([
+                    'available' => false,
+                    'message' => 'Too many requests. Please wait before checking again.'
+                ], 429);
+            }
+            RateLimiter::hit($key, 60);
         }
-        RateLimiter::hit($key, 60);
 
         try {
             // Check if service exists and is active
@@ -120,23 +140,43 @@ class UsaNumberController extends Controller
                 ]);
             }
 
-            // Get price for USA
-            $price = $service->getPriceForCountry($this->getUsaCountryId());
-            $balance = $this->smsService->getBalance();
+            // Get price for USA in Naira
+            $price = $this->pricingService->getServicePrice($service->id, $this->getUsaCountryId());
+            // $balance = $this->smsService->getBalance();
             // Check API availability (cached for 5 minutes)
             $cacheKey = "usa_availability_{$serviceCode}";
             $availability = Cache::remember($cacheKey, 300, function() use ($serviceCode) {
                 try {
+                    Log::info('🔍 Checking SMS Activate API availability', [
+                        'service_code' => $serviceCode,
+                        'country_code' => $this->usaCountryCode
+                    ]);
+                    
                     $result = $this->smsService->checkAvailability($serviceCode, $this->usaCountryCode);
+                    
+                    Log::info('📡 SMS Activate API Response', [
+                        'service_code' => $serviceCode,
+                        'raw_result' => $result,
+                        'available_status' => $result['available'] ?? 'not_set'
+                    ]);
+                    
                     return $result['available'];
                 } catch (\Exception $e) {
-                    Log::warning('Failed to check USA availability', [
+                    Log::warning('❌ Failed to check USA availability', [
                         'service' => $serviceCode,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
                     ]);
                     return false;
                 }
             });
+
+            Log::info('✅ Final availability check result', [
+                'service_code' => $serviceCode,
+                'availability' => $availability,
+                'price' => $price,
+                'user_id' => $user->id
+            ]);
 
             return response()->json([
                 'available' => $availability,
@@ -170,23 +210,25 @@ class UsaNumberController extends Controller
         $user = Auth::user();
         $serviceCode = $request->service;
 
-        // Rate limiting for purchases
-        $purchaseKey = 'usa_purchase:' . $user->id;
-        if (RateLimiter::tooManyAttempts($purchaseKey, $this->maxOrdersPerHour)) {
-            throw ValidationException::withMessages([
-                'service' => 'You have reached the hourly purchase limit.'
-            ]);
-        }
+        // Rate limiting for purchases (skip for admin users)
+        $purchaseKey = 'usa_purchase:'. $user->id;
+        if ($user->role !== 'admin') {
+            if (RateLimiter::tooManyAttempts($purchaseKey, $this->maxOrdersPerHour)) {
+                throw ValidationException::withMessages([
+                    'service' => 'You have reached the hourly purchase limit.'
+                ]);
+            }
 
-        // Daily limit check
-        $dailyOrders = Order::where('user_id', $user->id)
-            ->where('created_at', '>', now()->subDay())
-            ->count();
+            // Daily limit check
+            $dailyOrders = Order::where('user_id', $user->id)
+                ->where('created_at', '>', now()->subDay())
+                ->count();
 
-        if ($dailyOrders >= $this->maxOrdersPerDay) {
-            throw ValidationException::withMessages([
-                'service' => 'You have reached the daily purchase limit.'
-            ]);
+            if ($dailyOrders >= $this->maxOrdersPerDay) {
+                throw ValidationException::withMessages([
+                    'service' => 'You have reached the daily purchase limit.'
+                ]);
+            }
         }
 
         // Security checks
@@ -210,18 +252,18 @@ class UsaNumberController extends Controller
                     ]);
                 }
 
-                // Get price from SmsActivateService
-                $price = $this->smsService->getServicePrice($serviceCode, $this->usaCountryCode);
+                // Get price in Naira from PricingService (already rounded to next 10th)
+                $priceInNaira = $this->pricingService->getServicePrice($service->id, $this->getUsaCountryId());
                 
-                if ($user->balance < $price) {
+                if ($user->balance < $priceInNaira) {
                     throw ValidationException::withMessages([
-                        'balance' => 'Insufficient balance. Required: $' . number_format($price, 2)
+                        'balance' => 'Insufficient balance. Required: ₦' . number_format($priceInNaira, 2)
                     ]);
                 }
 
                 // Check for active orders
                 $activeOrders = Order::where('user_id', $user->id)
-                    ->where('status', 'pending')
+                    ->where('status', Order::STATUS_PENDING)
                     ->count();
 
                 if ($activeOrders >= 3) {
@@ -230,8 +272,8 @@ class UsaNumberController extends Controller
                     ]);
                 }
 
-                // Request number from API
-                $response = $this->smsService->purchaseNumber($serviceCode, $user->id, $this->usaCountryCode);
+                // Request number from API with Naira price (service will handle USD conversion internally)
+                $response = $this->smsService->purchaseNumber($serviceCode, $user->id, $this->usaCountryCode, $priceInNaira, 'usa_numbers_web');
 
                 if (!$response['success']) {
                     throw new \Exception('Failed to get USA number from provider.');
@@ -244,8 +286,10 @@ class UsaNumberController extends Controller
 
                 // Transaction and balance deduction are handled by SmsActivateService
 
-                // Hit rate limiter
-                RateLimiter::hit($purchaseKey, 3600);
+                // Hit rate limiter (skip for admin users)
+                if ($user->role !== 'admin') {
+                    RateLimiter::hit($purchaseKey, 3600);
+                }
 
                 Log::info('USA number purchased successfully', [
                     'user_id' => $user->id,
@@ -293,30 +337,58 @@ class UsaNumberController extends Controller
         
         $order = Order::where('id', $orderId)
             ->where('user_id', $user->id)
-            ->whereHas('service.countries', function($query) {
-                $query->where('code', $this->usaCountryCode);
-            })
+            // ->whereHas('service.countries', function($query) {
+            //     $query->where('code', $this->usaCountryCode);
+            // })
             ->first();
 
         if (!$order) {
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        // Rate limiting for status checks
-        $statusKey = "status_check:{$user->id}:{$orderId}";
-        if (RateLimiter::tooManyAttempts($statusKey, 30)) {
-            return response()->json([
-                'error' => 'Too many status checks. Please wait before checking again.'
-            ], 429);
+        // Rate limiting for status checks (skip for admin users)
+        if ($user->role !== 'admin') {
+            $statusKey = "status_check:{$user->id}:{$orderId}";
+            if (RateLimiter::tooManyAttempts($statusKey, 30)) {
+                return response()->json([
+                    'error' => 'Too many status checks. Please wait before checking again.'
+                ], 429);
+            }
+            RateLimiter::hit($statusKey, 60);
         }
-        RateLimiter::hit($statusKey, 60);
 
         try {
+            // Check if order should be auto-cancelled (1 minute past SMS window expiration)
+            if ($order->sms_window_expires_at && 
+                $order->sms_window_expires_at->addMinute()->isPast() && 
+                !$order->sms_received_at && 
+                in_array($order->status, ['pending', 'active'])) {
+                
+                // Auto-cancel the order
+                $order->cancel('Auto-cancelled: SMS window expired', 'system');
+                
+                return response()->json([
+                    'success' => true,
+                    'order' => [
+                        'status' => 'cancelled',
+                        'sms_code' => null,
+                        'phone_number' => $order->phone_number,
+                        'expires_at' => null
+                    ],
+                    'message' => 'Order has been automatically cancelled due to SMS timeout. Your account has been refunded.'
+                ]);
+            }
+            
             // Check if order is already completed or expired
             if (in_array($order->status, ['completed', 'expired', 'cancelled'])) {
                 return response()->json([
-                    'status' => $order->status,
-                    'sms_code' => $order->sms_code,
+                    'success' => true,
+                    'order' => [
+                        'status' => $order->status,
+                        'sms_code' => $order->sms_code,
+                        'phone_number' => $order->phone_number,
+                        'expires_at' => $order->sms_window_expires_at ? $order->sms_window_expires_at->toISOString() : null
+                    ],
                     'message' => 'Order status: ' . ucfirst($order->status)
                 ]);
             }
@@ -342,7 +414,13 @@ class UsaNumberController extends Controller
 
                 // No changes
                 return response()->json([
-                    'status' => $order->status,
+                    'success' => true,
+                    'order' => [
+                        'status' => $order->status,
+                        'sms_code' => $order->sms_code,
+                        'phone_number' => $order->phone_number,
+                        'expires_at' => $order->sms_window_expires_at ? $order->sms_window_expires_at->toISOString() : null
+                    ],
                     'message' => 'No SMS received yet. Keep waiting...'
                 ]);
             });
@@ -355,7 +433,9 @@ class UsaNumberController extends Controller
             ]);
 
             return response()->json([
-                'error' => 'Failed to check status. Please try again later.'
+                'success' => false,
+                'message' => 'Failed to check status. Please try again later.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -370,9 +450,9 @@ class UsaNumberController extends Controller
         $order = Order::where('id', $orderId)
             ->where('user_id', $user->id)
             ->where('status', 'pending')
-            ->whereHas('service.countries', function($query) {
-                $query->where('countries.code', $this->usaCountryCode);
-            })
+            // ->whereHas('service.countries', function($query) {
+            //     $query->where('countries.code', $this->usaCountryCode);
+            // })
             ->first();
 
         if (!$order) {
@@ -396,10 +476,10 @@ class UsaNumberController extends Controller
 
                 // Refund if no SMS was received
                 if (is_null($order->sms_code)) {
-                    $service = $order->service;
-                    $price = $service->getPriceForCountry($this->getUsaCountryId());
-                    
-                    $user->increment('balance', $price);
+                    // Use the price that was actually charged (stored in order)
+                    $refundAmount = $order->final_price;
+
+                    $user->increment('balance', $refundAmount);
                     $order->update(['refunded' => true]);
 
                     // Create refund transaction
@@ -407,7 +487,7 @@ class UsaNumberController extends Controller
                         $user,
                         'credit',
                         'sms_refund',
-                        $price,
+                        $refundAmount,
                         "Refund for cancelled USA SMS order #{$order->id}",
                         [
                             'original_order_id' => $order->id,
@@ -419,13 +499,13 @@ class UsaNumberController extends Controller
                     Log::info('USA order cancelled with refund', [
                         'user_id' => $user->id,
                         'order_id' => $order->id,
-                        'refund_amount' => $price
+                        'refund_amount' => $refundAmount
                     ]);
 
                     return response()->json([
                         'success' => true,
                         'message' => 'Order cancelled and refunded successfully.',
-                        'refund_amount' => $price
+                        'refund_amount' => $refundAmount
                     ]);
                 } else {
                     Log::info('USA order cancelled without refund', [
@@ -463,29 +543,35 @@ class UsaNumberController extends Controller
         
         $order = Order::where('id', $orderId)
             ->where('user_id', $user->id)
-            ->whereHas('service.countries', function($query) {
-                $query->where('code', $this->usaCountryCode);
-            })
+            // ->whereHas('service.countries', function($query) {
+            //     $query->where('code', $this->usaCountryCode);
+            // })
             ->with(['service', 'user'])
             ->first();
 
         if (!$order) {
-            return response()->json(['error' => 'Order not found'], 404);
+            abort(404, 'Order not found');
         }
 
-        return response()->json([
-            'order' => [
-                'id' => $order->id,
-                'phone_number' => $order->phone_number,
-                'service' => $order->service->name,
-                'status' => $order->status,
-                'sms_code' => $order->sms_code,
-                'created_at' => $order->created_at->format('Y-m-d H:i:s'),
-                'expires_at' => $order->expires_at->format('Y-m-d H:i:s'),
-                'refunded' => $order->refunded,
-                'time_remaining' => $order->expires_at->gt(now()) ? $order->expires_at->diffInMinutes(now()) : 0
-            ]
-        ]);
+        // If it's an AJAX request, return JSON
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'order' => [
+                    'id' => $order->id,
+                    'phone_number' => $order->phone_number,
+                    'service' => $order->service->name,
+                    'status' => $order->status,
+                    'sms_code' => $order->sms_code,
+                    'created_at' => $order->created_at->format('Y-m-d H:i:s'),
+                    'expires_at' => $order->expires_at->format('Y-m-d H:i:s'),
+                    'refunded' => $order->refunded,
+                    'time_remaining' => $order->expires_at->gt(now()) ? $order->expires_at->diffInMinutes(now()) : 0
+                ]
+            ]);
+        }
+
+        // Return the order details view
+        return view('user.usa-order-details', compact('order'));
     }
 
     /**
@@ -502,7 +588,7 @@ class UsaNumberController extends Controller
 
         // Check for suspicious activity
         $recentFailures = Order::where('user_id', $user->id)
-            ->where('status', 'expired')
+            ->where('status', Order::STATUS_EXPIRED)
             ->where('created_at', '>', now()->subHours(24))
             ->count();
 
@@ -515,7 +601,7 @@ class UsaNumberController extends Controller
         // Check minimum balance requirement
         if ($user->balance < $this->minBalanceRequired) {
             throw ValidationException::withMessages([
-                'balance' => 'Minimum balance of $' . number_format($this->minBalanceRequired, 2) . ' required.'
+                'balance' => 'Minimum balance of ₦' . number_format($this->minBalanceRequired, 2) . ' required.'
             ]);
         }
     }
@@ -529,7 +615,12 @@ class UsaNumberController extends Controller
             $order->handleExpiration();
             
             return response()->json([
-                'status' => 'expired',
+                'success' => true,
+                'order' => [
+                    'status' => Order::STATUS_EXPIRED,
+                    'sms_code' => $order->sms_code,
+                    'phone_number' => $order->phone_number
+                ],
                 'message' => 'Order has expired.',
                 'refunded' => $order->refunded
             ]);
@@ -542,9 +633,14 @@ class UsaNumberController extends Controller
     private function processApiResponse(Order $order, string $response)
     {
         if ($response === 'STATUS_CANCEL') {
-            $order->update(['status' => 'expired']);
+            $order->update(['status' => Order::STATUS_EXPIRED]);
             return response()->json([
-                'status' => 'expired',
+                'success' => true,
+                'order' => [
+                    'status' => Order::STATUS_EXPIRED,
+                    'sms_code' => $order->sms_code,
+                    'phone_number' => $order->phone_number
+                ],
                 'message' => 'Order was cancelled by provider.'
             ]);
         }
@@ -554,7 +650,7 @@ class UsaNumberController extends Controller
             if ($code) {
                 $order->update([
                     'sms_code' => $code,
-                    'status' => 'completed'
+                    'status' => Order::STATUS_COMPLETED
                 ]);
 
                 Log::info('USA SMS code received', [
@@ -563,15 +659,24 @@ class UsaNumberController extends Controller
                 ]);
 
                 return response()->json([
-                    'status' => 'completed',
-                    'sms_code' => $code,
+                    'success' => true,
+                    'order' => [
+                        'status' => Order::STATUS_COMPLETED,
+                        'sms_code' => $code,
+                        'phone_number' => $order->phone_number
+                    ],
                     'message' => 'SMS code received successfully!'
                 ]);
             }
         }
 
         return response()->json([
-            'status' => $order->status,
+            'success' => true,
+            'order' => [
+                'status' => $order->status,
+                'sms_code' => $order->sms_code,
+                'phone_number' => $order->phone_number
+            ],
             'message' => 'Waiting for SMS...'
         ]);
     }
@@ -582,9 +687,14 @@ class UsaNumberController extends Controller
     private function processApiStatus(Order $order, string $status, ?string $code = null)
     {
         if ($status === 'STATUS_CANCEL') {
-            $order->update(['status' => 'expired']);
+            $order->update(['status' => Order::STATUS_EXPIRED]);
             return response()->json([
-                'status' => 'expired',
+                'success' => true,
+                'order' => [
+                    'status' => Order::STATUS_EXPIRED,
+                    'sms_code' => $order->sms_code,
+                    'phone_number' => $order->phone_number
+                ],
                 'message' => 'Order was cancelled by provider.'
             ]);
         }
@@ -592,7 +702,7 @@ class UsaNumberController extends Controller
         if ($status === 'STATUS_OK' && $code) {
             $order->update([
                 'sms_code' => $code,
-                'status' => 'completed'
+                'status' => Order::STATUS_COMPLETED
             ]);
 
             Log::info('USA SMS code received', [
@@ -601,14 +711,23 @@ class UsaNumberController extends Controller
             ]);
 
             return response()->json([
-                'status' => 'completed',
-                'sms_code' => $code,
+                'success' => true,
+                'order' => [
+                    'status' => Order::STATUS_COMPLETED,
+                    'sms_code' => $code,
+                    'phone_number' => $order->phone_number
+                ],
                 'message' => 'SMS code received successfully!'
             ]);
         }
 
         return response()->json([
-            'status' => $order->status,
+            'success' => true,
+            'order' => [
+                'status' => $order->status,
+                'sms_code' => $order->sms_code,
+                'phone_number' => $order->phone_number
+            ],
             'message' => 'Waiting for SMS...'
         ]);
     }

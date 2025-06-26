@@ -55,7 +55,7 @@ class TransactionSeeder extends Seeder
             [
                 'user_id' => $user->id,
                 'type' => 'debit',
-                'category' => 'digital_product_purchase',
+                'category' => 'digital_purchase',
                 'amount' => 9.99,
                 'balance_before' => 34.01,
                 'balance_after' => 24.02,
