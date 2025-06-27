@@ -82,7 +82,7 @@ class InternationalNumberController extends Controller
             // Get country code for SMS Activate API
             $apiCountryCode = $this->getCountryMapping($countryCode);
             
-            if (!$apiCountryCode) {
+            if ($apiCountryCode === null) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Country not supported'
@@ -190,7 +190,7 @@ class InternationalNumberController extends Controller
                 // Get API country code
                 $apiCountryCode = $this->getCountryMapping($countryCode);
                 
-                if (!$apiCountryCode) {
+                if ($apiCountryCode === null) {
                     throw new \Exception('Country not supported');
                 }
                 
