@@ -101,41 +101,6 @@
         </form>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Filter Numbers</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label for="countryFilter" class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                <select id="countryFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <option value="">All Countries</option>
-                    @foreach($countries->sortBy('name') as $country)
-                        <option value="{{ $country->code }}">{{ $country->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="serviceFilter" class="block text-sm font-medium text-gray-700 mb-2">Service</label>
-                <select id="serviceFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <option value="">All Services</option>
-                    @foreach($services->sortBy('name') as $service)
-                        <option value="{{ $service->code }}">{{ $service->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                <input type="text" id="searchInput" placeholder="Search phone numbers..." 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-            </div>
-        </div>
-        <div class="mt-4 flex justify-end">
-            <button type="button" onclick="applyFilters()" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                <i class="fas fa-filter mr-2"></i>Apply Filters
-            </button>
-        </div>
-    </div>
-
     <!-- Active Orders Section -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hidden md:block">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Active International Orders</h2>

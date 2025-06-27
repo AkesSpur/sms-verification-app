@@ -784,5 +784,30 @@
             }
         });
     }
+    
+    // Initialize Select2 specifically for this page
+    $(document).ready(function() {
+        // Safely destroy existing Select2 instances first
+        $('.select2').each(function() {
+            if ($(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2('destroy');
+            }
+        });
+        
+        // Re-initialize with proper configuration
+        $('select[name="country_id"]').select2({
+            placeholder: 'Search countries...',
+            allowClear: true,
+            width: '100%',
+            theme: 'bootstrap4'
+        });
+        
+        $('select[name="service_id"]').select2({
+            placeholder: 'Search services...',
+            allowClear: true,
+            width: '100%',
+            theme: 'bootstrap4'
+        });
+    });
 </script>
 @endpush

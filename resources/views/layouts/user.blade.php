@@ -162,10 +162,11 @@
                     
                     <div class="flex items-center space-x-4">
                         <!-- Balance display -->
-                        <div class="flex items-center px-3 py-2 bg-green-50 rounded-lg">
-                            <i class="fas fa-wallet text-green-600 mr-2"></i>
+                        <a href="{{ route('user.transaction') }}" class="flex items-center px-3 py-2 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer group">
+                            <i class="fas fa-wallet text-green-600 mr-2 group-hover:scale-110 transition-transform"></i>
                             <span class="text-sm font-medium text-green-800">₦{{ number_format(auth()->user()->balance ?? 0, 0) }}</span>
-                        </div>
+                            <i class="fas fa-external-link-alt text-green-500 ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </a>
                     </div>
             </header>
 

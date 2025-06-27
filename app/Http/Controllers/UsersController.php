@@ -15,13 +15,25 @@ class UsersController extends Controller
 {
     public function dashboard()
     {
-        $countries = Country::all();
-        $services = Service::all();
-        $balance = Auth::user()->balance;
+        $user = Auth::user();
+        $balance = $user->balance;
+        
+        // Get real statistics for the authenticated user
+        $activeNumbers = Order::where('user_id', $user->id)
+            ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_ACTIVE])
+            ->count();
+            
+        $totalNumbers = Order::where('user_id', $user->id)->count();
+        
+        $completedOrders = Order::where('user_id', $user->id)
+            ->where('status', Order::STATUS_COMPLETED)
+            ->count();
+        
         return view('user.dashboard', compact(
-            'services',
             'balance',
-            'countries'
+            'activeNumbers',
+            'totalNumbers',
+            'completedOrders'
         ));
     }
     public function usaNumbers()

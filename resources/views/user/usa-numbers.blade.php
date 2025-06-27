@@ -10,11 +10,11 @@
             <h1 class="text-2xl font-bold text-gray-900">USA Numbers</h1>
             <p class="mt-1 text-sm text-gray-500">Get and manage your USA phone numbers</p>
         </div>
-        <div class="mt-4 sm:mt-0">
+        {{-- <div class="mt-4 sm:mt-0">
             <div class="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
                 <span class="text-sm text-green-800 font-medium">Balance: ₦{{ number_format($stats['balance'], 2) }}</span>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <!-- Statistics Cards -->
@@ -46,10 +46,10 @@
                 <div class="flex-shrink-0">
                     <i class="fas fa-check-circle text-green-600 text-2xl"></i>
                 </div>
-                <div class="ml-4">
+                {{-- <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Completed</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['completed_orders'] }}</p>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
