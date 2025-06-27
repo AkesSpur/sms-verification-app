@@ -18,6 +18,7 @@ use App\Http\Controllers\Backend\DigitalProductLogController;
 use App\Http\Controllers\Backend\DigitalProductOrderController;
 use App\Http\Controllers\Backend\GiftController;
 use App\Http\Controllers\Backend\BannerController;
+use App\Http\Controllers\Backend\SmsOrderController;
 use App\Http\Controllers\Admin\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -68,11 +69,13 @@ Route::put('logo-setting-update', [SettingController::class, 'updateLogoSetting'
 
 /* Country Service Pricing Routes */
 Route::get('country-service', [CountryServiceController::class, 'index'])->name('country-service.index');
-Route::get('country-service/{country}/prices', [CountryServiceController::class, 'getCountryPrices'])->name('country-service.prices');
+// Route::get('country-service/{country}/prices', [CountryServiceController::class, 'getCountryPrices'])->name('country-service.prices');
+Route::post('country-service/get-country-prices/{country}', [CountryServiceController::class, 'getCountryPrices'])->name('country-service.get-prices');
 Route::post('country-service/update-price', [CountryServiceController::class, 'updatePrice'])->name('country-service.update-price');
 Route::delete('country-service/remove-price', [CountryServiceController::class, 'removeCustomPrice'])->name('country-service.remove-price');
 Route::post('country-service/bulk-update', [CountryServiceController::class, 'bulkUpdatePrices'])->name('country-service.bulk-update');
-Route::post('country-service/{country}/sync-api', [CountryServiceController::class, 'syncApiPrices'])->name('country-service.sync-api');
+Route::post('country-service/sync-api-prices', [CountryServiceController::class, 'syncApiPrices'])->name('country-service.sync-api-prices');
+// Route::post('country-service/{country}/sync-api', [CountryServiceController::class, 'syncApiPrices'])->name('country-service.sync-api');
 
 /* Service Management Routes */
 Route::post('services/bulk-action', [ServiceController::class, 'bulkAction'])->name('services.bulk-action');
@@ -111,6 +114,17 @@ Route::resource('gift-orders', GiftOrderController::class)->only(['index', 'show
 /* Banner Management Routes */
 Route::post('banners/{banner}/toggle-status', [BannerController::class, 'toggleStatus'])->name('banners.toggle-status');
 Route::resource('banners', BannerController::class);
+
+/* SMS Order Management Routes */
+Route::get('sms-orders/statistics', [SmsOrderController::class, 'statistics'])->name('sms-orders.statistics');
+Route::get('sms-orders/export', [SmsOrderController::class, 'export'])->name('sms-orders.export');
+Route::post('sms-orders/bulk-action', [SmsOrderController::class, 'bulkAction'])->name('sms-orders.bulk-action');
+Route::resource('sms-orders', SmsOrderController::class)->only(['index', 'show', 'destroy'])->parameter('sms-orders', 'order');
+Route::post('sms-orders/{order}/set-sms-code', [SmsOrderController::class, 'setSmsCode'])->name('sms-orders.set-sms-code');
+Route::post('sms-orders/{order}/retry-sms', [SmsOrderController::class, 'retrySms'])->name('sms-orders.retry-sms');
+Route::post('sms-orders/{order}/force-cancel', [SmsOrderController::class, 'forceCancel'])->name('sms-orders.force-cancel');
+Route::post('sms-orders/{order}/mark-review', [SmsOrderController::class, 'markForReview'])->name('sms-orders.mark-review');
+Route::post('sms-orders/{order}/remove-review', [SmsOrderController::class, 'removeFromReview'])->name('sms-orders.remove-review');
 
 /** Payment settings routes */
 Route::get('payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');

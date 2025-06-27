@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Gateways\PaystackController;
 use App\Http\Controllers\UsaNumberController;
+use App\Http\Controllers\InternationalNumberController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -57,6 +58,15 @@ Route::prefix('user')->middleware('auth')->group(function () {
         Route::get('/order/{order}/status', [UsaNumberController::class, 'checkStatus'])->name('usa.order.status');
         Route::post('/order/{order}/cancel', [UsaNumberController::class, 'cancel'])->name('usa.order.cancel');
         Route::get('/order/{order}', [UsaNumberController::class, 'show'])->name('usa.order.show');
+    });
+    
+    // International Number Routes (specialized controller)
+    Route::prefix('international')->group(function () {
+        Route::post('/check-availability', [InternationalNumberController::class, 'checkAvailability'])->name('international.check-availability');
+        Route::post('/purchase', [InternationalNumberController::class, 'store'])->name('international.purchase');
+        Route::get('/order/{order}/status', [InternationalNumberController::class, 'checkStatus'])->name('international.order.status');
+        Route::post('/order/{order}/cancel', [InternationalNumberController::class, 'cancelOrder'])->name('international.order.cancel');
+        Route::get('/order/{order}', [InternationalNumberController::class, 'show'])->name('international.order.show');
     });
 });
 

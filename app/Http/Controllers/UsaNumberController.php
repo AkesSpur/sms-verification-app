@@ -24,7 +24,7 @@ class UsaNumberController extends Controller
 {
     protected $smsService;
     protected $pricingService;
-    protected $usaCountryCode = 187; // USA country code for SMS Activate
+    protected $usaCountryCode; // USA country code for SMS Activate
     protected $maxOrdersPerHour = 5;
     protected $maxOrdersPerDay = 20;
     protected $minBalanceRequired = 100.00; // Minimum balance in Naira
@@ -33,6 +33,7 @@ class UsaNumberController extends Controller
     {
         $this->smsService = $smsService;
         $this->pricingService = $pricingService;
+        $this->usaCountryCode = SmsActivateService::getUsaCountryCode();
         $this->middleware('auth');
         
         // Apply throttle middleware only for non-admin users
@@ -60,12 +61,12 @@ class UsaNumberController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Get all user's USA orders for history display
+        // Get all user's USA orders for history display with pagination
         $allOrders = Order::where('user_id', $user->id)
             ->where('country_id', $usaCountryId)
             ->with(['service', 'user'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
         
         // Get available services for USA using proper relationship
         $services = Service::where('status', 'active')
@@ -266,7 +267,7 @@ class UsaNumberController extends Controller
                     ->where('status', Order::STATUS_PENDING)
                     ->count();
 
-                if ($activeOrders >= 3) {
+                if ($activeOrders >= 8) {
                     throw ValidationException::withMessages([
                         'service' => 'You have too many active orders. Please complete or cancel existing orders first.'
                     ]);

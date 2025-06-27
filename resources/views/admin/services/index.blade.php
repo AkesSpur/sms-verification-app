@@ -70,7 +70,7 @@
                                                     </td>
                                                     <td class="text-center"><strong>{{ $service->name }}</strong></td>
                                                     <td class="text-center"><code>{{ $service->code }}</code></td>
-                                                    <td class="text-center">${{ number_format($service->price, 2) }}</td>
+                                                    <td class="text-center">₦{{ number_format($service->price, 2) }}</td>
                                                     <td class="text-center">
                                                         @if($service->allow_refunds)
                                                             <span class="badge badge-success">Yes</span>

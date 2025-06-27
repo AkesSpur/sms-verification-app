@@ -25,7 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {   
-        Paginator::useBootstrapFive();
+        // Paginator::useTailwind();
+         Paginator::useBootstrapFive();
 
         $generalSetting = GeneralSetting::first();
         $logoSetting = LogoSetting::first();

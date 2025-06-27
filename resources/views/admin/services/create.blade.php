@@ -56,7 +56,7 @@
                                 <label for="price">Base Price <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text">$</span>
+                                        <span class="input-group-text">₦</span>
                                     </div>
                                     <input type="number" 
                                            class="form-control @error('price') is-invalid @enderror" 

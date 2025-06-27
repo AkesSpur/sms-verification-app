@@ -102,8 +102,18 @@
             toastr.error("{{$error}}")
         @endforeach
     @endif
+
+    
   </script>
 
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Search for a product...",
+            allowClear: true
+        });
+    });
+</script>
   <!-- Dynamic Delete alart -->
 
   <script>

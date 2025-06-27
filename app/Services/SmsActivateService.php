@@ -25,8 +25,8 @@ class SmsActivateService
     
     // USA country code for SMSActivate
     private const USA_COUNTRY_CODE = 187;
-    private const DEFAULT_TIMEOUT = 30;
-    private const DEFAULT_RETRY_DELAY = 1000; // milliseconds
+    private const DEFAULT_TIMEOUT = 10; // Reduced from 30 to prevent timeouts
+    private const DEFAULT_RETRY_DELAY = 500; // Reduced from 1000 milliseconds
     
     private const ERROR_CODES = [
         'NO_NUMBERS', 'NO_BALANCE', 'BAD_ACTION', 'BAD_SERVICE', 
@@ -48,9 +48,9 @@ class SmsActivateService
     {
         $this->apiKey = config('services.smsactivate.api_key');
         $this->baseUrl = config('services.smsactivate.base_url');
-        $this->timeout = config('services.smsactivate.timeout');
-        $this->maxRetries = config('services.smsactivate.max_retries');
-        $this->retryDelay = config('services.smsactivate.retry_delay');
+        $this->timeout = config('services.smsactivate.timeout', self::DEFAULT_TIMEOUT);
+        $this->maxRetries = config('services.smsactivate.max_retries', 2);
+        $this->retryDelay = config('services.smsactivate.retry_delay', self::DEFAULT_RETRY_DELAY);
         
         if (!$this->apiKey) {
             throw new RequestError('BAD_KEY');
@@ -819,12 +819,20 @@ class SmsActivateService
       }
       
       /**
-       * Get USA country from database
-       */
-      public function getUsaCountry()
-      {
-          return Country::where('code', self::USA_COUNTRY_CODE)->first();
-      }
+     * Get USA country from database
+     */
+    public function getUsaCountry()
+    {
+        return Country::where('code', self::USA_COUNTRY_CODE)->first();
+    }
+    
+    /**
+     * Get USA country code
+     */
+    public static function getUsaCountryCode()
+    {
+        return self::USA_COUNTRY_CODE;
+    }
       
       /**
        * Check if a country is supported

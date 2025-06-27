@@ -7,8 +7,8 @@
             <div class="form-group">
                 <label>Paystack Status</label>
                 <select name="status" id="" class="form-control">
-                    <option {{$paystackSetting->status === 1 ? 'selected' : ''}} value="1">Enable</option>
-                    <option {{$paystackSetting->status === 0 ? 'selected' : ''}} value="0">Disable</option>
+                    <option {{$paystackSetting->status == 1 ? 'selected' : ''}} value="1">Enable</option>
+                    <option {{$paystackSetting->status == 0 ? 'selected' : ''}} value="0">Disable</option>
                 </select>
             </div>
 

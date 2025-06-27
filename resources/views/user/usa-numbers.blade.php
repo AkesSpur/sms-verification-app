@@ -174,7 +174,16 @@
                                     <i class="fas fa-mobile-alt {{ $order->status === 'completed' ? 'text-green-600' : ($order->status === 'pending' ? 'text-yellow-600' : 'text-blue-600') }}"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $order->phone_number ?? 'Requesting...' }}</p>
+                                    <div class="flex items-center space-x-2">
+                                        <p class="text-sm font-medium text-gray-900">{{ $order->phone_number ?? 'Requesting...' }}</p>
+                                        @if($order->phone_number)
+                                            <button onclick="copyToClipboard('{{ $order->phone_number }}', this)" 
+                                                    class="text-gray-400 hover:text-blue-600 transition-colors duration-200" 
+                                                    title="Copy phone number">
+                                                <i class="fas fa-copy text-xs"></i>
+                                            </button>
+                                        @endif
+                                    </div>
                                     <p class="text-xs text-gray-500">
                                         {{ $order->service->name ?? 'Unknown Service' }} • 
                                         @if($order->sms_code)
@@ -249,6 +258,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SMS Code</th>
@@ -305,7 +315,17 @@
                         @forelse($allOrders as $order)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ formatPhoneNumber($order->phone_number) }}
+                                <div class="flex items-center space-x-2">
+                                    <span>{{ formatPhoneNumber($order->phone_number) }}</span>
+                                    <button onclick="copyToClipboard('{{ $order->phone_number }}')"
+                                            class="text-gray-400 hover:text-gray-600 transition-colors"
+                                            title="Copy phone number">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                #{{ $order->id }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -313,9 +333,20 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusBadge($order->status) }}">
-                                    {{ ucfirst($order->status) }}
-                                </span>
+                                <div class="flex flex-col">
+                                    <span class=" px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusBadge($order->status) }}">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                    @if($order->status === 'cancelled' && $order->refunded)
+                                        <span class="text-xs text-green-600 mt-1">
+                                            <i class="fas fa-check-circle mr-1"></i>Refunded
+                                        </span>
+                                    @elseif($order->status === 'cancelled' && !$order->refunded)
+                                        <span class="text-xs text-red-600 mt-1">
+                                            <i class="fas fa-times-circle mr-1"></i>No Refund
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 @if($order->sms_code)
@@ -349,7 +380,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
+                            <td colspan="7" class="px-6 py-12 text-center">
                                 <i class="fas fa-mobile-alt text-gray-400 text-4xl mb-4"></i>
                                 <h3 class="text-lg font-medium text-gray-900 mb-2">No USA Numbers Yet</h3>
                                 <p class="text-gray-500">Get your first USA number using the form above.</p>
@@ -368,12 +399,32 @@
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-flag-usa text-blue-600"></i>
                             <span class="font-medium text-gray-900">{{ formatPhoneNumber($order->phone_number) }}</span>
+                            <button onclick="copyToClipboard('{{ $order->phone_number }}')"
+                                    class="text-gray-400 hover:text-gray-600 transition-colors"
+                                    title="Copy phone number">
+                                <i class="fas fa-copy"></i>
+                            </button>
                         </div>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusBadge($order->status) }}">
-                            {{ ucfirst($order->status) }}
-                        </span>
+                        <div class="flex flex-col items-end">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusBadge($order->status) }}">
+                                {{ ucfirst($order->status) }}
+                            </span>
+                            @if($order->status === 'cancelled' && $order->refunded)
+                                <span class="text-xs text-green-600 mt-1">
+                                    <i class="fas fa-check-circle mr-1"></i>Refunded
+                                </span>
+                            @elseif($order->status === 'cancelled' && !$order->refunded)
+                                <span class="text-xs text-red-600 mt-1">
+                                    <i class="fas fa-times-circle mr-1"></i>No Refund
+                                </span>
+                            @endif
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-gray-500">Order ID:</span>
+                            <span class="ml-1 font-medium">#{{ $order->id }}</span>
+                        </div>
                         <div>
                             <span class="text-gray-500">Service:</span>
                             <span class="ml-1 font-medium">{{ $order->service->name }}</span>
@@ -420,7 +471,77 @@
                 @endforelse
             </div>
 
-
+            <!-- Pagination -->
+            @if($allOrders->hasPages())
+                <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            @if($allOrders->onFirstPage())
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+                                    Previous
+                                </span>
+                            @else
+                                <a href="{{ $allOrders->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                    Previous
+                                </a>
+                            @endif
+                            
+                            @if($allOrders->hasMorePages())
+                                <a href="{{ $allOrders->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                    Next
+                                </a>
+                            @else
+                                <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+                                    Next
+                                </span>
+                            @endif
+                        </div>
+                        
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Showing <span class="font-medium">{{ $allOrders->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $allOrders->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $allOrders->total() }}</span> results
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    @if($allOrders->onFirstPage())
+                                        <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </span>
+                                    @else
+                                        <a href="{{ $allOrders->previousPageUrl() }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    @endif
+                                    
+                                    @foreach($allOrders->getUrlRange(1, $allOrders->lastPage()) as $page => $url)
+                                        @if($page == $allOrders->currentPage())
+                                            <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-600 text-sm font-medium text-white">
+                                                {{ $page }}
+                                            </span>
+                                        @else
+                                            <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                                {{ $page }}
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                    
+                                    @if($allOrders->hasMorePages())
+                                        <a href="{{ $allOrders->nextPageUrl() }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    @else
+                                        <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    @endif
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>
@@ -1418,6 +1539,8 @@ function showNotification(message, type = 'info', duration = 5000) {
                 'fa-info-circle'
             } mr-2"></i>
             <span class="flex-1">${message}</span>
+
+            
             <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-gray-500 hover:text-gray-700">
                 <i class="fas fa-times"></i>
             </button>

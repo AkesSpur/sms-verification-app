@@ -7,8 +7,8 @@
                 <div class="form-group">
                     <label>Local Bank Status</label>
                     <select name="status" id="" class="form-control">
-                        <option {{$localbankSetting->status === 1 ? 'selected' : ''}} value="1">Enable</option>
-                        <option {{$localbankSetting->status === 0 ? 'selected' : ''}} value="0">Disable</option>
+                        <option {{$localbankSetting->status == 1 ? 'selected' : ''}} value="1">Enable</option>
+                        <option {{$localbankSetting->status == 0 ? 'selected' : ''}} value="0">Disable</option>
                     </select>
                 </div>
 

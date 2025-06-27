@@ -68,12 +68,15 @@
 
                 <!-- Order Management Section -->
                 <li class="menu-header">Order Management</li>
-                <li class="dropdown {{ setActive(['admin.digital-product-orders.*', 'admin.gift-orders.*', 'admin.order.*', 'admin.gift-info', 'admin.pending-gift-orders']) }}">
+                <li class="dropdown {{ setActive(['admin.sms-orders.*', 'admin.digital-product-orders.*', 'admin.gift-orders.*', 'admin.order.*', 'admin.gift-info', 'admin.pending-gift-orders']) }}">
                     <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Orders</span>
                     </a>
                     <ul class="dropdown-menu">
+                        <li class="{{ setActive(['admin.sms-orders.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.sms-orders.index') }}">SMS Orders</a>
+                        </li>
                         <li class="{{ setActive(['admin.digital-product-orders.*']) }}">
                             <a class="nav-link" href="{{ route('admin.digital-product-orders.index') }}">Digital Product Orders</a>
                         </li>

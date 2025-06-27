@@ -22,9 +22,9 @@
                                 <i class="fas fa-edit"></i> Edit Service
                             </a>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-borderless">
+                    </div>rd-body">
+                        <table cla
+                    <div class="cass="table table-borderless">
                             <tr>
                                 <td width="30%"><strong>Name:</strong></td>
                                 <td>{{ $service->name }}</td>
@@ -35,7 +35,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Base Price:</strong></td>
-                                <td>${{ number_format($service->price, 2) }}</td>
+                                <td>₦{{ number_format($service->price, 2) }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Allow Refunds:</strong></td>
@@ -172,7 +172,7 @@
                                         <tr>
                                             <td>{{ $country->name }}</td>
                                             <td><code>{{ $country->code }}</code></td>
-                                            <td>${{ number_format($country->pivot->price, 2) }}</td>
+                                            <td>₦{{ number_format($country->pivot->price, 2) }}</td>
                                             <td>
                                                 @if($country->pivot->is_active)
                                                     <span class="badge badge-success">Active</span>
@@ -221,7 +221,7 @@
                                             <td><code>#{{ $order->id }}</code></td>
                                             <td>{{ $order->user->name ?? 'N/A' }}</td>
                                             <td>{{ $order->country->name ?? 'N/A' }}</td>
-                                            <td>${{ number_format($order->price, 2) }}</td>
+                                            <td>₦{{ number_format($order->price, 2) }}</td>
                                             <td>
                                                 <span class="badge badge-{{ $order->status === 'completed' ? 'success' : ($order->status === 'pending' ? 'warning' : 'danger') }}">
                                                     {{ ucfirst($order->status) }}

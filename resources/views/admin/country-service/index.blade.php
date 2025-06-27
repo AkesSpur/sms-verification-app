@@ -141,6 +141,11 @@
 </div>
 @endsection
 
+<!-- Back to Top Button -->
+<button id="backToTopBtn" class="btn btn-primary" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 1000; border-radius: 50%; width: 50px; height: 50px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);" title="Back to Top">
+    <i class="fas fa-chevron-up"></i>
+</button>
+
 @push('scripts')
 <script>
 $(document).ready(function() {
@@ -165,18 +170,38 @@ $(document).ready(function() {
         $('#loadingSpinner').show();
         $('#pricingTable').hide();
         
-        $.get(`/admin/country-service/${currentCountryId}/prices`)
-            .done(function(response) {
+        $.ajax({
+            url: `/admin/country-service/get-country-prices/${currentCountryId}`,
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            timeout: 60000 // 60 seconds timeout
+        })
+        .done(function(response) {
+            if (response.success) {
                 pricingData = response.pricing_data;
                 renderPricingTable(response.pricing_data);
                 $('#pricingTable').show();
-            })
-            .fail(function() {
-                toastr.error('Failed to load pricing data');
-            })
-            .always(function() {
-                $('#loadingSpinner').hide();
-            });
+                toastr.success('Pricing data loaded successfully');
+            } else {
+                toastr.error(response.message || 'Failed to load pricing data');
+            }
+        })
+        .fail(function(xhr) {
+            let errorMessage = 'Failed to load pricing data';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            } else if (xhr.status === 500) {
+                errorMessage = 'Server error occurred. Please try again.';
+            } else if (xhr.status === 0) {
+                errorMessage = 'Request timeout. Please try again.';
+            }
+            toastr.error(errorMessage);
+        })
+        .always(function() {
+            $('#loadingSpinner').hide();
+        });
     });
 
     // Sync prices from API
@@ -189,17 +214,42 @@ $(document).ready(function() {
         
         $('#loadingSpinner').show();
         
-        $.post(`/admin/country-service/${currentCountryId}/sync-api`)
-            .done(function(response) {
+        $.ajax({
+            url: '/admin/country-service/sync-api-prices',
+            method: 'POST',
+            data: {
+                country_id: currentCountryId,
+                _token: '{{ csrf_token() }}'
+            },
+            timeout: 300000 // 5 minutes timeout for API sync
+        })
+        .done(function(response) {
+            if (response.success) {
                 toastr.success(response.message);
+                if (response.errors && response.errors.length > 0) {
+                    response.errors.forEach(function(error) {
+                        toastr.warning(error);
+                    });
+                }
                 $('#loadPricesBtn').click(); // Reload the table
-            })
-            .fail(function() {
-                toastr.error('Failed to sync prices from API');
-            })
-            .always(function() {
-                $('#loadingSpinner').hide();
-            });
+            } else {
+                toastr.error(response.message || 'Failed to sync prices from API');
+            }
+        })
+        .fail(function(xhr) {
+            let errorMessage = 'Failed to sync prices from API';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            } else if (xhr.status === 500) {
+                errorMessage = 'Server error occurred during sync. Please try again.';
+            } else if (xhr.status === 0) {
+                errorMessage = 'Sync timeout. Please try again with fewer services.';
+            }
+            toastr.error(errorMessage);
+        })
+        .always(function() {
+            $('#loadingSpinner').hide();
+        });
     });
 
     // Render pricing table
@@ -269,14 +319,19 @@ $(document).ready(function() {
             country_id: $('#edit_country_id').val(),
             service_id: $('#edit_service_id').val(),
             price: $('#edit_price').val(),
-            is_active: $('#edit_is_active').is(':checked')
+            is_active: $('#edit_is_active').is(':checked'),
+            _token: '{{ csrf_token() }}'
         };
         
         $.post('/admin/country-service/update-price', formData)
             .done(function(response) {
-                toastr.success(response.message);
-                $('#editPriceModal').modal('hide');
-                $('#loadPricesBtn').click(); // Reload the table
+                if (response.success) {
+                    toastr.success(response.message);
+                    $('#editPriceModal').modal('hide');
+                    $('#loadPricesBtn').click(); // Reload the table
+                } else {
+                    toastr.error(response.message || 'Failed to update price');
+                }
             })
             .fail(function(xhr) {
                 let errors = xhr.responseJSON?.errors;
@@ -287,7 +342,7 @@ $(document).ready(function() {
                         });
                     });
                 } else {
-                    toastr.error('Failed to update price');
+                    toastr.error(xhr.responseJSON?.message || 'Failed to update price');
                 }
             });
     });
@@ -330,9 +385,25 @@ $(document).ready(function() {
             <div class="alert alert-info">
                 <strong>Bulk Update Instructions:</strong> Modify the prices below and click "Update All Prices" to apply changes to all services.
             </div>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Apply percentage change to all prices:</label>
+                    <div class="input-group">
+                        <input type="number" id="percentageChange" class="form-control" placeholder="e.g., 10 for +10%, -5 for -5%" step="0.1">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-secondary" id="applyPercentageBtn">Apply %</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Set all services status:</label><br>
+                    <button type="button" class="btn btn-sm btn-success" id="activateAllBtn">Activate All</button>
+                    <button type="button" class="btn btn-sm btn-danger" id="deactivateAllBtn">Deactivate All</button>
+                </div>
+            </div>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-sm table-striped">
+                    <thead class="thead-light" style="position: sticky; top: 0; z-index: 10;">
                         <tr>
                             <th>Service</th>
                             <th>Current Price</th>
@@ -372,22 +443,6 @@ $(document).ready(function() {
         content += `
                     </tbody>
                 </table>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <label>Apply percentage change to all prices:</label>
-                    <div class="input-group">
-                        <input type="number" id="percentageChange" class="form-control" placeholder="e.g., 10 for +10%, -5 for -5%" step="0.1">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-outline-secondary" id="applyPercentageBtn">Apply %</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label>Set all services status:</label><br>
-                    <button type="button" class="btn btn-sm btn-success" id="activateAllBtn">Activate All</button>
-                    <button type="button" class="btn btn-sm btn-danger" id="deactivateAllBtn">Deactivate All</button>
-                </div>
             </div>
         `;
         
@@ -470,6 +525,19 @@ $(document).ready(function() {
                 toastr.error('Failed to update prices');
             }
         });
+    });
+    // Back to Top Button functionality
+    $(window).scroll(function() {
+        if ($(this).scrollTop() > 100) {
+            $('#backToTopBtn').fadeIn();
+        } else {
+            $('#backToTopBtn').fadeOut();
+        }
+    });
+
+    $('#backToTopBtn').click(function() {
+        $('html, body').animate({scrollTop: 0}, 600);
+        return false;
     });
 });
 </script>

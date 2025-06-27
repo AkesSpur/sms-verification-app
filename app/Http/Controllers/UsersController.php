@@ -7,6 +7,7 @@ use App\Models\Localbank;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\User;
+use App\Services\SmsActivateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,17 +32,29 @@ class UsersController extends Controller
 
     public function allCountriesNumbers()
     {
+        $usaId = SmsActivateService::getUsaCountryCode() ?? 187;
         $services = Service::all();
-        $countries = Country::all();
+        $countries = Country::where('code', '!=', $usaId)->get();
 
+        // Get active international orders (excluding USA orders)
+        $activeOrders = Order::where('user_id', Auth::user()->id)
+            ->whereNotIn('status', ['completed', 'cancelled', 'expired'])
+            ->where('country_id', '!=', $usaId) // Exclude USA orders
+            ->with('service')
+            ->latest()
+            ->get();
+
+        // Get all orders for history (paginated)
         $orders = Order::where('user_id', Auth::user()->id)
+            ->where('country_id', '!=', $usaId)
             ->latest()
             ->paginate(10);
 
         return view('user.all-countries-numbers', compact(
             'services',
             'orders',
-            'countries'
+            'countries',
+            'activeOrders'
         ));
     }
 

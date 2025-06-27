@@ -345,6 +345,48 @@ class PricingService
         return round($nairaAmount / $exchangeRate, 4);
     }
 
+
+
+    /**
+     * Calculate final API price with markup and convert to Naira.
+     * Takes USD price and returns Naira price.
+     */
+    public function calculateApiPrice($apiPriceUsd, $markupPercentage = null)
+    {
+        try {
+            if ($apiPriceUsd === null) {
+                return null;
+            }
+
+            $generalSettings = GeneralSetting::first();
+            $markup = $markupPercentage ?? $generalSettings->api_price_markup_percentage ?? 20.00;
+            $exchangeRate = $generalSettings->naira_to_dollar_rate ?? 1700.00;
+            
+            // Apply markup
+            $priceWithMarkup = $apiPriceUsd * (1 + ($markup / 100));
+            
+            // Convert to Naira
+            $finalPriceNaira = $priceWithMarkup * $exchangeRate;
+            
+            Log::info('💰 API price calculated', [
+                'api_price_usd' => $apiPriceUsd,
+                'markup_percentage' => $markup,
+                'exchange_rate' => $exchangeRate,
+                'final_price_naira' => $finalPriceNaira
+            ]);
+            
+            return round($finalPriceNaira, 2);
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to calculate API price', [
+                'api_price_usd' => $apiPriceUsd,
+                'markup_percentage' => $markupPercentage,
+                'error' => $e->getMessage()
+            ]);
+            
+            return null;
+        }
+    }
+
     /**
      * Round price to the next 10th (122 = 130, 127.1 = 130)
      */
