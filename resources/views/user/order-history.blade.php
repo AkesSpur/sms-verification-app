@@ -152,6 +152,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SMS Code</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -186,34 +187,34 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                                    <div class="flex items-center space-x-2">
-                                        <span>
-                                            @if($order->status === 'cancelled')
-                                                N/A
-                                            @else
-                                                {{ $order->sms_code ?? ($order->status === 'completed' ? 'N/A' : 'Waiting...') }}
-                                            @endif
-                                        </span>
-                                        @if($order->sms_code)
-                                            <button class="text-primary-600 hover:text-primary-900 ml-2" onclick="copyToClipboard('{{ $order->sms_code }}')"
-                                                    title="Copy SMS Code">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-                                        @endif
-
-                                    </div>
+                                    {{ $order->sms_code ?? ($order->status === 'completed' ? 'N/A' : 'Waiting...') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    ₦{{ number_format($order->final_price ?? $order->price, 2) }}
+                                    ${{ number_format($order->final_price ?? $order->price, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $order->created_at->format('Y-m-d H:i') }}
                                 </td>
-
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    @if($order->sms_code)
+                                        <button class="text-primary-600 hover:text-primary-900 mr-3" onclick="copyToClipboard('{{ $order->sms_code }}')">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    @endif
+                                    @if($order->canBeCancelled())
+                                        <button class="text-red-600 hover:text-red-900" onclick="cancelOrder({{ $order->id }})">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    @else
+                                        <button class="text-blue-600 hover:text-blue-900" onclick="viewOrder({{ $order->id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    @endif
+                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="9" class="px-6 py-4 text-center text-gray-500">
                                     No SMS orders found.
                                 </td>
                             </tr>
@@ -240,25 +241,11 @@
                             </div>
                             <div>
                                 <span class="text-gray-500">SMS Code:</span>
-                                <div class="ml-1 inline-flex items-center space-x-2">
-                                    <span class="font-mono font-medium">
-                                        @if($order->status === 'cancelled')
-                                            N/A
-                                        @else
-                                            {{ $order->sms_code ?? ($order->status === 'completed' ? 'N/A' : 'Waiting...') }}
-                                        @endif
-                                    </span>
-                                    @if($order->sms_code)
-                                        <button class="text-primary-600 hover:text-primary-900" onclick="copyToClipboard('{{ $order->sms_code }}')"
-                                                title="Copy SMS Code">
-                                            <i class="fas fa-copy text-xs"></i>
-                                        </button>
-                                    @endif
-                                </div>
+                                <span class="ml-1 font-mono font-medium">{{ $order->sms_code ?? ($order->status === 'completed' ? 'N/A' : 'Waiting...') }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500">Price:</span>
-                                <span class="ml-1 font-medium">₦{{ number_format($order->final_price ?? $order->price, 2) }}</span>
+                                <span class="ml-1 font-medium">${{ number_format($order->final_price ?? $order->price, 2) }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <div>
@@ -281,7 +268,22 @@
                                 </span>
                             </div>
                         </div>
-
+                        <div class="flex space-x-2">
+                            @if($order->sms_code)
+                                <button class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors" onclick="copyToClipboard('{{ $order->sms_code }}')">
+                                    <i class="fas fa-copy mr-1"></i>Copy Code
+                                </button>
+                            @endif
+                            @if($order->canBeCancelled())
+                                <button class="flex-1 bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm hover:bg-red-200 transition-colors" onclick="cancelOrder({{ $order->id }})">
+                                    <i class="fas fa-times mr-1"></i>Cancel
+                                </button>
+                            @else
+                                <button class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors" onclick="viewOrder({{ $order->id }})">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </button>
+                            @endif
+                        </div>
                     </div>
                     @empty
                     <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
@@ -970,4 +972,19 @@
         });
     }
 </script>
+
+<!-- Website Builder Contact -->
+<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
+    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
+        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
+        <p>
+            Need a custom website? <a href="mailto:dev@blizzsms.com" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
+                Contact the developer
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+        </p>
+        <i class="fas fa-code text-blue-600 animate-bounce"></i>
+    </div>
+</div>
+
 @endsection

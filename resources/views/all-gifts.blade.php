@@ -117,9 +117,23 @@
         </div>
     </section>
 
+    <!-- Website Builder Contact -->
+<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
+    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
+        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
+        <p>
+            Need a custom SMS platform? <a href="mailto:dev@blizzsms.com" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
+                Contact the developer
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+        </p>
+        <i class="fas fa-code text-blue-600 animate-bounce"></i>
+    </div>
+</div>
+
 
 <!-- Footer -->
-<footer class="bg-slate-800 text-white py-12">
+<footer class="bg-slate-800 text-white mt-auto py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div class="mb-8">
             <h3 class="text-2xl font-bold mb-4">
@@ -168,4 +182,7 @@
         window.location.href = `/gift/${giftId}?name=${encodeURIComponent(giftName)}&price=${giftPrice}`;
     }
 </script>
+
+
+
 @endsection
