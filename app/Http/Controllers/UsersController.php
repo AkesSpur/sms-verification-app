@@ -98,9 +98,9 @@ class UsersController extends Controller
     {
         $user = Auth::user();
         
-        // Get user's orders for SMS tab
+        // Get user's orders for SMS tab with all necessary relationships
         $smsOrders = Order::where('user_id', $user->id)
-            ->with('service')
+            ->with(['service', 'country'])
             ->latest()
             ->paginate(10);
         

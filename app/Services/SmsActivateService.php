@@ -12,6 +12,7 @@ use App\Models\BlacklistedNumber;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Exceptions\RequestError;
+use App\Models\GeneralSetting;
 use Exception;
 use Carbon\Carbon;
 
@@ -855,7 +856,7 @@ class SmsActivateService
               $apiPriceUsd = $this->getServicePrice($service->code, $country->code);
               
               // Get general settings for markup percentage
-              $generalSettings = \App\Models\GeneralSetting::first();
+              $generalSettings = GeneralSetting::first();
               $markupPercentage = $generalSettings->api_price_markup_percentage ?? 20.00;
               
               return [

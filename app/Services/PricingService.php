@@ -74,36 +74,29 @@ class PricingService
             'has_api_price' => $apiPriceInNaira !== null
         ]);
         
+        // If pivot price is set, use it (priority over API price)
+        if ($pivotPrice !== null) {
+            $roundedPrice = $this->roundToNextTenth($pivotPrice);
+            Log::info('📊 Using pivot price (priority)', [
+                'pivot_price' => $pivotPrice,
+                'final_price' => $roundedPrice
+            ]);
+            return $roundedPrice;
+        }
+        
         // If no pivot price, use API price
-        if ($pivotPrice === null) {
+        if ($apiPriceInNaira !== null) {
             $roundedPrice = $this->roundToNextTenth($apiPriceInNaira);
             Log::info('📊 Using API price (no pivot price)', [
-                'original_price' => $apiPriceInNaira,
-                'final_price' => $roundedPrice
-            ]);
-            return $roundedPrice;
-        }
-        
-        // If API price is available, compare and use the higher one
-        if ($apiPriceInNaira !== null) {
-            $finalPrice = max($pivotPrice, $apiPriceInNaira);
-            $roundedPrice = $this->roundToNextTenth($finalPrice);
-            Log::info('📊 Using higher price (pivot vs API)', [
-                'pivot_price' => $pivotPrice,
                 'api_price' => $apiPriceInNaira,
-                'higher_price' => $finalPrice,
                 'final_price' => $roundedPrice
             ]);
             return $roundedPrice;
         }
         
-        // Fallback to pivot price
-        $roundedPrice = $this->roundToNextTenth($pivotPrice);
-        Log::info('📊 Using pivot price (fallback)', [
-            'original_price' => $pivotPrice,
-            'final_price' => $roundedPrice
-        ]);
-        return $roundedPrice;
+        // No price available
+        Log::warning('❌ No price available (neither pivot nor API)');
+        return null;
     }
 
     /**

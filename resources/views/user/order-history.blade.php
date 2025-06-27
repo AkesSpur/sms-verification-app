@@ -150,132 +150,144 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SMS Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($smsOrders as $order)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#SMS001</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">+1 555 123 4567</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#SMS{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $order->phone_number ?? 'N/A' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">🇺🇸 USA</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ $order->country->flag ?? '🌍' }} {{ $order->country->name ?? 'Unknown' }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">WhatsApp</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        {{ $order->service->name ?? 'Unknown Service' }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                    @php
+                                        $statusColors = [
+                                            'completed' => 'bg-green-100 text-green-800',
+                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                            'active' => 'bg-blue-100 text-blue-800',
+                                            'cancelled' => 'bg-red-100 text-red-800',
+                                            'expired' => 'bg-gray-100 text-gray-800',
+                                            'failed' => 'bg-red-100 text-red-800'
+                                        ];
+                                        $statusClass = $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800';
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">123456</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:30</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button class="text-primary-600 hover:text-primary-900 mr-3" onclick="copyToClipboard('123456')">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    <button class="text-blue-600 hover:text-blue-900">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                                    <div class="flex items-center space-x-2">
+                                        <span>
+                                            @if($order->status === 'cancelled')
+                                                N/A
+                                            @else
+                                                {{ $order->sms_code ?? ($order->status === 'completed' ? 'N/A' : 'Waiting...') }}
+                                            @endif
+                                        </span>
+                                        @if($order->sms_code)
+                                            <button class="text-primary-600 hover:text-primary-900 ml-2" onclick="copyToClipboard('{{ $order->sms_code }}')"
+                                                    title="Copy SMS Code">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        @endif
+
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    ₦{{ number_format($order->final_price ?? $order->price, 2) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $order->created_at->format('Y-m-d H:i') }}
+                                </td>
+
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                    No SMS orders found.
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#SMS002</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">+44 7700 900123</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">🇬🇧 UK</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Telegram</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Waiting...</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 15:45</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button class="text-primary-600 hover:text-primary-900 mr-3">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                    <button class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Mobile Cards -->
                 <div class="md:hidden space-y-4">
+                    @forelse($smsOrders as $order)
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-2">
-                                <span class="text-sm font-medium text-gray-500">#SMS001</span>
-                                <span class="text-lg">🇺🇸</span>
-                                <span class="font-medium text-gray-900">+1 555 123 4567</span>
+                                <span class="text-sm font-medium text-gray-500">#SMS{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</span>
+                                <span class="text-lg">{{ $order->country->flag ?? '🌍' }}</span>
+                                <span class="font-medium text-gray-900">{{ $order->phone_number ?? 'N/A' }}</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-sm mb-3">
                             <div>
                                 <span class="text-gray-500">Service:</span>
-                                <span class="ml-1 font-medium">WhatsApp</span>
+                                <span class="ml-1 font-medium">{{ $order->service->name ?? 'Unknown Service' }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500">SMS Code:</span>
-                                <span class="ml-1 font-mono font-medium">123456</span>
+                                <div class="ml-1 inline-flex items-center space-x-2">
+                                    <span class="font-mono font-medium">
+                                        @if($order->status === 'cancelled')
+                                            N/A
+                                        @else
+                                            {{ $order->sms_code ?? ($order->status === 'completed' ? 'N/A' : 'Waiting...') }}
+                                        @endif
+                                    </span>
+                                    @if($order->sms_code)
+                                        <button class="text-primary-600 hover:text-primary-900" onclick="copyToClipboard('{{ $order->sms_code }}')"
+                                                title="Copy SMS Code">
+                                            <i class="fas fa-copy text-xs"></i>
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center col-span-2">
+                            <div>
+                                <span class="text-gray-500">Price:</span>
+                                <span class="ml-1 font-medium">₦{{ number_format($order->final_price ?? $order->price, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
                                 <div>
                                     <span class="text-gray-500">Date:</span>
-                                    <span class="ml-1">2024-01-15 14:30</span>
+                                    <span class="ml-1">{{ $order->created_at->format('Y-m-d H:i') }}</span>
                                 </div>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                @php
+                                    $statusColors = [
+                                        'completed' => 'bg-green-100 text-green-800',
+                                        'pending' => 'bg-yellow-100 text-yellow-800',
+                                        'active' => 'bg-blue-100 text-blue-800',
+                                        'cancelled' => 'bg-red-100 text-red-800',
+                                        'expired' => 'bg-gray-100 text-gray-800',
+                                        'failed' => 'bg-red-100 text-red-800'
+                                    ];
+                                    $statusClass = $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800';
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
+                                    {{ ucfirst($order->status) }}
+                                </span>
                             </div>
                         </div>
-                        <div class="flex space-x-2">
-                            <button class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors" onclick="copyToClipboard('123456')">
-                                <i class="fas fa-copy mr-1"></i>Copy Code
-                            </button>
-                            <button class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
-                                <i class="fas fa-eye mr-1"></i>View
-                            </button>
-                        </div>
-                    </div>
 
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-sm font-medium text-gray-500">#SMS002 </span>
-                                <span class="text-lg">🇬🇧</span>
-                                <span class="font-medium text-gray-900">+44 7700 900123</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 text-sm mb-3">
-                            <div>
-                                <span class="text-gray-500">Service:</span>
-                                <span class="ml-1 font-medium">Telegram</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-500">SMS Code:</span>
-                                <span class="ml-1 text-gray-500">Waiting...</span>
-                            </div>
-                            <div class="flex justify-between items-center col-span-2">
-                                <div>
-                                    <span class="text-gray-500">Date:</span>
-                                    <span class="ml-1">2024-01-15 15:45</span>
-                                </div>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
-                                <i class="fas fa-sync-alt mr-1"></i>Refresh
-                            </button>
-                            <button class="flex-1 bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm hover:bg-red-200 transition-colors">
-                                <i class="fas fa-trash mr-1"></i>Cancel
-                            </button>
-                        </div>
                     </div>
+                    @empty
+                    <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                        No SMS orders found.
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -563,30 +575,51 @@
     </div>
 
     <!-- Pagination -->
+    @if($smsOrders->hasPages())
     <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between">
             <div class="text-sm text-gray-700">
-                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">97</span> results
+                Showing <span class="font-medium">{{ $smsOrders->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $smsOrders->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $smsOrders->total() }}</span> results
             </div>
             <div class="flex items-center space-x-2">
-                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50" disabled>
-                    Previous
-                </button>
-                <button class="px-3 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700">
-                    1
-                </button>
-                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    2
-                </button>
-                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    3
-                </button>
-                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Next
-                </button>
+                {{-- Previous Page Link --}}
+                @if ($smsOrders->onFirstPage())
+                    <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
+                        Previous
+                    </span>
+                @else
+                    <a href="{{ $smsOrders->previousPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Previous
+                    </a>
+                @endif
+
+                {{-- Pagination Elements --}}
+                @foreach ($smsOrders->getUrlRange(1, $smsOrders->lastPage()) as $page => $url)
+                    @if ($page == $smsOrders->currentPage())
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg">
+                            {{ $page }}
+                        </span>
+                    @else
+                        <a href="{{ $url }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            {{ $page }}
+                        </a>
+                    @endif
+                @endforeach
+
+                {{-- Next Page Link --}}
+                @if ($smsOrders->hasMorePages())
+                    <a href="{{ $smsOrders->nextPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Next
+                    </a>
+                @else
+                    <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
+                        Next
+                    </span>
+                @endif
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Log Modal -->
     <div id="logModal" style="display: none;" class="z-50">

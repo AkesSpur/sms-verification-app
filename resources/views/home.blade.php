@@ -473,7 +473,7 @@
                     </div>
                     
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
-                        <a href="{{ route('register') }}" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all hover-scale shadow-lg">
+                        <a href="{{ route('user.usa-numbers') }}" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all hover-scale shadow-lg">
                             <i class="fas fa-rocket mr-2"></i>Start Verifying Now
                         </a>
                         <a href="#digital-products" class="bg-white hover:bg-gray-50 text-gray-800 border-2 border-gray-200 hover:border-gray-300 px-8 py-4 rounded-lg text-lg font-semibold transition-all hover-scale shadow-lg">
