@@ -15,19 +15,21 @@ class SaleNotificationMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $businessOwnerName;
-    public $products;
+    public $saleData;
+    public $saleType;
     public $totalAmount;
     public $settings;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($businessOwnerName, $products, $totalAmount)
+    public function __construct($saleType, $saleData, $totalAmount, $businessOwnerName = null)
     {
-        $this->businessOwnerName = $businessOwnerName;
-        $this->products = $products;
+        $this->saleType = $saleType;
+        $this->saleData = $saleData;
         $this->totalAmount = $totalAmount;
         $this->settings = GeneralSetting::first();
+        $this->businessOwnerName = $businessOwnerName ?? ($this->settings->site_name ?? 'Admin');
     }
 
     /**

@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Gift;
 use App\Models\GiftOrder;
 use App\Models\Transaction;
+use App\Models\EmailConfiguration;
+use App\Mail\SaleNotificationMail;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class GiftOrderController extends Controller
@@ -144,6 +147,31 @@ class GiftOrderController extends Controller
                     'total_amount' => $totalAmount,
                     'is_customized' => $validated['is_customized'] ?? false
                 ]);
+
+                // Send sales notification email
+                try {
+                    $emailConfig = EmailConfiguration::first();
+                    if ($emailConfig && $emailConfig->email) {
+                        $saleData = [
+                            'order_id' => $giftOrder->id,
+                            'order_number' => $giftOrder->order_number,
+                            'gift_name' => $gift->name,
+                            'recipient_name' => $giftOrder->recipient_name,
+                            'sender_name' => $giftOrder->sender_name,
+                            'customer_name' => $user->name,
+                            'price' => $giftOrder->total_amount
+                        ];
+
+                        Mail::to($emailConfig->email)->queue(
+                            new SaleNotificationMail('gift', $saleData, $saleData['price'])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send sales notification email', [
+                        'error' => $e->getMessage(),
+                        'gift_order_id' => $giftOrder->id
+                    ]);
+                }
 
                 return response()->json([
                     'success' => true,

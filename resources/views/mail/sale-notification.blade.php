@@ -117,42 +117,108 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🎁</div>
-            <div class="notification-badge">New Sale</div>
-            <h1>Digital Product Sale!</h1>
-            <p class="subtitle">Your store just made a new sale</p>
+            @if($saleType === 'sms')
+                <div class="logo">📱</div>
+                <div class="notification-badge">New SMS Sale</div>
+                <h1>SMS Number Sale!</h1>
+                <p class="subtitle">A new SMS number has been purchased</p>
+            @elseif($saleType === 'digital_product')
+                <div class="logo">💳</div>
+                <div class="notification-badge">New Digital Sale</div>
+                <h1>Digital Product Sale!</h1>
+                <p class="subtitle">A new digital product has been sold</p>
+            @elseif($saleType === 'gift')
+                <div class="logo">🎁</div>
+                <div class="notification-badge">New Gift Sale</div>
+                <h1>Gift Order Sale!</h1>
+                <p class="subtitle">A new gift order has been placed</p>
+            @endif
         </div>
 
         <p>Dear {{ $businessOwnerName }},</p>
 
-        <p>Great news! You've just sold digital products from your store. Here are the details:</p>
+        <p>Great news! You've just made a new sale. Here are the details:</p>
 
-        @foreach ($products as $product)
-        <div class="product-container">
-            <div class="digital-icon">💳</div>
-            <div class="product-detail">
-                <span class="label">Order ID:</span> {{ $product['order Id'] }}
+        @if($saleType === 'sms')
+            <div class="product-container">
+                <div class="digital-icon">📱</div>
+                <div class="product-detail">
+                    <span class="label">Order ID:</span> {{ $saleData['order_id'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Phone Number:</span> {{ $saleData['phone_number'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Service:</span> {{ $saleData['service_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Country:</span> {{ $saleData['country'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+                </div>
             </div>
-            <div class="product-detail">
-                <span class="label">Invoice ID:</span> {{ $product['invoice Id'] }}
+        @elseif($saleType === 'digital_product')
+            @foreach ($saleData as $product)
+            <div class="product-container">
+                <div class="digital-icon">💳</div>
+                <div class="product-detail">
+                    <span class="label">Order ID:</span> {{ $product['order_id'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Category:</span> {{ $product['category'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Product:</span> {{ $product['name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Quantity:</span> {{ $product['quantity'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Customer:</span> {{ $product['customer_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($product['price'], 2) }}
+                </div>
             </div>
-            <div class="product-detail">
-                <span class="label">Category:</span> {{ $product['category'] }}
+            @endforeach
+        @elseif($saleType === 'gift')
+            <div class="product-container">
+                <div class="digital-icon">🎁</div>
+                <div class="product-detail">
+                    <span class="label">Order ID:</span> {{ $saleData['order_id'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Order Number:</span> {{ $saleData['order_number'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Gift:</span> {{ $saleData['gift_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Recipient:</span> {{ $saleData['recipient_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Sender:</span> {{ $saleData['sender_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+                </div>
             </div>
-            <div class="product-detail">
-                <span class="label">Product:</span> {{ $product['name'] }}
-            </div>
-            <div class="product-detail">
-                <span class="label">Quantity:</span> {{ $product['quantity'] }}
-            </div>
-            <div class="product-detail">
-                <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($product['price'], 2) }}
-            </div>
-        </div>
-        @endforeach
+        @endif
 
         <div class="total-amount">
-            Total Amount: {{$settings->currency_icon}}{{ number_format($totalAmount, 2) }}
+            Total Amount: 
+            @if($saleType === 'sms' || $saleType === 'gift')
+                {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+            @elseif($saleType === 'digital_product')
+                {{$settings->currency_icon}}{{ number_format(collect($saleData)->sum('price'), 2) }}
+            @endif
         </div>
 
         <p>Thank you for using our platform to sell your digital products. We're excited to see your business grow!</p>

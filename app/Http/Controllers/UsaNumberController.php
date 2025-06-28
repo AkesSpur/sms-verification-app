@@ -9,6 +9,8 @@ use App\Models\Country;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Models\BlacklistedNumber;
+use App\Models\EmailConfiguration;
+use App\Mail\SaleNotificationMail;
 use App\Services\SmsActivateService;
 use App\Services\PricingService;
 use Illuminate\Http\Request;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
@@ -298,6 +301,9 @@ class UsaNumberController extends Controller
                     'service' => $serviceCode,
                     'phone_number' => $phoneNumber
                 ]);
+
+                // Send sales notification email for testing
+                $this->sendSalesNotificationEmail($order);
 
                 return response()->json([
                     'success' => true,
@@ -659,6 +665,9 @@ class UsaNumberController extends Controller
                     'user_id' => $order->user_id
                 ]);
 
+                // Send sales notification email
+                $this->sendSalesNotificationEmail($order);
+
                 return response()->json([
                     'success' => true,
                     'order' => [
@@ -739,5 +748,34 @@ class UsaNumberController extends Controller
     private function getUsaCountryId()
     {
         return Country::where('code', $this->usaCountryCode)->value('id') ?? 1;
+    }
+
+    /**
+     * Send sales notification email for USA SMS orders
+     */
+    private function sendSalesNotificationEmail($order)
+    {
+        try {
+            $emailConfig = EmailConfiguration::first();
+            if (!$emailConfig || !$emailConfig->email) {
+                return;
+            }
+
+            $saleData = [
+                'order_id' => $order->id,
+                'phone_number' => $order->phone_number,
+                'service' => $order->service->name ?? 'Unknown Service',
+                'country' => $order->country->name ?? 'USA',
+                'customer_name' => $order->user->name ?? 'Unknown Customer',
+                'price' => $order->final_price ?? 0,
+                'sale_type' => 'USA SMS Order'
+            ];
+
+            Mail::to($emailConfig->email)
+                 ->queue(new SaleNotificationMail('usa_sms', $saleData, $saleData['price']));
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send sales notification email for USA order ' . $order->id . ': ' . $e->getMessage());
+        }
     }
 }

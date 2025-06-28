@@ -401,8 +401,8 @@ class SmsActivateService
                      'api_response' => json_encode($response), // Store API response
                      'order_source' => $orderSource, // Source of the order
                      'status' => 'pending',
-                     'expires_at' => Carbon::now()->addMinutes(20),
-                     'sms_window_expires_at' => Carbon::now()->addMinutes(20)
+                     'expires_at' => now()->addMinutes(50),
+                     'sms_window_expires_at' => now()->addMinutes(20)
                  ]);
                  
                  // Log transaction and deduct balance

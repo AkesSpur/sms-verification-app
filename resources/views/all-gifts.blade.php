@@ -131,38 +131,6 @@
     </div>
 </div>
 
-
-<!-- Footer -->
-<footer class="bg-slate-800 text-white mt-auto py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div class="mb-8">
-            <h3 class="text-2xl font-bold mb-4">
-                <i class="fas fa-mobile-alt mr-2"></i>{{$settings->site_name ?? 'SMS Verification'}}
-            </h3>
-            <p class="text-gray-300 mb-6">Secure, fast, and reliable SMS verification services for all your needs.</p>
-            <div class="flex justify-center space-x-6">
-                <a href="#" class="text-gray-300 hover:text-white transition-colors">
-                    <i class="fab fa-twitter text-xl"></i>
-                </a>
-                <a href="#" class="text-gray-300 hover:text-white transition-colors">
-                    <i class="fab fa-facebook text-xl"></i>
-                </a>
-                <a href="#" class="text-gray-300 hover:text-white transition-colors">
-                    <i class="fab fa-instagram text-xl"></i>
-                </a>
-                <a href="#" class="text-gray-300 hover:text-white transition-colors">
-                    <i class="fab fa-linkedin text-xl"></i>
-                </a>
-            </div>
-        </div>
-        <div class="border-t border-gray-700 pt-8">
-            <p class="text-gray-400 text-sm">
-                © 2024 {{$settings->site_name ?? 'SMS Verification'}}. All rights reserved.
-            </p>
-        </div>
-    </div>
-</footer>
-
 </div>
 @endsection
 

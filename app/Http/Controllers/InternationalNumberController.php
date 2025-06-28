@@ -9,6 +9,8 @@ use App\Models\Country;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Models\BlacklistedNumber;
+use App\Models\EmailConfiguration;
+use App\Mail\SaleNotificationMail;
 use App\Services\SmsActivateService;
 use App\Services\PricingService;
 use Illuminate\Http\Request;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
@@ -260,6 +263,9 @@ class InternationalNumberController extends Controller
                     'phone_number' => $phoneNumber
                 ]);
 
+                // Send sales notification email for testing
+                $this->sendSalesNotificationEmail($order);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'International number purchased successfully!',
@@ -368,6 +374,9 @@ class InternationalNumberController extends Controller
                         'sms_received_at' => Carbon::now(),
                         'status' => Order::STATUS_COMPLETED
                     ]);
+                    
+                    // Send sales notification email
+                    $this->sendSalesNotificationEmail($order);
                     
                     return response()->json([
                         'success' => true,
@@ -570,6 +579,7 @@ class InternationalNumberController extends Controller
                     'user_id' => $order->user_id
                 ]);
 
+
                 return response()->json([
                     'success' => true,
                     'order' => [
@@ -593,6 +603,35 @@ class InternationalNumberController extends Controller
             ],
             'message' => 'Waiting for SMS...'
         ]);
+    }
+
+    /**
+     * Send sales notification email for SMS orders
+     */
+    private function sendSalesNotificationEmail(Order $order)
+    {
+        try {
+            $emailConfig = EmailConfiguration::first();
+            if ($emailConfig && $emailConfig->email) {
+                $saleData = [
+                    'order_id' => $order->id,
+                    'phone_number' => $order->phone_number,
+                    'service_name' => $order->service->name ?? 'N/A',
+                    'country' => $order->country->name ?? 'N/A',
+                    'customer_name' => $order->user->name,
+                    'price' => $order->final_price
+                ];
+
+                Mail::to($emailConfig->email)->queue(
+                    new SaleNotificationMail('sms', $saleData, $saleData['price'])
+                );
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send sales notification email', [
+                'error' => $e->getMessage(),
+                'order_id' => $order->id
+            ]);
+        }
     }
 
     /**
@@ -625,6 +664,9 @@ class InternationalNumberController extends Controller
                 'order_id' => $order->id,
                 'user_id' => $order->user_id
             ]);
+
+            // Send sales notification email
+            $this->sendSalesNotificationEmail($order);
 
             return response()->json([
                 'success' => true,

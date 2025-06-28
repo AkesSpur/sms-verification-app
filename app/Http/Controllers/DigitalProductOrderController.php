@@ -6,10 +6,13 @@ use App\Models\DigitalProduct;
 use App\Models\DigitalProductLog;
 use App\Models\DigitalProductOrder;
 use App\Models\Transaction;
+use App\Models\EmailConfiguration;
+use App\Mail\SaleNotificationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class DigitalProductOrderController extends Controller
@@ -134,6 +137,35 @@ class DigitalProductOrderController extends Controller
                     'total_amount' => $totalAmount,
                     'order_ids' => collect($orders)->pluck('id')->toArray()
                 ]);
+
+                // Send sales notification email
+                try {
+                    $emailConfig = EmailConfiguration::first();
+                    if ($emailConfig && $emailConfig->email) {
+                        $saleData = collect($orders)->map(function ($order) use ($user, $product) {
+                            return [
+                                'order_id' => $order->id,
+                                'category' => $product->subcategory->category->name ?? 'N/A',
+                                'name' => $product->name,
+                                'quantity' => $order->quantity,
+                                'customer_name' => $user->name,
+                                'price' => $order->total_amount
+                            ];
+                        })->toArray();
+
+                        // Calculate total amount from all orders
+                        $amount = collect($orders)->sum('total_amount');
+
+                        Mail::to($emailConfig->email)->queue(
+                            new SaleNotificationMail('digital_product', $saleData, $amount)
+                        );
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send sales notification email', [
+                        'error' => $e->getMessage(),
+                        'order_ids' => collect($orders)->pluck('id')->toArray()
+                    ]);
+                }
 
                 return response()->json([
                     'success' => true,
