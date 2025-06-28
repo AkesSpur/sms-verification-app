@@ -229,8 +229,7 @@ public function handleExpiration()
         $this->update(['status' => 'expired']);
 
         if ($this->shouldRefund()) {
-            $this->user->increment('balance', $this->service->price);
-            $this->update(['refunded' => true]);
+            $this->processRefund('auto_expired', 'system');
         }
 
         if ($this->shouldBlacklist()) {
