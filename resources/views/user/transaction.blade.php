@@ -160,11 +160,7 @@
                                     class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
                                 Close
                             </button>
-                            <button type="button" onclick="contactSupport()" 
-                                    class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                                <i class="fas fa-comments mr-2"></i>
-                                Contact Support
-                            </button>
+                           
                         </div>
                     </div>
                     @endif
@@ -277,6 +273,21 @@
                 </div>
             </div>
         </div>
+
+        <!-- Website Builder Contact -->
+<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
+    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
+        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
+        <p>
+            Need a custom website? <a href="https://wa.link/18c124 class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
+                Contact the developer
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+        </p>
+        <i class="fas fa-code text-blue-600 animate-bounce"></i>
+    </div>
+</div>
+
     </div>
 </div>
 @endsection
@@ -685,18 +696,5 @@ function contactSupport() {
 }
 </script>
 
-<!-- Website Builder Contact -->
-<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
-    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
-        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
-        <p>
-            Need a custom website? <a href="mailto:dev@blizzsms.com" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
-                Contact the developer
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-        </p>
-        <i class="fas fa-code text-blue-600 animate-bounce"></i>
-    </div>
-</div>
 
 @endpush

@@ -146,10 +146,15 @@
                 <div class="flex items-center space-x-4">
                     @auth
                         <!-- User Balance Display -->
-                        <div class="flex items-center px-3 py-2 bg-blue-50 rounded-lg">
-                            <i class="fas fa-wallet text-blue-600 mr-2"></i>
+                        {{-- <div class="flex items-center px-3 py-2 bg-blue-50 rounded-lg"> --}}
+                            <a href="{{ route('user.transaction') }}" class="flex items-center px-3 py-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer group">
+                            <i class="fas fa-wallet text-blue-600 mr-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-medium text-blue-800">₦{{ number_format(auth()->user()->balance ?? 0, 0) }}</span>
+                            <i class="fas fa-external-link-alt text-blue-500 ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </a>
+                            {{-- <i class="fas fa-wallet text-blue-600 mr-2"></i>
                             <span class="text-sm font-medium text-blue-800">₦{{ number_format(auth()->user()->balance, 0) }}</span>
-                        </div>
+                        </div> --}}
                         
                         <!-- User Dropdown -->
                         <div class="relative ml-1" x-data="{ open: false }">
