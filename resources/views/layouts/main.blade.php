@@ -213,6 +213,42 @@
         @yield('content')
     </main>
 
+
+    <!-- Footer -->
+<footer class="bg-white py-12 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <!-- Logo and Company Name -->
+            <div class="mb-6 md:mb-0">
+                <h3 class="text-2xl font-bold text-slate-900">
+                    <i class="fas fa-mobile-alt mr-2 text-blue-600"></i>
+                    BlizzSMS
+                </h3>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="flex items-center space-x-8 mb-6 md:mb-0">
+                <a href="mailto:support@blizzsms.com" class="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+                    <i class="fas fa-envelope mr-2"></i>
+                    support@blizzsms.com
+                </a>
+                <a href="https://wa.me/+2347011780974" target="_blank" class="flex items-center text-slate-600 hover:text-green-600 transition-colors">
+                    <i class="fab fa-whatsapp mr-2"></i>
+                    WhatsApp
+                </a>
+                <a href="https://t.me/bliss13500" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
+                    <i class="fab fa-telegram mr-2"></i>
+                    Telegram
+                </a>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="text-slate-500 text-sm mt-auto">
+                &copy; {{ date('Y') }} BlizzSMS. All rights reserved.
+            </div>
+        </div>
+    </div>
+</footer>
     <!-- Scripts -->
     <script>
         // Initialize AOS

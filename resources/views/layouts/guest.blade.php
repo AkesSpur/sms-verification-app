@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $settings->site_name ?? 'BlizzSMS' }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -18,6 +18,13 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <style>
+            html, body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
             .auth-bg {
                 background-color: #ffffff;
                 position: relative;
@@ -85,12 +92,12 @@
             }
         </style>
     </head>
-    <body class="font-sans text-gray-900 antialiased auth-bg h-screen overflow-y-auto">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative z-10 px-4">
+    <body class="font-sans text-gray-900 antialiased auth-bg min-h-screen ">
+        <div class="flex flex-col items-center min-h-screen pt-6 pb-6 relative z-10 px-4 ">
             <div class="mb-8">
                 <a href="/" class="flex items-center justify-center">
                     <h1 class="text-3xl font-bold gradient-text">
-                        <i class="fas fa-mobile-alt mr-2"></i>SMS Verify
+                        <i class="fas fa-mobile-alt mr-2"></i>{{$settings->site_name}}
                     </h1>
                 </a>
             </div>
