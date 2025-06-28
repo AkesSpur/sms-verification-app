@@ -68,20 +68,20 @@
                         <option value="">Choose a service...</option>
                         @foreach($services->sortBy('name') as $service)
                             <option value="{{ $service->code }}" data-price="{{ $service->price ?? '0.00' }}" data-name="{{ strtolower($service->name) }}">
-                                {{ $service->name }} - ₦{{ number_format($service->price ?? 0, 2) }}
+                                {{ $service->name }}
                             </option>
                         @endforeach
                     </select>
                 </div>
             </div>
 
-            <!-- Price Display -->
-            <div x-show="selectedService" x-cloak class="bg-gray-50 rounded-lg p-4">
+            <!-- Price Display - Hidden until availability check -->
+            <!-- <div x-show="selectedService" x-cloak class="bg-gray-50 rounded-lg p-4">
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-600">Price:</span>
                     <span class="text-lg font-semibold text-gray-900" x-text="'₦' + servicePrice.toLocaleString()"></span>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Action Buttons -->
             <div x-show="selectedService" x-cloak class="flex space-x-3">

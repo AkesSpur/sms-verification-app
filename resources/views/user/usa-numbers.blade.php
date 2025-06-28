@@ -41,17 +41,17 @@
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        {{-- <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <i class="fas fa-check-circle text-green-600 text-2xl"></i>
                 </div>
-                {{-- <div class="ml-4">
+                <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Completed</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['completed_orders'] }}</p>
-                </div> --}}
+                </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <!-- Purchase Form -->

@@ -177,6 +177,23 @@
         </div>
     </div>
 
+    <!-- Contact Support Icons -->
+    <div class="fixed bottom-4 right-4 z-50 flex flex-col space-y-3">
+        <!-- WhatsApp -->
+        <a href="https://wa.me/+2347011780974" target="_blank" 
+           class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 group">
+            <i class="fab fa-whatsapp text-xl"></i>
+            <span class="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">WhatsApp Support</span>
+        </a>
+        
+        <!-- Telegram -->
+        <a href="https://t.me/bliss13500" target="_blank" 
+           class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 group">
+            <i class="fab fa-telegram-plane text-xl"></i>
+            <span class="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Telegram Support</span>
+        </a>
+    </div>
+
     <!-- Toast notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
     <!-- Alpine.js -->
