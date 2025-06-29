@@ -371,7 +371,7 @@
                                         <button class="text-primary-600 hover:text-primary-900" onclick="refreshNumber({{ $order->id }})" title="Refresh Status">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
-                                        @if($order->status === 'pending' && !$order->sms_code && $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
+                                        @if($order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
                                             <button class="text-orange-600 hover:text-orange-900" onclick="resendSms({{ $order->id }})" title="Resend SMS">
                                                 <i class="fas fa-redo"></i>
                                             </button>
@@ -461,7 +461,7 @@
                             <button onclick="refreshNumber({{ $order->id }})" class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
                                 <i class="fas fa-sync-alt mr-1"></i>Refresh
                             </button>
-                            @if($order->status === 'pending' && !$order->sms_code && $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
+                            @if($order->status === 'pending' && $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
                                 <button onclick="resendSms({{ $order->id }})" class="flex-1 bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-sm hover:bg-orange-200 transition-colors">
                                     <i class="fas fa-redo mr-1"></i>Resend SMS
                                 </button>

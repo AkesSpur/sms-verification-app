@@ -566,25 +566,30 @@ class InternationalNumberController extends Controller
         }
 
         if (strpos($response, 'STATUS_OK') !== false) {
-            $code = explode(':', $response)[1] ?? null;
-            if ($code) {
+            $fullMessage = explode(':', $response)[1] ?? null;
+            if ($fullMessage) {
+                // Extract verification code from the full message
+                $extractedCode = $this->extractVerificationCode($fullMessage);
+                $codeToStore = $extractedCode ?: $fullMessage; // Use extracted code or full message as fallback
+                
                 $order->update([
-                    'sms_code' => $code,
+                    'sms_code' => $codeToStore,
                     'sms_received_at' => Carbon::now(),
                     'status' => Order::STATUS_COMPLETED
                 ]);
 
                 Log::info('International SMS code received', [
                     'order_id' => $order->id,
-                    'user_id' => $order->user_id
+                    'user_id' => $order->user_id,
+                    'full_message' => $fullMessage,
+                    'extracted_code' => $extractedCode
                 ]);
-
 
                 return response()->json([
                     'success' => true,
                     'order' => [
                         'status' => Order::STATUS_COMPLETED,
-                        'sms_code' => $code,
+                        'sms_code' => $codeToStore,
                         'phone_number' => $order->phone_number,
                         'expires_at' => $order->sms_window_expires_at ? $order->sms_window_expires_at->toISOString() : null
                     ],
@@ -802,5 +807,41 @@ class InternationalNumberController extends Controller
                 'error' => 'Failed to cancel order. Please try again later.'
             ], 500);
         }
+    }
+
+    /**
+     * Extract verification code from SMS message using various patterns
+     */
+    private function extractVerificationCode($message)
+    {
+        if (!$message) {
+            return null;
+        }
+
+        // Common patterns for verification codes (4-8 digits)
+        $patterns = [
+            '/\b(\d{4,8})\b/',                    // Any 4-8 digit number
+            '/code[:\s]*(\d{4,8})/i',             // "code: 123456" or "code 123456"
+            '/verification[:\s]*(\d{4,8})/i',     // "verification: 123456"
+            '/pin[:\s]*(\d{4,8})/i',              // "pin: 1234"
+            '/otp[:\s]*(\d{4,8})/i',              // "otp: 123456"
+            '/confirm[:\s]*(\d{4,8})/i',          // "confirm: 123456"
+            '/security[:\s]*(\d{4,8})/i',         // "security: 123456"
+            '/access[:\s]*(\d{4,8})/i',           // "access: 123456"
+            '/login[:\s]*(\d{4,8})/i',            // "login: 123456"
+            '/\b(\d{4,8})\s*is\s*your/i',        // "123456 is your code"
+            '/your.*?(\d{4,8})/i',                // "your code is 123456"
+            '/use[:\s]*(\d{4,8})/i',              // "use: 123456"
+            '/enter[:\s]*(\d{4,8})/i',            // "enter: 123456"
+            '/amazon[^\d]*?(\d{4,8})/i',           // Amazon specific pattern - handles 'Amazon: Your code is 123456'
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $message, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return null;
     }
 }

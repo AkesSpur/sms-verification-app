@@ -167,16 +167,17 @@
                                 <i class="fas fa-sms text-blue-600 mr-2"></i>
                                 <span class="text-blue-800">Waiting for SMS code...</span>
                             </div>
-                            @if($order->status === 'pending' && $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
+                           
+                        </div>
+                    </div>
+                </div>
+            @endif
+             @if( $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
                                 <button onclick="resendSms({{ $order->id }})" 
                                         class="bg-orange-100 text-orange-700 px-4 py-2 rounded-lg text-sm hover:bg-orange-200 transition-colors">
                                     <i class="fas fa-redo mr-1"></i>Resend SMS
                                 </button>
                             @endif
-                        </div>
-                    </div>
-                </div>
-            @endif
             
             <!-- Auto-refresh notice -->
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">

@@ -456,7 +456,7 @@ class UsaNumberController extends Controller
         
         $order = Order::where('id', $orderId)
             ->where('user_id', $user->id)
-            ->where('status', 'pending')
+            // ->where('status', 'pending')
             ->where('country_id', $this->getUsaCountryId())
             ->first();
 
@@ -475,13 +475,8 @@ class UsaNumberController extends Controller
             ], 400);
         }
 
-        // Check if SMS code was already received
-        if ($order->sms_code) {
-            return response()->json([
-                'success' => false,
-                'message' => 'SMS code already received for this order'
-            ], 400);
-        }
+        // Allow resending even if SMS code was received, as long as we're within the SMS window
+        // This helps users who might have missed the first SMS or need a fresh code
 
         // Rate limiting for resend requests (max 2 resends per order)
         $resendCount = Cache::get("resend_count_{$order->id}", 0);
@@ -740,16 +735,22 @@ class UsaNumberController extends Controller
         }
 
         if (strpos($response, 'STATUS_OK') !== false) {
-            $code = explode(':', $response)[1] ?? null;
-            if ($code) {
+            $fullMessage = explode(':', $response, 2)[1] ?? null;
+            if ($fullMessage) {
+                // Extract verification code from the message using regex
+                $extractedCode = $this->extractVerificationCode($fullMessage);
+                
                 $order->update([
-                    'sms_code' => $code,
+                    'sms_code' => $extractedCode ?: $fullMessage, // Use extracted code or full message as fallback
+                    'sms_received_at' => now(),
                     'status' => Order::STATUS_COMPLETED
                 ]);
 
                 Log::info('USA SMS code received', [
                     'order_id' => $order->id,
-                    'user_id' => $order->user_id
+                    'user_id' => $order->user_id,
+                    'full_message' => $fullMessage,
+                    'extracted_code' => $extractedCode
                 ]);
 
                 // Send sales notification email
@@ -759,7 +760,7 @@ class UsaNumberController extends Controller
                     'success' => true,
                     'order' => [
                         'status' => Order::STATUS_COMPLETED,
-                        'sms_code' => $code,
+                        'sms_code' => $extractedCode ?: $fullMessage,
                         'phone_number' => $order->phone_number
                     ],
                     'message' => 'SMS code received successfully!'
@@ -797,21 +798,27 @@ class UsaNumberController extends Controller
         }
 
         if ($status === 'STATUS_OK' && $code) {
+            // Extract verification code from the message using regex
+            $extractedCode = $this->extractVerificationCode($code);
+            
             $order->update([
-                'sms_code' => $code,
+                'sms_code' => $extractedCode ?: $code, // Use extracted code or full message as fallback
+                'sms_received_at' => now(),
                 'status' => Order::STATUS_COMPLETED
             ]);
 
             Log::info('USA SMS code received', [
                 'order_id' => $order->id,
-                'user_id' => $order->user_id
+                'user_id' => $order->user_id,
+                'full_message' => $code,
+                'extracted_code' => $extractedCode
             ]);
 
             return response()->json([
                 'success' => true,
                 'order' => [
                     'status' => Order::STATUS_COMPLETED,
-                    'sms_code' => $code,
+                    'sms_code' => $extractedCode ?: $code,
                     'phone_number' => $order->phone_number
                 ],
                 'message' => 'SMS code received successfully!'
@@ -835,6 +842,44 @@ class UsaNumberController extends Controller
     private function getUsaCountryId()
     {
         return Country::where('code', $this->usaCountryCode)->value('id') ?? 1;
+    }
+
+    /**
+     * Extract verification code from SMS message using regex patterns
+     */
+    private function extractVerificationCode($message)
+    {
+        // Common patterns for verification codes
+        $patterns = [
+            // 6-digit codes (most common)
+            '/\b(\d{6})\b/',
+            // 4-digit codes
+            '/\b(\d{4})\b/',
+            // 5-digit codes
+            '/\b(\d{5})\b/',
+            // Codes with "code is" or "code:" prefix
+            '/(?:code\s*(?:is|:)\s*)(\d{4,8})/i',
+            // Codes with "verification code" prefix
+            '/(?:verification\s*code\s*(?:is|:)?\s*)(\d{4,8})/i',
+            // Codes with "your code" prefix
+            '/(?:your\s*code\s*(?:is|:)?\s*)(\d{4,8})/i',
+            // Amazon specific pattern - handles 'Amazon: Your code is 123456'
+            '/amazon[^\d]*?(\d{4,8})/i',
+            // Generic: any sequence of 4-8 digits
+            '/\b(\d{4,8})\b/'
+        ];
+        
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $message, $matches)) {
+                $code = $matches[1];
+                // Validate that it's likely a verification code (4-8 digits)
+                if (strlen($code) >= 4 && strlen($code) <= 8) {
+                    return $code;
+                }
+            }
+        }
+        
+        return null;
     }
 
     /**
