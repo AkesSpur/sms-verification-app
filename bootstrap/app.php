@@ -47,6 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'can' => Authorize::class,
             'guest' => RedirectIfAuthenticated::class,
             'throttle' => ThrottleRequests::class,
+            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'admin' => AdminMiddleware::class,
         ]);
     })

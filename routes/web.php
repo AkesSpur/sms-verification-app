@@ -31,7 +31,7 @@ Route::get('/gift/{slug}', [HomeController::class, 'showGift'])->name('gift.show
 // });
 
 
-Route::prefix('user')->middleware('auth')->group(function () {
+Route::prefix('user')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [UsersController::class, 'dashboard'])->name('user.dashboard');
     Route::get('/usa-numbers', [UsersController::class, 'usaNumbers'])->name('user.usa-numbers');
     Route::get('/all-countries', [UsersController::class, 'allCountriesNumbers'])->name('user.all-countries');
@@ -40,6 +40,7 @@ Route::prefix('user')->middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/order', [OrderController::class, 'store'])->name('order.store');

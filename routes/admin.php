@@ -20,11 +20,17 @@ use App\Http\Controllers\Backend\GiftController;
 use App\Http\Controllers\Backend\BannerController;
 use App\Http\Controllers\Backend\SmsOrderController;
 use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 
 /* Dashboard route */
 Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
+/* Admin Profile routes */
+Route::get('profile', [ProfileController::class, 'index'])->name('profile.index');
+Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::post('profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
 
 
 /** customer list routes */
