@@ -43,6 +43,22 @@
                 <small class="form-text text-muted">Current exchange rate from Naira to Dollar (1 USD = X NGN).</small>
             </div>
             <hr>
+            <h5>Support Links</h5>
+            <div class="form-group">
+                <label>WhatsApp Support Link</label>
+                <input type="url" class="form-control" name="whatsapp_support_link" 
+                       value="{{@$generalSettings->whatsapp_support_link}}" 
+                       placeholder="e.g. https://wa.me/+2347011780974">
+                <small class="form-text text-muted">WhatsApp support link for customer assistance.</small>
+            </div>
+            <div class="form-group">
+                <label>Telegram Support Link</label>
+                <input type="url" class="form-control" name="telegram_support_link" 
+                       value="{{@$generalSettings->telegram_support_link}}" 
+                       placeholder="e.g. https://t.me/blizzsms">
+                <small class="form-text text-muted">Telegram support link for customer assistance.</small>
+            </div>
+            <hr>
             <h5>Pricing Settings</h5>
             <div class="form-group">
                 <label>API Price Markup Percentage (%)</label>

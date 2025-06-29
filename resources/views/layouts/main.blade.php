@@ -228,14 +228,18 @@
             
             <!-- Contact Info -->
             <div class="flex items-center space-x-8 mb-6 md:mb-0">
-                <a href="https://wa.me/+2347011780974" target="_blank" class="flex items-center text-slate-600 hover:text-green-600 transition-colors">
+                @if($settings->whatsapp_support_link)
+                <a href="{{ $settings->whatsapp_support_link }}" target="_blank" class="flex items-center text-slate-600 hover:text-green-600 transition-colors">
                     <i class="fab fa-whatsapp mr-2"></i>
                     WhatsApp
                 </a>
-                <a href="https://t.me/blizzsms" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
+                @endif
+                @if($settings->telegram_support_link)
+                <a href="{{ $settings->telegram_support_link }}" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
                     <i class="fab fa-telegram mr-2"></i>
                     Telegram
                 </a>
+                @endif
             </div>
             
             <!-- Copyright -->

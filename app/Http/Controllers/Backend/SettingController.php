@@ -39,6 +39,8 @@ class SettingController extends Controller
             'api_price_markup_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'enable_dynamic_pricing' => ['nullable', 'boolean'],
             'naira_to_dollar_rate' => ['nullable', 'numeric', 'min:0'],
+            'whatsapp_support_link' => ['nullable', 'url', 'max:500'],
+            'telegram_support_link' => ['nullable', 'url', 'max:500'],
         ]);
 
         GeneralSetting::updateOrCreate(
@@ -53,6 +55,8 @@ class SettingController extends Controller
                 'api_price_markup_percentage' => $request->api_price_markup_percentage ?? 20.00,
                 'enable_dynamic_pricing' => $request->boolean('enable_dynamic_pricing', true),
                 'naira_to_dollar_rate' => $request->naira_to_dollar_rate,
+                'whatsapp_support_link' => $request->whatsapp_support_link,
+                'telegram_support_link' => $request->telegram_support_link,
             ]
         );
 

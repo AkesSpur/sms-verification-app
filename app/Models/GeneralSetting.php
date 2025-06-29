@@ -19,6 +19,8 @@ class GeneralSetting extends Model
         'api_price_markup_percentage',
         'enable_dynamic_pricing',
         'naira_to_dollar_rate',
+        'whatsapp_support_link',
+        'telegram_support_link',
     ];
 
     protected $casts = [
