@@ -147,7 +147,7 @@
                     @auth
                         <!-- User Balance Display -->
                         {{-- <div class="flex items-center px-3 py-2 bg-blue-50 rounded-lg"> --}}
-                            <a href="{{ route('user.transaction') }}" class="flex items-center px-3 py-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer group">
+                        <a href="{{ route('user.transaction') }}" class="flex items-center px-3 py-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer group">
                             <i class="fas fa-wallet text-blue-600 mr-2 group-hover:scale-110 transition-transform"></i>
                             <span class="text-sm font-medium text-blue-800">₦{{ number_format(auth()->user()->balance ?? 0, 0) }}</span>
                             <i class="fas fa-external-link-alt text-blue-500 ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
@@ -228,10 +228,6 @@
             
             <!-- Contact Info -->
             <div class="flex items-center space-x-8 mb-6 md:mb-0">
-                <a href="mailto:support@blizzsms.com" class="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
-                    <i class="fas fa-envelope mr-2"></i>
-                    support@blizzsms.com
-                </a>
                 <a href="https://wa.me/+2347011780974" target="_blank" class="flex items-center text-slate-600 hover:text-green-600 transition-colors">
                     <i class="fab fa-whatsapp mr-2"></i>
                     WhatsApp

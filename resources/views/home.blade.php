@@ -1302,7 +1302,7 @@
         <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
             <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
             <p>
-                Need a custom website? <a href="https://wa.link/18c124" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
+                Need a custom SMS platform? <a href="mailto:dev@blizzsms.com" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
                     Contact the developer
                     <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
@@ -1324,17 +1324,13 @@
                     </h3>
                 </div>
                 
-              <!-- Contact Info -->
-<div class="flex items-center space-x-8 mb-6 md:mb-0">
-    <a href="https://wa.me/+2347011780974" target="_blank" class="flex items-center text-slate-600 hover:text-green-600 transition-colors">
-        <i class="fab fa-whatsapp mr-2"></i>
-        WhatsApp
-    </a>
-    <a href="https://t.me/bliss13500" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
-        <i class="fab fa-telegram mr-2"></i>
-        Telegram
-    </a>
-</div>
+                <!-- Contact Info -->
+                <div class="flex items-center space-x-8 mb-6 md:mb-0">
+                    <a href="mailto:support@blizzsms.com" class="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        support@blizzsms.com
+                    </a>
+                </div>
                 
                 <!-- Copyright -->
                 <div class="text-slate-500 text-sm">
