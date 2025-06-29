@@ -232,7 +232,7 @@
                     <i class="fab fa-whatsapp mr-2"></i>
                     WhatsApp
                 </a>
-                <a href="https://t.me/bliss13500" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
+                <a href="https://t.me/blizzsms" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
                     <i class="fab fa-telegram mr-2"></i>
                     Telegram
                 </a>

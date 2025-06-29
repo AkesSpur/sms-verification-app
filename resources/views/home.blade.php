@@ -1325,12 +1325,16 @@
                 </div>
                 
                 <!-- Contact Info -->
-                <div class="flex items-center space-x-8 mb-6 md:mb-0">
-                    <a href="mailto:support@blizzsms.com" class="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
-                        <i class="fas fa-envelope mr-2"></i>
-                        support@blizzsms.com
-                    </a>
-                </div>
+            <div class="flex items-center space-x-8 mb-6 md:mb-0">
+                <a href="https://wa.me/+2347011780974" target="_blank" class="flex items-center text-slate-600 hover:text-green-600 transition-colors">
+                    <i class="fab fa-whatsapp mr-2"></i>
+                    WhatsApp
+                </a>
+                <a href="https://t.me/blizzsms" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
+                    <i class="fab fa-telegram mr-2"></i>
+                    Telegram
+                </a>
+            </div>
                 
                 <!-- Copyright -->
                 <div class="text-slate-500 text-sm">

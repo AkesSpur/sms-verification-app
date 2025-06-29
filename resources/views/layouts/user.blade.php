@@ -194,7 +194,7 @@
         </a>
         
         <!-- Telegram -->
-        <a href="https://t.me/bliss13500" target="_blank" 
+        <a href="https://t.me/blizzsms" target="_blank" 
            class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 group">
             <i class="fab fa-telegram-plane text-xl"></i>
             <span class="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Telegram Support</span>
