@@ -162,9 +162,17 @@
             @else
                 <div class="mb-6">
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <i class="fas fa-sms text-blue-600 mr-2"></i>
-                            <span class="text-blue-800">Waiting for SMS code...</span>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-sms text-blue-600 mr-2"></i>
+                                <span class="text-blue-800">Waiting for SMS code...</span>
+                            </div>
+                            @if($order->status === 'pending' && $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
+                                <button onclick="resendSms({{ $order->id }})" 
+                                        class="bg-orange-100 text-orange-700 px-4 py-2 rounded-lg text-sm hover:bg-orange-200 transition-colors">
+                                    <i class="fas fa-redo mr-1"></i>Resend SMS
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -184,7 +192,85 @@
 </div>
 
 <script>
-// Order details page - no interactive functions needed
+// Resend SMS function
+function resendSms(orderId) {
+    // Show loading state
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Sending...';
+    
+    fetch(`/user/usa/order/${orderId}/resend-sms`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showNotification(data.message, 'success');
+            // Hide the resend button after successful request
+            button.style.display = 'none';
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to resend SMS. Please try again.', 'error');
+    })
+    .finally(() => {
+        // Restore button state
+        button.disabled = false;
+        button.innerHTML = originalContent;
+    });
+}
+
+// Simple notification function
+function showNotification(message, type = 'info', duration = 5000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-x-full ${
+        type === 'success' ? 'bg-green-100 border border-green-200 text-green-800' :
+        type === 'error' ? 'bg-red-100 border border-red-200 text-red-800' :
+        'bg-blue-100 border border-blue-200 text-blue-800'
+    }`;
+    
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${
+                type === 'success' ? 'fa-check-circle' :
+                type === 'error' ? 'fa-times-circle' :
+                'fa-info-circle'
+            } mr-2"></i>
+            <span class="flex-1">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, duration);
+}
 </script>
 
 <!-- Website Builder Contact -->

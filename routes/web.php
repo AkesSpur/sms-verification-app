@@ -58,6 +58,7 @@ Route::prefix('user')->middleware(['auth', 'verified'])->group(function () {
         Route::post('/purchase', [UsaNumberController::class, 'store'])->name('usa.purchase');
         Route::get('/order/{order}/status', [UsaNumberController::class, 'checkStatus'])->name('usa.order.status');
         Route::post('/order/{order}/cancel', [UsaNumberController::class, 'cancel'])->name('usa.order.cancel');
+        Route::post('/order/{order}/resend-sms', [UsaNumberController::class, 'resendSms'])->name('usa.order.resend-sms');
         Route::get('/order/{order}', [UsaNumberController::class, 'show'])->name('usa.order.show');
     });
     

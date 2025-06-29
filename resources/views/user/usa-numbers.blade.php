@@ -368,11 +368,16 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex justify-center space-x-2">
                                     @if(in_array($order->status, ['pending', 'active']))
-                                        <button class="text-primary-600 hover:text-primary-900" onclick="refreshNumber({{ $order->id }})">
+                                        <button class="text-primary-600 hover:text-primary-900" onclick="refreshNumber({{ $order->id }})" title="Refresh Status">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
+                                        @if($order->status === 'pending' && !$order->sms_code && $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
+                                            <button class="text-orange-600 hover:text-orange-900" onclick="resendSms({{ $order->id }})" title="Resend SMS">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                        @endif
                                     @endif
-                                    <a href="{{ route('usa.order.show', $order->id) }}" class="text-gray-600 hover:text-gray-900">
+                                    <a href="{{ route('usa.order.show', $order->id) }}" class="text-gray-600 hover:text-gray-900" title="View Details">
                                         <i class="fas fa-info-circle"></i>
                                     </a>
                                 </div>
@@ -456,6 +461,11 @@
                             <button onclick="refreshNumber({{ $order->id }})" class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
                                 <i class="fas fa-sync-alt mr-1"></i>Refresh
                             </button>
+                            @if($order->status === 'pending' && !$order->sms_code && $order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
+                                <button onclick="resendSms({{ $order->id }})" class="flex-1 bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-sm hover:bg-orange-200 transition-colors">
+                                    <i class="fas fa-redo mr-1"></i>Resend SMS
+                                </button>
+                            @endif
                         @endif
                         <a href="{{ route('usa.order.show', $order->id) }}" class="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors text-center">
                             <i class="fas fa-info-circle mr-1"></i>Details
@@ -1060,6 +1070,42 @@ function copyToClipboard(text) {
 
 function refreshNumber(orderId) {
     checkOrderStatus(orderId);
+}
+
+// Resend SMS function
+function resendSms(orderId) {
+    // Show loading state
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Sending...';
+    
+    fetch(`/user/usa/order/${orderId}/resend-sms`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            // Optionally hide the resend button after successful request
+            button.style.display = 'none';
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Failed to resend SMS. Please try again.', 'error');
+    })
+    .finally(() => {
+        // Restore button state
+        button.disabled = false;
+        button.innerHTML = originalContent;
+    });
 }
 
 function showDetails(orderId) {

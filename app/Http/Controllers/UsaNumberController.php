@@ -448,6 +448,93 @@ class UsaNumberController extends Controller
     }
 
     /**
+     * Resend SMS code for USA number order
+     */
+    public function resendSms($orderId)
+    {
+        $user = Auth::user();
+        
+        $order = Order::where('id', $orderId)
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->where('country_id', $this->getUsaCountryId())
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found or not eligible for resend'
+            ], 404);
+        }
+
+        // Check if order is within the 20-minute SMS window
+        if (!$order->sms_window_expires_at || $order->sms_window_expires_at->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'SMS window has expired. Cannot request resend.'
+            ], 400);
+        }
+
+        // Check if SMS code was already received
+        if ($order->sms_code) {
+            return response()->json([
+                'success' => false,
+                'message' => 'SMS code already received for this order'
+            ], 400);
+        }
+
+        // Rate limiting for resend requests (max 2 resends per order)
+        $resendCount = Cache::get("resend_count_{$order->id}", 0);
+        if ($resendCount >= 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Maximum resend attempts reached for this order'
+            ], 429);
+        }
+
+        try {
+            // Request SMS retry from SMS Activate API
+            $result = $this->smsService->requestSmsRetry($order->activation_id);
+            
+            if ($result['success']) {
+                // Increment resend counter
+                Cache::put("resend_count_{$order->id}", $resendCount + 1, now()->addHours(1));
+                
+                Log::info('SMS resend requested', [
+                    'order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'activation_id' => $order->activation_id,
+                    'resend_count' => $resendCount + 1
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'SMS resend requested successfully. Please wait for the new code.',
+                    'resend_count' => $resendCount + 1,
+                    'max_resends' => 2
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to request SMS resend. Please try again later.'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('SMS resend request failed', [
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to request SMS resend. Please try again later.'
+            ], 500);
+        }
+    }
+
+    /**
      * Cancel USA number order
      */
     public function cancel($orderId)
