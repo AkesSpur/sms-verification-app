@@ -143,22 +143,22 @@
             <div class="product-container">
                 <div class="digital-icon">📱</div>
                 <div class="product-detail">
-                    <span class="label">Order ID:</span> {{ $order_id }}
+                    <span class="label">Order ID:</span> {{ $saleData['order_id'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Phone Number:</span> {{ $phone_number }}
+                    <span class="label">Phone Number:</span> {{ $saleData['phone_number'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Service:</span> {{ $service_name }}
+                    <span class="label">Service:</span> {{ $saleData['service_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Country:</span> {{ $country }}
+                    <span class="label">Country:</span> {{ $saleData['country'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Customer:</span> {{ $customer_name }}
+                    <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($price, 2) }}
+                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
                 </div>
             </div>
         @elseif($saleType === 'digital_product')
@@ -189,25 +189,25 @@
             <div class="product-container">
                 <div class="digital-icon">🎁</div>
                 <div class="product-detail">
-                    <span class="label">Order ID:</span> {{ $order_id }}
+                    <span class="label">Order ID:</span> {{ $saleData['order_id'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Order Number:</span> {{ $order_number }}
+                    <span class="label">Order Number:</span> {{ $saleData['order_number'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Gift:</span> {{ $gift_name }}
+                    <span class="label">Gift:</span> {{ $saleData['gift_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Recipient:</span> {{ $recipient_name }}
+                    <span class="label">Recipient:</span> {{ $saleData['recipient_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Sender:</span> {{ $sender_name }}
+                    <span class="label">Sender:</span> {{ $saleData['sender_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Customer:</span> {{ $customer_name }}
+                    <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($price, 2) }}
+                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
                 </div>
             </div>
         @endif
@@ -215,7 +215,7 @@
         <div class="total-amount">
             Total Amount: 
             @if($saleType === 'sms' || $saleType === 'gift')
-                {{$settings->currency_icon}}{{ number_format($price, 2) }}
+                {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
             @elseif($saleType === 'digital_product')
                 {{$settings->currency_icon}}{{ number_format(collect($saleData)->sum('price'), 2) }}
             @endif

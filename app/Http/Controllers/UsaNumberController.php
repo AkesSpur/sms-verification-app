@@ -896,7 +896,7 @@ class UsaNumberController extends Controller
             $saleData = [
                 'order_id' => $order->id,
                 'phone_number' => $order->phone_number,
-                'service' => $order->service->name ?? 'Unknown Service',
+                'service_name' => $order->service->name ?? 'Unknown Service',
                 'country' => $order->country->name ?? 'USA',
                 'customer_name' => $order->user->name ?? 'Unknown Customer',
                 'price' => $order->final_price ?? 0,
