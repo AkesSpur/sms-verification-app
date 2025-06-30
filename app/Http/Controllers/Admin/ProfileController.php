@@ -33,7 +33,7 @@ class ProfileController extends Controller
         
         // If email is being changed, automatically verify it for admin users
         if ($user->email !== $request->email) {
-            $user->email = $request->email;
+        $user->email = $request->email;
             $user->email_verified_at = now();
         }
         
@@ -59,7 +59,7 @@ class ProfileController extends Controller
             'password' => bcrypt($request->password)
         ]);
 
-        toastr()->success('Password updated successfully!');
+        toastr()->success('Password updated successfully!');       
         return redirect()->route('admin.profile.index');
     }
 }

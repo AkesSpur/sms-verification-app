@@ -1347,7 +1347,7 @@
                 </div>
                 
                 <!-- Contact Info -->
-            <div class="flex items-center space-x-8 mb-6 md:mb-0">
+                <div class="flex items-center space-x-8 mb-6 md:mb-0">
                 @if($settings->whatsapp_support_link)
                 <a href="{{ $settings->whatsapp_support_link }}" target="_blank" class="flex items-center text-slate-600 hover:text-green-600 transition-colors">
                     <i class="fab fa-whatsapp mr-2"></i>
@@ -1358,9 +1358,9 @@
                 <a href="{{ $settings->telegram_support_link }}" target="_blank" class="flex items-center text-slate-600 hover:text-blue-500 transition-colors">
                     <i class="fab fa-telegram mr-2"></i>
                     Telegram
-                </a>
+                    </a>
                 @endif
-            </div>
+                </div>
                 
                 <!-- Copyright -->
                 <div class="text-slate-500 text-sm">

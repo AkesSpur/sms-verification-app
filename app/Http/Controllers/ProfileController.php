@@ -38,7 +38,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's password.
+         * Update the user's password.
      */
     public function updatePassword(Request $request): RedirectResponse
     {
@@ -50,7 +50,7 @@ class ProfileController extends Controller
         $request->user()->update([
             'password' => bcrypt($validated['password']),
         ]);
-        
+
         return back()->with('status', 'password-updated');
     }
 
