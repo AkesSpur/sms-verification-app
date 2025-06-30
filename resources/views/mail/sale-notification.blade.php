@@ -117,17 +117,17 @@
 <body>
     <div class="container">
         <div class="header">
-            @if($saleType == 'sms')
+            @if($saleType === 'sms')
                 <div class="logo">📱</div>
                 <div class="notification-badge">New SMS Sale</div>
                 <h1>SMS Number Sale!</h1>
                 <p class="subtitle">A new SMS number has been purchased</p>
-            @elseif($saleType == 'digital_product')
+            @elseif($saleType === 'digital_product')
                 <div class="logo">💳</div>
                 <div class="notification-badge">New Digital Sale</div>
                 <h1>Digital Product Sale!</h1>
                 <p class="subtitle">A new digital product has been sold</p>
-            @elseif($saleType == 'gift')
+            @elseif($saleType === 'gift')
                 <div class="logo">🎁</div>
                 <div class="notification-badge">New Gift Sale</div>
                 <h1>Gift Order Sale!</h1>
@@ -139,7 +139,7 @@
 
         <p>Great news! You've just made a new sale. Here are the details:</p>
 
-        @if($saleType == 'sms')
+        @if($saleType === 'sms')
             <div class="product-container">
                 <div class="digital-icon">📱</div>
                 <div class="product-detail">
@@ -161,7 +161,7 @@
                     <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($price, 2) }}
                 </div>
             </div>
-        @elseif($saleType == 'digital_product')
+        @elseif($saleType === 'digital_product')
             @foreach ($saleData as $product)
             <div class="product-container">
                 <div class="digital-icon">💳</div>
@@ -185,7 +185,7 @@
                 </div>
             </div>
             @endforeach
-        @elseif($saleType == 'gift')
+        @elseif($saleType === 'gift')
             <div class="product-container">
                 <div class="digital-icon">🎁</div>
                 <div class="product-detail">
@@ -214,9 +214,9 @@
 
         <div class="total-amount">
             Total Amount: 
-            @if($saleType == 'sms' || $saleType == 'gift')
+            @if($saleType === 'sms' || $saleType === 'gift')
                 {{$settings->currency_icon}}{{ number_format($price, 2) }}
-            @elseif($saleType == 'digital_product')
+            @elseif($saleType === 'digital_product')
                 {{$settings->currency_icon}}{{ number_format(collect($saleData)->sum('price'), 2) }}
             @endif
         </div>

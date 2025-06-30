@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GeneralSetting;
 use App\Models\Gift;
 use App\Models\GiftOrder;
 use App\Models\Transaction;
@@ -153,7 +152,6 @@ class GiftOrderController extends Controller
                 try {
                     $emailConfig = EmailConfiguration::first();
                     if ($emailConfig && $emailConfig->email) {
-                        $settings = GeneralSetting::first();
                         $saleData = [
                             'order_id' => $giftOrder->id,
                             'order_number' => $giftOrder->order_number,
@@ -161,26 +159,12 @@ class GiftOrderController extends Controller
                             'recipient_name' => $giftOrder->recipient_name,
                             'sender_name' => $giftOrder->sender_name,
                             'customer_name' => $user->name,
-                            'price' => $giftOrder->total_amount,
-                            'saleType' => 'gift',
-                             'businessOwnerName' => $settings->site_name ?? 'Admin',
-                             'settings' => $settings
+                            'price' => $giftOrder->total_amount
                         ];
 
-                        //  $mailData = array_merge($saleData, [
-                        //      'saleType' => 'gift',
-                        //      'businessOwnerName' => $settings->site_name ?? 'Admin',
-                        //      'settings' => $settings
-                        //  ]);
-                         
-                         Mail::send('mail.sale-notification', $saleData, function ($message) use ($emailConfig) {
-                             $message->to($emailConfig->email)
-                                 ->subject('New Sale Notification');
-                         });
-
-                          Log::error('sent', [
-                        'gift_order_id' => $giftOrder->id
-                    ]);
+                        Mail::to($emailConfig->email)->queue(
+                            new SaleNotificationMail('gift', $saleData, $saleData['price'])
+                        );
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [

@@ -23,11 +23,11 @@ class SaleNotificationMail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct( $saleData, $businessOwnerName = null)
+    public function __construct($saleType, $saleData, $totalAmount, $businessOwnerName = null)
     {
-        // $this->saleType = $saleType;
+        $this->saleType = $saleType;
         $this->saleData = $saleData;
-        // $this->totalAmount = $totalAmount;
+        $this->totalAmount = $totalAmount;
         $this->settings = GeneralSetting::first();
         $this->businessOwnerName = $businessOwnerName ?? ($this->settings->site_name ?? 'Admin');
     }
