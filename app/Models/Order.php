@@ -369,7 +369,7 @@ public function getStatusTextAttribute()
  * @param string $changedBy
  * @return void
  */
-private function processRefund($reason = null, $changedBy = 'system')
+public function processRefund($reason = null, $changedBy = 'system')
 {
     try {
         // Get the user
