@@ -36,6 +36,9 @@
                         radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.02) 0%, transparent 50%);
             pointer-events: none;
         }
+        .secondary-nav-bg{
+             background-color: rgba(255, 255, 255, 0.8);
+        }
         .glass-effect {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
@@ -379,8 +382,27 @@
         </div>
     </nav>
 
+    <!-- Secondary Navigation -->    
+    <section id="secondary-nav" class="w-full secondary-nav-bg border-b border-gray-100 transition-all duration-300" data-aos="fade-down" data-aos-delay="200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-center py-2">
+                <div class="flex space-x-6">
+                    <!-- Gifts Link -->
+                    <a href="{{ route('all-gifts') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
+                        Gifts
+                    </a>
+                    
+                    <!-- Categories Link -->
+                    <a href="{{ route('all-categories') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
+                        All Logs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Hero Section -->
-    <section class="hero-bg min-h-screen flex items-center justify-center relative overflow-hidden">
+    <section class="relative flex items-start justify-center overflow-hidden pt-16 pb-16">
         <!-- Celebration Background Elements -->
         <div class="absolute inset-0 pointer-events-none">
             <!-- Floating Sparkles -->
@@ -434,7 +456,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pb-6">
             <div class="grid lg:grid-cols-2 gap-6 items-center">
                 <!-- Left Content -->
-                <div class="text-center lg:text-left mt-20" data-aos="fade-right" data-aos-duration="1000">
+                <div class="text-center lg:text-left mt-8" data-aos="fade-right" data-aos-duration="1000">
                     <!-- Premium Badge -->
                     <div class="mb-6">
                         <span class="premium-badge">
@@ -684,8 +706,8 @@
     </section>
 
     <!-- Infinite Sliding Services Section -->
-    <section class="py-12 bg-white overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="py-4 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
             <div class="text-center mb-8" data-aos="fade-up">
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">Popular <span class="gradient-text">Services</span></h2>
             </div>
@@ -1438,7 +1460,7 @@
                     additionalCategories.style.transition = '';
                 }, 500);
                 
-                toggleButton.innerHTML = '<i class="fas fa-chevron-down mr-2"></i>View All Gift Cards';
+                toggleButton.innerHTML = '<i class="fas fa-chevron-down mr-2"></i>View All Logs';
             }
         }
         
@@ -1458,7 +1480,7 @@
                     <div class="bg-white rounded-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
                         <div class="p-6 border-b border-gray-200">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-2xl font-bold text-gray-900">${subcategoryName} Products</h3>
+                                <h3 class="text-2xl font-bold text-gray-900">${subcategoryName} Logs</h3>
                                 <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -1631,5 +1653,22 @@
             }
         });
     </script>
+<script>
+// Secondary Navigation Sticky Behavior
+window.addEventListener('scroll', function() {
+    const secondaryNav = document.getElementById('secondary-nav');
+    const navbar = document.querySelector('nav');
+    const navbarHeight = navbar ? navbar.offsetHeight : 64;
+    
+    if (window.scrollY > navbarHeight) {
+        secondaryNav.classList.add('fixed', 'top-16', 'z-40', 'shadow-sm');
+        secondaryNav.style.transform = 'translateY(0)';
+    } else {
+        secondaryNav.classList.remove('fixed', 'top-16', 'z-40', 'shadow-sm');
+        secondaryNav.style.transform = 'translateY(0)';
+    }
+});
+</script>
+
 </body>
 </html>

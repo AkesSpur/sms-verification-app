@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'All Categories - Digital Gift Cards')
+@section('title', 'All Categories - Digital Logs')
 
 @section('content')
     <!-- Image Banner Carousel Section -->
@@ -65,10 +65,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center mb-8" data-aos="fade-up">
                 <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-                    All Digital <span class="gradient-text">Gift Cards</span>
+                    All Digital <span class="gradient-text">Logs</span>
                 </h1>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    Browse our complete collection of digital gift cards for all your favorite platforms and services
+                    Browse our complete collection of digital logs for all your favorite platforms and services
                 </p>
             </div>
         </div>
@@ -83,7 +83,7 @@
             <div class="mb-12" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
                 <div class="mb-4">
                     <h2 class="text-xl font-bold text-gray-900 mb-1">{{ $category->name }}</h2>
-                    <p class="text-gray-600">{{ $category->description ?? 'Digital gift cards for ' . strtolower($category->name) }}</p>
+                    <p class="text-gray-600">{{ $category->description ?? 'Digital Logs for ' . strtolower($category->name) }}</p>
                 </div>
                 
                 <!-- Initial 8 subcategories -->
@@ -96,7 +96,7 @@
                     @endphp
                     
                     @foreach($activeSubcategories->take(8) as $subcategory)
-                        <!-- {{ $subcategory->name }} Gift Card -->
+                        <!-- {{ $subcategory->name }} -->
                         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
                             <div class="p-6 text-center">
                                 <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
@@ -159,7 +159,7 @@
                         <i class="fas fa-bolt text-white text-2xl"></i>
                     </div>
                     <h4 class="text-xl font-bold text-gray-900 mb-2">Instant Delivery</h4>
-                    <p class="text-gray-600">Get your digital gift cards delivered to your email instantly after purchase</p>
+                    <p class="text-gray-600">Get your logs delivered to your email instantly after purchase</p>
                 </div>
                 <div class="text-center">
                     <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center">
@@ -217,7 +217,7 @@
                     <div class="bg-white rounded-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
                         <div class="p-6 border-b border-gray-200">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-2xl font-bold text-gray-900">${category} Gift Cards</h3>
+                                <h3 class="text-2xl font-bold text-gray-900">${category} Logs</h3>
                                 <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
                                     <i class="fas fa-times"></i>
                                 </button>
