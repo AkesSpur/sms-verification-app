@@ -135,7 +135,7 @@
             @endif
         </div>
 
-        <p>Dear {{ $businessOwnerName }},</p>
+        <p>Dear {{ $saleData['businessOwnerName'] }},</p>
 
         <p>Great news! You've just made a new sale. Here are the details:</p>
 
@@ -158,10 +158,10 @@
                     <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+                    <span class="label">Price:</span> {{$saleData['settings']->currency_icon}}{{ number_format($saleData['price'], 2) }}
                 </div>
             </div>
-        @elseif($saleType === 'digital_product')
+        @elseif($saleData['saleType'] === 'digital_product')
             @foreach ($saleData as $product)
             <div class="product-container">
                 <div class="digital-icon">💳</div>
@@ -181,11 +181,11 @@
                     <span class="label">Customer:</span> {{ $product['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($product['price'], 2) }}
+                    <span class="label">Price:</span> {{$saleData['settings']->currency_icon}}{{ number_format($product['price'], 2) }}
                 </div>
             </div>
             @endforeach
-        @elseif($saleType === 'gift')
+        @elseif($saleData['saleType'] === 'gift')
             <div class="product-container">
                 <div class="digital-icon">🎁</div>
                 <div class="product-detail">
@@ -207,27 +207,27 @@
                     <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+                    <span class="label">Price:</span> {{$saleData['settings']->currency_icon}}{{ number_format($saleData['price'], 2) }}
                 </div>
             </div>
         @endif
 
         <div class="total-amount">
             Total Amount: 
-            @if($saleType === 'sms' || $saleType === 'gift')
-                {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
-            @elseif($saleType === 'digital_product')
-                {{$settings->currency_icon}}{{ number_format(collect($saleData)->sum('price'), 2) }}
+            @if($saleData['saleType'] === 'sms' || $saleData['saleType'] === 'gift')
+                {{$saleData['settings']->currency_icon}}{{ number_format($saleData['price'], 2) }}
+            @elseif($saleData['saleType'] === 'digital_product')
+                {{$saleData['settings']->currency_icon}}{{ number_format(collect($saleData)->sum('price'), 2) }}
             @endif
         </div>
 
         <p>Thank you for using our platform to sell your digital products. We're excited to see your business grow!</p>
 
-        <p>Best regards,<br>{{ $businessOwnerName }}</p>
+        <p>Best regards,<br>{{ $saleData['businessOwnerName'] }}</p>
     </div>
 
     <div class="footer">
-        <p>&copy; {{ date('Y') }} {{ $businessOwnerName }} | Digital Products & Gift Cards</p>
+        <p>&copy; {{ date('Y') }} {{ $saleData['businessOwnerName'] }} | Digital Products & Gift Cards</p>
     </div>
 </body>
 

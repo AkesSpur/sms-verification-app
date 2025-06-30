@@ -153,6 +153,7 @@ class GiftOrderController extends Controller
                 try {
                     $emailConfig = EmailConfiguration::first();
                     if ($emailConfig && $emailConfig->email) {
+                        $settings = GeneralSetting::first();
                         $saleData = [
                             'order_id' => $giftOrder->id,
                             'order_number' => $giftOrder->order_number,
@@ -160,20 +161,22 @@ class GiftOrderController extends Controller
                             'recipient_name' => $giftOrder->recipient_name,
                             'sender_name' => $giftOrder->sender_name,
                             'customer_name' => $user->name,
-                            'price' => $giftOrder->total_amount
+                            'price' => $giftOrder->total_amount,
+                            'saleType' => 'gift',
+                             'businessOwnerName' => $settings->site_name ?? 'Admin',
+                             'settings' => $settings
                         ];
 
-                        $settings = GeneralSetting::first();
-                        $businessOwnerName = $settings->site_name ?? 'Admin';
-                        
-                        Mail::to($emailConfig->email)->send(
-                            new SaleNotificationMail(
-                                'gift',
-                                $saleData,
-                                $giftOrder->total_amount,
-                                $businessOwnerName
-                            )
-                        );
+                        //  $mailData = array_merge($saleData, [
+                        //      'saleType' => 'gift',
+                        //      'businessOwnerName' => $settings->site_name ?? 'Admin',
+                        //      'settings' => $settings
+                        //  ]);
+                         
+                         Mail::send('mail.sale-notification', $saleData, function ($message) use ($emailConfig) {
+                             $message->to($emailConfig->email)
+                                 ->subject('New Sale Notification');
+                         });
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
