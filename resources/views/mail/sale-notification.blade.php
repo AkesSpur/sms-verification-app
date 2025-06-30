@@ -158,7 +158,7 @@
                     <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+                    <span class="label">Price:</span> ₦{{ number_format($saleData['price'], 2) }}
                 </div>
             </div>
         @elseif($saleType === 'digital_product')
@@ -207,7 +207,7 @@
                     <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+                    <span class="label">Price:</span> ₦{{ number_format($saleData['price'], 2) }}
                 </div>
             </div>
         @endif
@@ -215,9 +215,9 @@
         <div class="total-amount">
             Total Amount: 
             @if($saleType === 'sms' || $saleType === 'gift')
-                {{$settings->currency_icon}}{{ number_format($saleData['price'], 2) }}
+                ₦{{ number_format($saleData['price'], 2) }}
             @elseif($saleType === 'digital_product')
-                {{$settings->currency_icon}}{{ number_format(collect($saleData)->sum('price'), 2) }}
+                ₦{{ number_format(collect($saleData)->sum('price'), 2) }}
             @endif
         </div>
 
