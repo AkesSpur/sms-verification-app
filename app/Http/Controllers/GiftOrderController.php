@@ -177,6 +177,10 @@ class GiftOrderController extends Controller
                              $message->to($emailConfig->email)
                                  ->subject('New Sale Notification');
                          });
+
+                          Log::error('sent', [
+                        'gift_order_id' => $giftOrder->id
+                    ]);
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
