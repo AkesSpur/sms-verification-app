@@ -43,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
             Config::set('mail.mailers.smtp.encryption', $mailSetting->encryption);
             Config::set('mail.mailers.smtp.username', $mailSetting->username);
             Config::set('mail.mailers.smtp.password', $mailSetting->password);
+            Config::set('mail.from.address', $mailSetting->email);
             Config::set('mail.from.name', $generalSetting->site_name ?? 'SMS Verification App');
         }
 
