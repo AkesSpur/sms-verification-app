@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DigitalProduct;
 use App\Models\DigitalProductLog;
 use App\Models\DigitalProductOrder;
+use App\Models\GeneralSetting;
 use App\Models\Transaction;
 use App\Models\EmailConfiguration;
 use App\Mail\SaleNotificationMail;
@@ -156,7 +157,9 @@ class DigitalProductOrderController extends Controller
                         // Calculate total amount from all orders
                         $amount = collect($orders)->sum('total_amount');
 
-                        Mail::to($emailConfig->email)->queue(
+                        $settings = GeneralSetting::first();
+
+                        Mail::to($settings->contact_email)->queue(
                             new SaleNotificationMail('digital_product', $saleData, $amount)
                         );
                     }

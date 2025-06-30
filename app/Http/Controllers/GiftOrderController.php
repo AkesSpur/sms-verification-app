@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GeneralSetting;
 use App\Models\Gift;
 use App\Models\GiftOrder;
 use App\Models\Transaction;
@@ -161,8 +162,10 @@ class GiftOrderController extends Controller
                             'customer_name' => $user->name,
                             'price' => $giftOrder->total_amount
                         ];
+                        
+                        $settings = GeneralSetting::first();
 
-                        Mail::to($emailConfig->email)->queue(
+                        Mail::to($settings->contact_email)->queue(
                             new SaleNotificationMail('gift', $saleData, $saleData['price'])
                         );
                     }

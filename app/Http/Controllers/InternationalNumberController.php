@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\GeneralSetting;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\Country;
@@ -627,7 +628,9 @@ class InternationalNumberController extends Controller
                     'price' => $order->final_price
                 ];
 
-                Mail::to($emailConfig->email)->queue(
+            $settings = GeneralSetting::first();
+
+            Mail::to($settings->contact_email)->queue(
                     new SaleNotificationMail('sms', $saleData, $saleData['price'])
                 );
             }

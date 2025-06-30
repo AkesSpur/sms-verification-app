@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\GeneralSetting;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\Country;
@@ -903,7 +904,10 @@ class UsaNumberController extends Controller
                 'sale_type' => 'USA SMS Order'
             ];
 
-            Mail::to($emailConfig->email)
+
+            $settings = GeneralSetting::first();
+
+            Mail::to($settings->contact_email)
                  ->queue(new SaleNotificationMail('usa_sms', $saleData, $saleData['price']));
 
         } catch (\Exception $e) {
