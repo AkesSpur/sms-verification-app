@@ -317,6 +317,107 @@
                 </div>
             </div>
         </div>
+
+        <!-- Detailed Revenue Breakdown -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <h5 class="mb-3"><i class="fas fa-chart-pie"></i> Revenue Breakdown by Service Type</h5>
+            </div>
+            
+            <!-- SMS Revenue -->
+            <div class="col-lg-4 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-sms text-primary"></i> SMS Verification Revenue</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-muted">Today</div>
+                                <div class="font-weight-bold text-primary">₦{{ number_format($todaysSmsRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">This Month</div>
+                                <div class="font-weight-bold text-info">₦{{ number_format($monthSmsRevenue) }}</div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="text-muted">This Year</div>
+                                <div class="font-weight-bold text-success">₦{{ number_format($yearSmsRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">All Time</div>
+                                <div class="font-weight-bold text-dark">₦{{ number_format($stats['sms_total_revenue']) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Digital Products Revenue -->
+            <div class="col-lg-4 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-download text-warning"></i> Digital Products Revenue</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-muted">Today</div>
+                                <div class="font-weight-bold text-primary">₦{{ number_format($todaysDigitalRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">This Month</div>
+                                <div class="font-weight-bold text-info">₦{{ number_format($monthDigitalRevenue) }}</div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="text-muted">This Year</div>
+                                <div class="font-weight-bold text-success">₦{{ number_format($yearDigitalRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">All Time</div>
+                                <div class="font-weight-bold text-dark">₦{{ number_format($stats['digital_total_revenue']) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gift Orders Revenue -->
+            <div class="col-lg-4 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-gift text-danger"></i> Gift Orders Revenue</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-muted">Today</div>
+                                <div class="font-weight-bold text-primary">₦{{ number_format($todaysGiftRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">This Month</div>
+                                <div class="font-weight-bold text-info">₦{{ number_format($monthGiftRevenue) }}</div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="text-muted">This Year</div>
+                                <div class="font-weight-bold text-success">₦{{ number_format($yearGiftRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">All Time</div>
+                                <div class="font-weight-bold text-dark">₦{{ number_format($stats['gift_total_revenue']) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         {{-- <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <a href="{{ route('admin.order.index') }}">

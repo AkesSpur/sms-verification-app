@@ -82,10 +82,11 @@
                     // Get exchange rate from general settings
                     $exchangeRate = $generalSettings->naira_to_dollar_rate ?? 1700.00;
                     
-                    // Calculate financial statistics
+                    // Calculate financial statistics for completed orders only
                     // Final price is already in Naira, API price is in USD
-                    $totalRevenueNaira = $orders->sum('final_price');
-                    $totalApiCostUsd = $orders->sum('api_price');
+                    $completedOrders = $orders->where('status', App\Models\Order::STATUS_COMPLETED);
+                    $totalRevenueNaira = $completedOrders->sum('final_price');
+                    $totalApiCostUsd = $completedOrders->sum('api_price');
                     $totalApiCostNaira = $totalApiCostUsd * $exchangeRate;
                     $totalProfitNaira = $totalRevenueNaira - $totalApiCostNaira;
                     $averageProfitMargin = $totalApiCostNaira > 0 ? ($totalProfitNaira / $totalApiCostNaira) * 100 : 0;

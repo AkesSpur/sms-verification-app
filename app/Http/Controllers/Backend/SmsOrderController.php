@@ -464,8 +464,8 @@ class SmsOrderController extends Controller
         
         // Calculate financial statistics
         // Final price is already in Naira, API price is in USD
-        $totalRevenueNaira = Order::sum('final_price');
-        $totalApiCostUsd = Order::sum('api_price');
+        $totalRevenueNaira = Order::where('status', Order::STATUS_COMPLETED)->sum('final_price');
+        $totalApiCostUsd = Order::where('status', Order::STATUS_COMPLETED)->sum('api_price');
         $totalApiCostNaira = $totalApiCostUsd * $exchangeRate;
         $totalProfitNaira = $totalRevenueNaira - $totalApiCostNaira;
         $averageProfitMargin = $totalApiCostNaira > 0 ? ($totalProfitNaira / $totalApiCostNaira) * 100 : 0;

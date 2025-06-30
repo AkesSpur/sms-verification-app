@@ -26,20 +26,49 @@ class AdminController extends Controller
         $totalCompletedOrders = Order::where('status', 'completed')->count();
         $totalFailedOrders = Order::where('status', 'failed')->count();
 
-        $todaysRevenue = Order::where('orders.status','completed')
-            ->whereDate('orders.created_at', Carbon::today())
-            ->join('services', 'orders.service_id', '=', 'services.id')
-            ->sum('services.price');
+        // SMS Orders Revenue (using final_price - actual amount paid by users)
+        $todaysSmsRevenue = Order::where('status','completed')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('final_price');
 
-        $monthRevenue = Order::where('orders.status','completed')
-            ->whereMonth('orders.created_at', Carbon::now()->month)
-            ->join('services', 'orders.service_id', '=', 'services.id')
-            ->sum('services.price');
+        $monthSmsRevenue = Order::where('status','completed')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('final_price');
 
-        $yearRevenue = Order::where('orders.status','completed')
-            ->whereYear('orders.created_at', Carbon::now()->year)
-            ->join('services', 'orders.service_id', '=', 'services.id')
-            ->sum('services.price');
+        $yearSmsRevenue = Order::where('status','completed')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('final_price');
+
+        // Digital Products Revenue
+        $todaysDigitalRevenue = DigitalProductOrder::where('status', 'completed')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('total_amount');
+
+        $monthDigitalRevenue = DigitalProductOrder::where('status', 'completed')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total_amount');
+
+        $yearDigitalRevenue = DigitalProductOrder::where('status', 'completed')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_amount');
+
+        // Gift Orders Revenue
+        $todaysGiftRevenue = GiftOrder::where('payment_status', 'paid')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('total_amount');
+
+        $monthGiftRevenue = GiftOrder::where('payment_status', 'paid')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total_amount');
+
+        $yearGiftRevenue = GiftOrder::where('payment_status', 'paid')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_amount');
+
+        // Combined Revenue Totals
+        $todaysRevenue = $todaysSmsRevenue + $todaysDigitalRevenue + $todaysGiftRevenue;
+        $monthRevenue = $monthSmsRevenue + $monthDigitalRevenue + $monthGiftRevenue;
+        $yearRevenue = $yearSmsRevenue + $yearDigitalRevenue + $yearGiftRevenue;
 
         $totalServices = Service::where('status', 'active')->count();
         $totalUsers = User::where('role', 'client')->count();
@@ -66,12 +95,21 @@ class AdminController extends Controller
 
         // Comprehensive Statistics
         $stats = [
+            // SMS Orders Revenue Breakdown
+            'sms_today_revenue' => $todaysSmsRevenue,
+            'sms_month_revenue' => $monthSmsRevenue,
+            'sms_year_revenue' => $yearSmsRevenue,
+            'sms_total_revenue' => Order::where('status', 'completed')->sum('final_price'),
+            
             // Digital Product Orders
             'digital_total_orders' => DigitalProductOrder::count(),
             'digital_completed_orders' => DigitalProductOrder::where('status', 'completed')->count(),
             'digital_pending_orders' => DigitalProductOrder::where('status', 'pending')->count(),
             'digital_failed_orders' => DigitalProductOrder::where('status', 'failed')->count(),
             'digital_total_revenue' => DigitalProductOrder::where('status', 'completed')->sum('total_amount'),
+            'digital_today_revenue' => $todaysDigitalRevenue,
+            'digital_month_revenue' => $monthDigitalRevenue,
+            'digital_year_revenue' => $yearDigitalRevenue,
             'digital_today_orders' => DigitalProductOrder::whereDate('created_at', Carbon::today())->count(),
             
             // Gift Orders
@@ -80,8 +118,19 @@ class AdminController extends Controller
             'gift_confirmed_orders' => GiftOrder::where('status', 'confirmed')->count(),
             'gift_cancelled_orders' => GiftOrder::where('status', 'cancelled')->count(),
             'gift_total_revenue' => GiftOrder::where('payment_status', 'paid')->sum('total_amount'),
+            'gift_today_revenue' => $todaysGiftRevenue,
+            'gift_month_revenue' => $monthGiftRevenue,
+            'gift_year_revenue' => $yearGiftRevenue,
             'gift_pending_revenue' => GiftOrder::where('payment_status', 'pending')->sum('total_amount'),
             'gift_today_orders' => GiftOrder::whereDate('created_at', Carbon::today())->count(),
+            
+            // Combined Revenue Totals
+            'total_revenue_today' => $todaysRevenue,
+            'total_revenue_month' => $monthRevenue,
+            'total_revenue_year' => $yearRevenue,
+            'total_revenue_all_time' => Order::where('status', 'completed')->sum('final_price') + 
+                                      DigitalProductOrder::where('status', 'completed')->sum('total_amount') + 
+                                      GiftOrder::where('payment_status', 'paid')->sum('total_amount'),
             
             // Transactions
             'total_transactions' => Transaction::count(),
@@ -120,6 +169,15 @@ class AdminController extends Controller
             'todaysRevenue',
             'monthRevenue',
             'yearRevenue',
+            'todaysSmsRevenue',
+            'monthSmsRevenue',
+            'yearSmsRevenue',
+            'todaysDigitalRevenue',
+            'monthDigitalRevenue',
+            'yearDigitalRevenue',
+            'todaysGiftRevenue',
+            'monthGiftRevenue',
+            'yearGiftRevenue',
             'totalServices',
             'totalUsers',
             'totalAdmins',
