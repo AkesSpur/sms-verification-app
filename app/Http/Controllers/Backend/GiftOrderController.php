@@ -151,10 +151,7 @@ class GiftOrderController extends Controller
         try {
             // Only allow deletion of cancelled orders
             if ($giftOrder->status !== 'cancelled') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Only cancelled orders can be deleted.'
-                ], 400);
+                return back()->with('error', 'Only cancelled orders can be deleted.');
             }
 
              // Delete image if exists
@@ -163,17 +160,10 @@ class GiftOrderController extends Controller
         }
             $giftOrder->delete();
 
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Gift order deleted successfully.'
-            ]);
+            return back()->with('success', 'Gift order deleted successfully.');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete order: ' . $e->getMessage()
-            ], 500);
+            return back()->with('error', 'Failed to delete order: ' . $e->getMessage());
         }
     }
 
