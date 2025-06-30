@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GeneralSetting;
 use App\Models\Gift;
 use App\Models\GiftOrder;
 use App\Models\Transaction;
@@ -162,15 +163,17 @@ class GiftOrderController extends Controller
                             'price' => $giftOrder->total_amount
                         ];
 
-                        $mailData = array_merge($saleData, [
-                             'saleType' => 'gift',
-                             'businessOwnerName' => $emailConfig->email
-                         ]);
-                         
-                         Mail::send('mail.sale-notification', $mailData, function ($message) use ($emailConfig) {
-                             $message->to($emailConfig->email)
-                                 ->subject('New Sale Notification');
-                         });
+                        $settings = GeneralSetting::first();
+                        $businessOwnerName = $settings->site_name ?? 'Admin';
+                        
+                        Mail::to($emailConfig->email)->send(
+                            new SaleNotificationMail(
+                                'gift',
+                                $saleData,
+                                $giftOrder->total_amount,
+                                $businessOwnerName
+                            )
+                        );
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
