@@ -162,10 +162,15 @@ class GiftOrderController extends Controller
                             'price' => $giftOrder->total_amount
                         ];
 
-                        Mail::send('mail.sale-notification', $saleData, function ($message) use ($emailConfig) {
-                            $message->to($emailConfig->email)
-                                ->subject('New Sale Notification');
-                        });
+                        $mailData = array_merge($saleData, [
+                             'saleType' => 'gift',
+                             'businessOwnerName' => $emailConfig->email
+                         ]);
+                         
+                         Mail::send('mail.sale-notification', $mailData, function ($message) use ($emailConfig) {
+                             $message->to($emailConfig->email)
+                                 ->subject('New Sale Notification');
+                         });
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
