@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use App\Models\DigitalProductCategory;
 use App\Models\DigitalProductSubcategory;
 use App\Models\DigitalProduct;
+use App\Models\Order;
+use App\Models\DigitalProductOrder;
+use App\Models\GiftOrder;
 
 class HomeController extends Controller
 {
@@ -83,6 +86,65 @@ class HomeController extends Controller
         $totalServices = Service::where('status', 'active')->count();
         $totalCountries = Country::count();
         
+        // Get recent orders for display (mix of different order types)
+        $recentOrders = collect();
+        
+        // Get recent SMS orders
+        $smsOrders = Order::with(['user', 'service'])
+                         ->whereNotNull('user_id')
+                         ->latest()
+                         ->take(5)
+                         ->get()
+                         ->map(function($order) {
+                             return [
+                                 'user_name' => $order->user->name ?? 'Anonymous',
+                                 'product' => $order->service->name ?? 'SMS Service',
+                                 'price' => $order->price ?? 0,
+                                 'type' => 'sms',
+                                 'created_at' => $order->created_at
+                             ];
+                         });
+        
+        // Get recent digital product orders
+        $digitalOrders = DigitalProductOrder::with(['user', 'product'])
+                                           ->whereNotNull('user_id')
+                                           ->latest()
+                                           ->take(5)
+                                           ->get()
+                                           ->map(function($order) {
+                                               return [
+                                                   'user_name' => $order->user->name ?? 'Anonymous',
+                                                   'product' => $order->product->name ?? 'Digital Product',
+                                                   'price' => $order->total_amount ?? 0,
+                                                   'type' => 'digital',
+                                                   'created_at' => $order->created_at
+                                               ];
+                                           });
+        
+        // Get recent gift orders
+        $giftOrders = GiftOrder::with(['user', 'gift'])
+                              ->whereNotNull('user_id')
+                              ->latest()
+                              ->take(5)
+                              ->get()
+                              ->map(function($order) {
+                                  return [
+                                      'user_name' => $order->user->name ?? 'Anonymous',
+                                      'product' => $order->gift->name ?? 'Gift',
+                                      'price' => $order->total_amount ?? 0,
+                                      'type' => 'gift',
+                                      'created_at' => $order->created_at
+                                  ];
+                              });
+        
+        // Combine and sort all orders by creation date
+        $recentOrders = $recentOrders->concat($smsOrders)
+                                    ->concat($digitalOrders)
+                                    ->concat($giftOrders)
+                                    ->sortByDesc('created_at')
+                                    ->take(10)
+                                    ->values();
+        
         return view('home', compact('services',
          'countries',
                      'banners',
@@ -91,7 +153,8 @@ class HomeController extends Controller
                      'activeSubcategories',
                       'digitalProductsData',
                        'totalServices',
-                    'totalCountries'
+                    'totalCountries',
+                    'recentOrders'
                     ));
     }
 

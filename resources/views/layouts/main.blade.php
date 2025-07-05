@@ -138,7 +138,8 @@
                     <div class="flex-shrink-0">
                         <a href="{{ route('home') }}" class="text-decoration-none">
                             <h1 class="text-2xl font-bold text-gray-900 navbar-logo transition-colors duration-200">
-                                <i class="fas fa-mobile-alt mr-2"></i>BlizzSMS
+                                {{-- <i class="fas fa-mobile-alt mr-2"></i> --}}
+                                BlizzSMS
                             </h1>
                         </a>
                     </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS Verification - Secure & Fast</title>
+    <title>BlizzSMS - Secure & Fast</title>
 
     <link rel="icon" type="image/png" href="{{asset($logoSetting->favicon)}}">
 
@@ -308,6 +308,161 @@
         .services-track:hover {
             animation-play-state: paused;
         }
+        
+        /* Recent Orders Animation */
+        .orders-slider {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            height: 80px;
+        }
+        
+        .orders-track {
+            display: flex;
+            width: calc(200%); /* Double width for seamless loop */
+            animation: slideUp 25s linear infinite;
+            gap: 0.75rem;
+        }
+        
+        .order-item {
+            min-width: 200px;
+            flex-shrink: 0;
+        }
+        
+        .order-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            height: 70px;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .order-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        
+        .order-type-badge {
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: white;
+        }
+        
+        .order-type-sms {
+            background: #10b981;
+        }
+        
+        .order-type-digital {
+            background: #3b82f6;
+        }
+        
+        .order-type-gift {
+            background: #f59e0b;
+        }
+        
+        .order-time {
+            color: #9ca3af;
+            font-size: 0.625rem;
+        }
+        
+        .order-info {
+            flex: 1;
+        }
+        
+        .order-user {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.75rem;
+            margin: 0 0 0.125rem 0;
+            line-height: 1.2;
+        }
+        
+        .order-product {
+            color: #6b7280;
+            font-size: 0.625rem;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .order-price {
+            color: #059669;
+            font-size: 0.625rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        @keyframes slideUp {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        
+        .orders-track:hover {
+            animation-play-state: paused;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .order-item {
+                min-width: 160px;
+            }
+            
+            .order-card {
+                padding: 0.5rem;
+                height: 60px;
+            }
+            
+            .order-type-badge {
+                font-size: 0.5rem;
+                padding: 0.1rem 0.25rem;
+            }
+            
+            .order-user {
+                font-size: 0.625rem;
+            }
+            
+            .order-product {
+                font-size: 0.5rem;
+            }
+            
+            .order-price {
+                font-size: 0.5rem;
+                margin-left: 0.25rem;
+            }
+            
+            .order-time {
+                font-size: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-white">
@@ -318,7 +473,8 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         <h1 class="text-2xl font-bold text-gray-900 navbar-logo">
-                            <i class="fas fa-mobile-alt mr-2"></i>{{$settings->site_name}}
+                            {{-- <i class="fas fa-mobile-alt mr-2"></i> --}}
+                            {{$settings->site_name}}
                         </h1>
                     </div>
                 </div>
@@ -886,6 +1042,120 @@
                             </div>
                             <h3>Twitch</h3>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Orders Section -->
+    <section class="py-8 bg-gray-50 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
+            <div class="text-center mb-6" data-aos="fade-up">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Recent Orders</h3>
+            </div>
+            
+            <!-- Recent Orders Container -->
+            <div class="relative" data-aos="fade-up" data-aos-delay="200">
+                <div class="orders-slider overflow-hidden">
+                    <div class="orders-track flex animate-slideUp">
+                        @if($recentOrders->count() > 0)
+                            @foreach($recentOrders as $order)
+                            <!-- Order Item -->
+                            <div class="order-item">
+                                <div class="order-card">
+                                    <div class="order-content">
+                                        <div class="order-header">
+                                            <span class="order-type-badge order-type-{{ $order['type'] }}">
+                                                @if($order['type'] === 'sms')
+                                                    SMS
+                                                @elseif($order['type'] === 'digital')
+                                                    Logs
+                                                @else
+                                                    Gift
+                                                @endif
+                                            </span>
+                                            <span class="order-time">{{ $order['created_at']->diffForHumans() }}</span>
+                                        </div>
+                                        <div class="order-info">
+                                            <h4 class="order-user">{{ $order['user_name'] }}</h4>
+                                            <p class="order-product">{{ $order['product'] }} <span class="order-price">{{$settings->currency_icon}}{{ number_format($order['price'], 2) }}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                            
+                            <!-- Duplicate for seamless loop -->
+                            @foreach($recentOrders as $order)
+                            <div class="order-item">
+                                <div class="order-card">
+                                    <div class="order-content">
+                                        <div class="order-header">
+                                            <span class="order-type-badge order-type-{{ $order['type'] }}">
+                                                @if($order['type'] === 'sms')
+                                                    SMS
+                                                @elseif($order['type'] === 'digital')
+                                                    Digital
+                                                @else
+                                                    Gift
+                                                @endif
+                                            </span>
+                                            <span class="order-time">{{ $order['created_at']->diffForHumans() }}</span>
+                                        </div>
+                                        <div class="order-info">
+                                            <h4 class="order-user">{{ $order['user_name'] }}</h4>
+                                            <p class="order-product">{{ $order['product'] }} <span class="order-price">${{ number_format($order['price'], 2) }}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        @else
+                            <!-- Placeholder orders when no data -->
+                            <div class="order-item">
+                                <div class="order-card">
+                                    <div class="order-content">
+                                        <div class="order-header">
+                                            <span class="order-type-badge order-type-sms">SMS</span>
+                                            <span class="order-time">2 minutes ago</span>
+                                        </div>
+                                        <div class="order-info">
+                                            <h4 class="order-user">John D.</h4>
+                                            <p class="order-product">WhatsApp Verification <span class="order-price">$2.50</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="order-item">
+                                <div class="order-card">
+                                    <div class="order-content">
+                                        <div class="order-header">
+                                            <span class="order-type-badge order-type-digital">Digital</span>
+                                            <span class="order-time">5 minutes ago</span>
+                                        </div>
+                                        <div class="order-info">
+                                            <h4 class="order-user">Sarah M.</h4>
+                                            <p class="order-product">Netflix Premium <span class="order-price">$15.99</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="order-item">
+                                <div class="order-card">
+                                    <div class="order-content">
+                                        <div class="order-header">
+                                            <span class="order-type-badge order-type-gift">Gift</span>
+                                            <span class="order-time">8 minutes ago</span>
+                                        </div>
+                                        <div class="order-info">
+                                            <h4 class="order-user">Mike R.</h4>
+                                            <p class="order-product">Premium Gift Box <span class="order-price">$25.00</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
