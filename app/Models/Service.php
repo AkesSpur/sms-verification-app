@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
@@ -169,8 +169,8 @@ class Service extends Model
     public function fetchApiPriceWithMarkup($countryCode)
     {
         try {
-            $smsActivateService = new SmsActivateService();
-            $prices = $smsActivateService->getPrices($countryCode, $this->code);
+            $smsPoolService = new SmsPoolService();
+            $prices = $smsPoolService->getPrices($countryCode, $this->code);
             
             if (isset($prices[$this->code])) {
                 $apiPriceUsd = $prices[$this->code];

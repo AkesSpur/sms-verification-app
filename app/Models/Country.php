@@ -13,7 +13,7 @@ class Country extends Model
     ];
 
     protected $casts = [
-        'code' => 'integer',
+        // 'code' is now a string (ISO code)
     ];
 
     /**

@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Service;
 use App\Models\Country;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -40,7 +40,7 @@ class UpdateServiceAvailability extends Command
         $this->info('Updating service availability...');
         
         try {
-            $smsActivateService = new SmsActivateService();
+            $smsPoolService = new SmsPoolService();
             
             // Get services to update
             $services = $serviceCode 
@@ -78,8 +78,8 @@ class UpdateServiceAvailability extends Command
                         }
                         
                         // Get availability and pricing from API
-                        $availability = $smsActivateService->getNumbersStatus($service->code, $country->code);
-                        $price = $smsActivateService->getPrice($service->code, $country->code);
+                        $availability = $smsPoolService->getNumbersStatus($service->code, $country->code);
+                        $price = $smsPoolService->getPrice($service->code, $country->code);
                         
                         $availableNumbers = $availability['count'] ?? 0;
                         $isAvailable = $availableNumbers > 0;

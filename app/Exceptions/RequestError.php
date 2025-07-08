@@ -13,7 +13,7 @@ class RequestError extends Exception
         $this->responseCode = $errorCode;
 //        если надо получать файл и строку в которой получена ошибка
 //        $message = "Error in {$this->getFile()}, line: {$this->getLine()}: {$this->errorCodes[$errorCode]}";
-        $message = "{$this->errorCodes[$errorCode]}";
+        $message = $this->errorCodes[$errorCode] ?? $errorCode;
         parent::__construct($message);
     }
 
@@ -48,11 +48,25 @@ class RequestError extends Exception
         'WRONG_SERVICE'     => 'Сервис не поддерживает переадресацию',
         'WRONG_SECURITY'    => 'Ошибка при попытке передать ID активации без переадресации, или же завершенной/не активной активации',
         'Failed to purchase number' => 'Не удалось приобрести номер',
-        'Service not found' => 'Сервис не найден'
+        'Service not found' => 'Сервис не найден',
+        'Purchase failed' => 'Покупка номера не удалась',
+        'Invalid price response' => 'Неверный ответ API при получении цены',
+        'Empty response from SMSPool API' => 'Пустой ответ от SMSPool API',
+        'Invalid balance response' => 'Неверный ответ при проверке баланса',
+        'Invalid services response' => 'Неверный ответ при получении списка сервисов',
+        'Invalid countries response' => 'Неверный ответ при получении списка стран',
+        'HTTP request failed: 422' => 'HTTP запрос не удался: 422 (Unprocessable Entity)',
+        'HTTP request failed: 400' => 'HTTP запрос не удался: 400 (Bad Request)',
+        'HTTP request failed: 401' => 'HTTP запрос не удался: 401 (Unauthorized)',
+        'HTTP request failed: 403' => 'HTTP запрос не удался: 403 (Forbidden)',
+        'HTTP request failed: 404' => 'HTTP запрос не удался: 404 (Not Found)',
+        'HTTP request failed: 500' => 'HTTP запрос не удался: 500 (Internal Server Error)',
+        'HTTP request failed: 502' => 'HTTP запрос не удался: 502 (Bad Gateway)',
+        'HTTP request failed: 503' => 'HTTP запрос не удался: 503 (Service Unavailable)'
     );
 
     public function getResponseCode()
     {
-        return $this->errorCodes[$this->responseCode];
+        return $this->errorCodes[$this->responseCode] ?? $this->responseCode;
     }
 }

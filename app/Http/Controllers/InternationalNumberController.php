@@ -12,7 +12,7 @@ use App\Models\Transaction;
 use App\Models\BlacklistedNumber;
 use App\Models\EmailConfiguration;
 use App\Mail\SaleNotificationMail;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,8 +28,8 @@ class InternationalNumberController extends Controller
 {
     protected $smsService;
     protected $pricingService;
-    protected $maxOrdersPerHour = 5;
-    protected $maxOrdersPerDay = 20;
+    protected $maxOrdersPerHour = 20;
+    protected $maxOrdersPerDay = 80;
     protected $minBalanceRequired = 100.00; // Minimum balance in Naira
 
     /**
@@ -51,7 +51,7 @@ class InternationalNumberController extends Controller
         });
     }
 
-    public function __construct(SmsActivateService $smsService, PricingService $pricingService)
+    public function __construct(SmsPoolService $smsService, PricingService $pricingService)
     {
         $this->smsService = $smsService;
         $this->pricingService = $pricingService;
@@ -127,10 +127,10 @@ class InternationalNumberController extends Controller
                 ]);
             }
 
-            // Check availability from SMS Activate API
-            $availability = $this->smsService->checkAvailability($serviceCode, $apiCountryCode);
+            // Check availability from SMSPool API
+            $availability = $this->smsService->checkAvailability($service->code ?? $serviceCode, $countryModel->code ?? $apiCountryCode);
             
-            if ($availability['available']) {
+            if ($availability) {
                 return response()->json([
                     'success' => true,
                     'available' => true,
@@ -238,8 +238,8 @@ class InternationalNumberController extends Controller
                     ]);
                 }
 
-                // Request number from API
-                $response = $this->smsService->purchaseNumber($serviceCode, $user->id, $apiCountryCode, $priceInNaira, 'international_numbers_web');
+                // Request number from SMSPool API
+                $response = $this->smsService->purchaseNumber($service->code ?? $serviceCode, $user->id, $countryModel->code ?? $apiCountryCode, $priceInNaira, 'international_numbers_web');
 
                 if (!$response['success']) {
                     throw new \Exception('Failed to get international number from provider.');
@@ -274,7 +274,7 @@ class InternationalNumberController extends Controller
                         'id' => $order->id,
                         'phone_number' => $phoneNumber,
                         'service' => $service->name,
-                        'country' => $countryCode,
+                        'country' => $country->name,
                         'expires_at' => $order->expires_at->format('Y-m-d H:i:s'),
                         'status' => $order->status
                     ]
@@ -325,21 +325,35 @@ class InternationalNumberController extends Controller
         }
 
         try {
+            // Check if order should be auto-cancelled (1 minute past SMS window expiration)
+            if ($order->sms_window_expires_at && 
+                $order->sms_window_expires_at->addMinute()->isPast() && 
+                !$order->sms_received_at && 
+                in_array($order->status, ['pending', 'active'])) {
+                
+                // Auto-cancel the order without API request since it's expired
+                $order->update([
+                    'status' => 'cancelled',
+                    'cancelled_at' => now(),
+                    'cancellation_reason' => 'Auto-cancelled: SMS window expired (1+ minute past expiration)'
+                ]);
+                
+                // Process refund
+                $order->processRefund('Auto-cancelled: SMS window expired', 'system');
+                
+                return response()->json([
+                    'success' => true,
+                    'order' => [
+                        'status' => 'cancelled',
+                        'sms_code' => null,
+                        'phone_number' => $order->phone_number,
+                        'expires_at' => null
+                    ],
+                    'message' => 'Order has been automatically cancelled due to SMS timeout. Your account has been refunded.'
+                ]);
+            }
+            
             return DB::transaction(function () use ($order, $user, $orderId) {
-                // Check if order should be auto-cancelled
-                if ($order->shouldBeAutoCancelled()) {
-                    $order->cancel();
-                    
-                    return response()->json([
-                        'success' => true,
-                        'order' => [
-                            'status' => Order::STATUS_CANCELLED,
-                            'sms_code' => null,
-                            'phone_number' => $order->phone_number
-                        ],
-                        'message' => 'Order automatically cancelled due to SMS timeout. Refund has been processed.'
-                    ]);
-                }
 
                 // Check if order is already completed or expired
                 if (in_array($order->status, ['completed', 'expired', 'cancelled'])) {
@@ -355,40 +369,59 @@ class InternationalNumberController extends Controller
                     ]);
                 }
 
-                // Get status from API
-                $status = $this->smsService->getStatus($order->activation_id);
+                // Get status from SMSPool API
+                $status = $this->smsService->checkSmsStatus($order->activation_id);
 
-                // Handle JSON response
-                if (isset($status['response'])) {
-                    return $this->processApiResponse($order, $status['response']);
-                }
-
-                // Handle colon-separated response
+                // Handle SMSPool API response format
                 if (isset($status['status'])) {
-                    return $this->processApiStatus($order, $status['status'], $status['code'] ?? null);
-                }
+                    $apiStatus = $status['status'];
+                    
+                    if ($apiStatus === 'completed' && isset($status['code'])) {
+                        // Extract verification code from the message using regex
+                        $extractedCode = $this->extractVerificationCode($status['full_sms'] ?? $status['code']);
+                        $codeToStore = $extractedCode ?: $status['code'];
+                        
+                        $order->update([
+                            'sms_code' => $codeToStore,
+                            'sms_received_at' => now(),
+                            'status' => Order::STATUS_COMPLETED
+                        ]);
 
-                // Handle legacy success format
-                if (isset($status['success']) && $status['success'] && isset($status['sms_code'])) {
-                    $order->update([
-                        'sms_code' => $status['sms_code'],
-                        'sms_received_at' => Carbon::now(),
-                        'status' => Order::STATUS_COMPLETED
-                    ]);
+                        Log::info('International SMS code received', [
+                            'order_id' => $order->id,
+                            'user_id' => $order->user_id,
+                            'full_message' => $status['full_sms'] ?? $status['code'],
+                            'extracted_code' => $extractedCode
+                        ]);
+                        
+                        // Send sales notification email
+                        $this->sendSalesNotificationEmail($order);
+                        
+                        return response()->json([
+                            'success' => true,
+                            'order' => [
+                                'status' => Order::STATUS_COMPLETED,
+                                'sms_code' => $codeToStore,
+                                'phone_number' => $order->phone_number,
+                                'expires_at' => $order->sms_window_expires_at ? $order->sms_window_expires_at->toISOString() : null
+                            ],
+                            'message' => 'SMS code received successfully!'
+                        ]);
+                    }
                     
-                    // Send sales notification email
-                    $this->sendSalesNotificationEmail($order);
-                    
-                    return response()->json([
-                        'success' => true,
-                        'order' => [
-                            'status' => Order::STATUS_COMPLETED,
-                            'sms_code' => $status['sms_code'],
-                            'phone_number' => $order->phone_number,
-                            'expires_at' => $order->sms_window_expires_at ? $order->sms_window_expires_at->toISOString() : null
-                        ],
-                        'message' => 'SMS code received!'
-                    ]);
+                    if (in_array($apiStatus, ['cancelled', 'expired'])) {
+                        $order->update(['status' => Order::STATUS_EXPIRED]);
+                        return response()->json([
+                            'success' => true,
+                            'order' => [
+                                'status' => Order::STATUS_EXPIRED,
+                                'sms_code' => $order->sms_code,
+                                'phone_number' => $order->phone_number,
+                                'expires_at' => $order->sms_window_expires_at ? $order->sms_window_expires_at->toISOString() : null
+                            ],
+                            'message' => 'Order was cancelled or expired by provider.'
+                        ]);
+                    }
                 }
 
                 // No changes
@@ -725,12 +758,12 @@ class InternationalNumberController extends Controller
 
         try {
             return DB::transaction(function () use ($order, $user) {
-                // Try to cancel with the SMS provider if we have an activation ID
+                // Try to cancel with the SMSPool provider if we have an activation ID
                 if ($order->activation_id && $this->smsService) {
                     try {
-                        $this->smsService->setStatus($order->activation_id, 8); // 8 = cancel
+                        $this->smsService->cancelNumber($order->activation_id);
                     } catch (\Exception $e) {
-                        Log::warning('Failed to cancel order with SMS provider', [
+                        Log::warning('Failed to cancel order with SMSPool provider', [
                             'order_id' => $order->id,
                             'activation_id' => $order->activation_id,
                             'error' => $e->getMessage()

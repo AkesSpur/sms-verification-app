@@ -7,7 +7,7 @@ use App\Models\Localbank;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\User;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +44,7 @@ class UsersController extends Controller
 
     public function allCountriesNumbers()
     {
-        $usaId = SmsActivateService::getUsaCountryCode() ?? 187;
+        $usaId = SmsPoolService::getUsaCountryCode() ?? 187;
         $services = Service::all();
         $countries = Country::where('code', '!=', $usaId)->get();
 

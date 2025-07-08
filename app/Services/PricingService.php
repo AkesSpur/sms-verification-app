@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Cache;
 
 class PricingService
 {
-    private $smsActivateService;
+    private $smsPoolService;
     
-    public function __construct(SmsActivateService $smsActivateService)
+    public function __construct(SmsPoolService $smsPoolService)
     {
-        $this->smsActivateService = $smsActivateService;
+        $this->smsPoolService = $smsPoolService;
     }
 
     /**
@@ -215,45 +215,44 @@ class PricingService
     }
 
     /**
-     * Fetch actual price from SMS Activate API.
+     * Fetch actual price from SMSPool API.
      */
     private function fetchApiPrice($service, $country)
     {
-        Log::info('📡 Fetching price from SMS Activate API', [
+        Log::info('📡 Fetching price from SMSPool API', [
             'service_code' => $service->code,
             'country_code' => $country->code
         ]);
         
         try {
-            // Use the existing SMS Activate service to get prices
-            $prices = $this->smsActivateService->getPrices($country->code, $service->code);
+            // Use SMSPool service to get price for specific service and country
+            $serviceId = $service->code;
+        $countryId = $country->code;
             
-            Log::info('📋 SMS Activate API response', [
+            $price = $this->smsPoolService->getServicePrice($serviceId, $countryId);
+            
+            Log::info('📋 SMSPool API response', [
                 'service_code' => $service->code,
                 'country_code' => $country->code,
-                'raw_prices' => $prices
+                'service_id' => $serviceId,
+                'country_id' => $countryId,
+                'price_usd' => $price
             ]);
             
-            // Extract price from nested structure: {"country_id":{"service_code":{"cost":price}}}
-            $countryCode = (string)$country->code;
-            $serviceCode = $service->code;
-            
-            if (isset($prices[$countryCode][$serviceCode]['cost'])) {
-                $cost = $prices[$countryCode][$serviceCode]['cost'];
+            if ($price !== null) {
                 Log::info('✅ Price found in API response', [
-                    'service_code' => $serviceCode,
-                    'country_code' => $countryCode,
-                    'price_usd' => $cost,
-                    'count' => $prices[$countryCode][$serviceCode]['count'] ?? 'unknown'
+                    'service_code' => $service->code,
+                    'country_code' => $country->code,
+                    'price_usd' => $price
                 ]);
-                return $cost;
+                return $price;
             }
             
             Log::info('❌ Service price not found in API response', [
-                'service_code' => $serviceCode,
-                'country_code' => $countryCode,
-                'available_countries' => array_keys($prices),
-                'available_services_for_country' => isset($prices[$countryCode]) ? array_keys($prices[$countryCode]) : 'country_not_found'
+                'service_code' => $service->code,
+                'country_code' => $country->code,
+                'service_id' => $serviceId,
+                'country_id' => $countryId
             ]);
             return null;
         } catch (\Exception $e) {

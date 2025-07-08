@@ -80,7 +80,7 @@ Route::post('country-service/get-country-prices/{country}', [CountryServiceContr
 Route::post('country-service/update-price', [CountryServiceController::class, 'updatePrice'])->name('country-service.update-price');
 Route::delete('country-service/remove-price', [CountryServiceController::class, 'removeCustomPrice'])->name('country-service.remove-price');
 Route::post('country-service/bulk-update', [CountryServiceController::class, 'bulkUpdatePrices'])->name('country-service.bulk-update');
-Route::post('country-service/sync-api-prices', [CountryServiceController::class, 'syncApiPrices'])->name('country-service.sync-api-prices');
+
 // Route::post('country-service/{country}/sync-api', [CountryServiceController::class, 'syncApiPrices'])->name('country-service.sync-api');
 
 /* Service Management Routes */

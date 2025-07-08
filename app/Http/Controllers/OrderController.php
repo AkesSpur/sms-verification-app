@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Service;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +16,7 @@ class OrderController extends Controller
     protected $smsService;
     protected $pricingService;
 
-    public function __construct(SmsActivateService $smsService, PricingService $pricingService)
+    public function __construct(SmsPoolService $smsService, PricingService $pricingService)
     {
         $this->smsService = $smsService;
         $this->pricingService = $pricingService;

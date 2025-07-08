@@ -786,7 +786,15 @@ function checkOrderStatus(orderId) {
         if (data.success) {
             // Update order display
             updateOrderDisplay(orderElement, data.order);
-            showNotification(data.message || 'Status updated', 'success');
+            
+            // Check if SMS code was received and show special notification
+            if (data.order.status === 'completed' && data.order.sms_code) {
+                showNotification(`🎉 SMS Code Received: ${data.order.sms_code}`, 'sms-success', 10000);
+                // Also play a notification sound if available
+                playNotificationSound();
+            } else {
+                showNotification(data.message || 'Status updated', 'success');
+            }
         } else {
             statusSpan.textContent = originalStatus;
             showNotification(data.message || 'Failed to check status', 'error');
@@ -896,6 +904,17 @@ function refreshOrders() {
     refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Refreshing...';
     refreshBtn.disabled = true;
     
+    // Store currently displayed completed orders to preserve them
+    const currentCompletedOrders = new Map();
+    const currentOrderElements = document.querySelectorAll('.order-item[data-order-id]');
+    currentOrderElements.forEach(orderElement => {
+        const orderId = orderElement.getAttribute('data-order-id');
+        const statusElement = orderElement.querySelector('.inline-flex');
+        if (statusElement && statusElement.textContent.toLowerCase().includes('completed')) {
+            currentCompletedOrders.set(orderId, orderElement.cloneNode(true));
+        }
+    });
+    
     // First, fetch the latest active orders to ensure we have all new orders
     fetch('/user/usa-numbers', {
         headers: {
@@ -917,6 +936,26 @@ function refreshOrders() {
             // Replace the current active orders with the new ones
             document.querySelector('#active-orders').innerHTML = newActiveOrders.innerHTML;
             
+            // Re-add preserved completed orders that are not in the new response
+            const activeOrdersContainer = document.querySelector('#active-orders');
+            const newOrderIds = new Set();
+            const newOrderElements = document.querySelectorAll('.order-item[data-order-id]');
+            newOrderElements.forEach(orderElement => {
+                const orderId = orderElement.getAttribute('data-order-id');
+                newOrderIds.add(orderId);
+            });
+            
+            // Add back completed orders that were preserved but not in new response
+            currentCompletedOrders.forEach((orderElement, orderId) => {
+                if (!newOrderIds.has(orderId)) {
+                    // Find the right place to insert (maintain chronological order)
+                    const ordersList = activeOrdersContainer.querySelector('tbody') || activeOrdersContainer.querySelector('.space-y-4');
+                    if (ordersList) {
+                        ordersList.appendChild(orderElement);
+                    }
+                }
+            });
+            
             // Now check status for each order to get real-time updates
             const activeOrderElements = document.querySelectorAll('.order-item[data-order-id]');
             
@@ -932,6 +971,21 @@ function refreshOrders() {
             activeOrderElements.forEach(orderElement => {
                 const orderId = orderElement.getAttribute('data-order-id');
                 
+                // Skip status check for preserved completed orders to avoid unnecessary API calls
+                const statusElement = orderElement.querySelector('.inline-flex');
+                if (statusElement && statusElement.textContent.toLowerCase().includes('completed') && currentCompletedOrders.has(orderId)) {
+                    completedChecks++;
+                    if (completedChecks === totalChecks) {
+                        refreshBtn.innerHTML = originalContent;
+                        refreshBtn.disabled = false;
+                        showNotification('Orders refreshed', 'success');
+                        
+                        // Restart all timers after refresh
+                        startAllTimers();
+                    }
+                    return;
+                }
+                
                 fetch(`/user/usa/order/${orderId}/status`, {
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -941,7 +995,16 @@ function refreshOrders() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Check if this is a newly completed order with SMS code
+                        const wasCompleted = statusElement && statusElement.textContent.toLowerCase().includes('completed');
+                        
                         updateOrderDisplay(orderElement, data.order);
+                        
+                        // Show special notification for newly received SMS codes
+                        if (!wasCompleted && data.order.status === 'completed' && data.order.sms_code) {
+                            showNotification(`🎉 SMS Code Received: ${data.order.sms_code}`, 'sms-success', 10000);
+                            playNotificationSound();
+                        }
                     }
                 })
                 .catch(error => {
@@ -1021,11 +1084,12 @@ function updateOrderDisplay(orderElement, orderData) {
     if (smsCodeCell) {
         if (orderData.sms_code) {
             smsCodeCell.innerHTML = `
-                <div class="flex items-center space-x-2">
-                    <span class="font-mono text-sm">${orderData.sms_code}</span>
-                    <button onclick="copyToClipboard('${orderData.sms_code}')" class="text-gray-400 hover:text-gray-600">
+                <div class="flex items-center space-x-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                    <span class="font-mono text-sm font-bold text-green-800">${orderData.sms_code}</span>
+                    <button onclick="copyToClipboard('${orderData.sms_code}')" class="text-green-600 hover:text-green-800 transition-colors">
                         <i class="fas fa-copy"></i>
                     </button>
+                    <span class="text-green-600 text-xs animate-pulse">✓ Received</span>
                 </div>
             `;
         } else if (orderData.status === 'cancelled') {
@@ -1040,11 +1104,14 @@ function updateOrderDisplay(orderElement, orderData) {
     if (mobileSmsElement) {
         if (orderData.sms_code) {
             mobileSmsElement.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <span class="font-mono text-sm">${orderData.sms_code}</span>
-                    <button onclick="copyToClipboard('${orderData.sms_code}')" class="text-gray-400 hover:text-gray-600 ml-2">
-                        <i class="fas fa-copy"></i>
-                    </button>
+                <div class="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200">
+                    <span class="font-mono text-sm font-bold text-green-800">${orderData.sms_code}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600 text-xs animate-pulse">✓ Received</span>
+                        <button onclick="copyToClipboard('${orderData.sms_code}')" class="text-green-600 hover:text-green-800 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
                 </div>
             `;
         } else if (orderData.status === 'cancelled') {
@@ -1122,8 +1189,21 @@ function startAllTimers() {
 let autoRefreshInterval;
 function startAutoRefresh() {
     autoRefreshInterval = setInterval(() => {
-        const activeOrderElements = document.querySelectorAll('.order-item');
-        if (activeOrderElements.length > 0) {
+        // Only refresh if there are pending or active orders (not just completed ones)
+        const pendingOrderElements = document.querySelectorAll('.order-item');
+        let hasPendingOrders = false;
+        
+        pendingOrderElements.forEach(orderElement => {
+            const statusElement = orderElement.querySelector('.inline-flex');
+            if (statusElement) {
+                const statusText = statusElement.textContent.toLowerCase();
+                if (statusText.includes('pending') || statusText.includes('active')) {
+                    hasPendingOrders = true;
+                }
+            }
+        });
+        
+        if (hasPendingOrders) {
             refreshOrders();
         }
     }, 30000);
@@ -1533,6 +1613,7 @@ function showNotification(message, type = 'info', duration = 5000) {
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-x-full ${
         type === 'success' ? 'bg-green-100 border border-green-200 text-green-800' :
+        type === 'sms-success' ? 'bg-gradient-to-r from-green-400 to-blue-500 border-2 border-green-300 text-white shadow-2xl animate-pulse' :
         type === 'error' ? 'bg-red-100 border border-red-200 text-red-800' :
         type === 'warning' ? 'bg-yellow-100 border border-yellow-200 text-yellow-800' :
         'bg-blue-100 border border-blue-200 text-blue-800'
@@ -1542,14 +1623,15 @@ function showNotification(message, type = 'info', duration = 5000) {
         <div class="flex items-center">
             <i class="fas ${
                 type === 'success' ? 'fa-check-circle' :
+                type === 'sms-success' ? 'fa-mobile-alt animate-bounce' :
                 type === 'error' ? 'fa-times-circle' :
                 type === 'warning' ? 'fa-exclamation-triangle' :
                 'fa-info-circle'
-            } mr-2"></i>
-            <span class="flex-1">${message}</span>
+            } mr-2 ${type === 'sms-success' ? 'text-yellow-300' : ''}"></i>
+            <span class="flex-1 ${type === 'sms-success' ? 'font-bold text-lg' : ''}">${message}</span>
 
             
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-gray-500 hover:text-gray-700">
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 ${type === 'sms-success' ? 'text-yellow-200 hover:text-white' : 'text-gray-500 hover:text-gray-700'}">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -1562,7 +1644,8 @@ function showNotification(message, type = 'info', duration = 5000) {
         notification.classList.remove('translate-x-full');
     }, 100);
     
-    // Auto remove
+    // Auto remove (longer duration for SMS notifications)
+    const actualDuration = type === 'sms-success' ? Math.max(duration, 10000) : duration;
     setTimeout(() => {
         if (notification.parentElement) {
             notification.classList.add('translate-x-full');
@@ -1572,7 +1655,31 @@ function showNotification(message, type = 'info', duration = 5000) {
                 }
             }, 300);
         }
-    }, duration);
+    }, actualDuration);
+}
+
+// Play notification sound for SMS received
+function playNotificationSound() {
+    try {
+        // Create a simple beep sound using Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800; // Frequency in Hz
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+        console.log('Could not play notification sound:', error);
+    }
 }
 
 // Initialize auto-refresh and timers on page load

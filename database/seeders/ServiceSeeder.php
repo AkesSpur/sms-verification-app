@@ -25,11 +25,11 @@ class ServiceSeeder extends Seeder
         $this->command->info('Seeding top 200 services from curated JSON file...');
         
         // Read services from the curated top 200 services JSON file
-        $servicesJson = file_get_contents(base_path('top-200-services.json'));
+        $servicesJson = file_get_contents(base_path('top-200-services-updated.json'));
         $servicesData = json_decode($servicesJson, true);
         
         if (!$servicesData) {
-            $this->command->error('Failed to read or parse top-200-services.json file');
+            $this->command->error('Failed to read or parse top-200-services-updated.json file');
             return;
         }
         

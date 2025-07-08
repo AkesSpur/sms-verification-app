@@ -34,9 +34,6 @@
                                 <button id="loadPricesBtn" class="btn btn-info" disabled>
                                     <i class="fas fa-search"></i> Load Prices
                                 </button>
-                                <button id="syncApiBtn" class="btn btn-warning" disabled>
-                                    <i class="fas fa-sync"></i> Sync from API
-                                </button>
                             </div>
                         </div>
 
@@ -156,9 +153,9 @@ $(document).ready(function() {
     $('#countrySelect').change(function() {
         currentCountryId = $(this).val();
         if (currentCountryId) {
-            $('#loadPricesBtn, #syncApiBtn').prop('disabled', false);
+            $('#loadPricesBtn').prop('disabled', false);
         } else {
-            $('#loadPricesBtn, #syncApiBtn').prop('disabled', true);
+            $('#loadPricesBtn').prop('disabled', true);
             $('#pricingTable').hide();
         }
     });
@@ -204,53 +201,7 @@ $(document).ready(function() {
         });
     });
 
-    // Sync prices from API
-    $('#syncApiBtn').click(function() {
-        if (!currentCountryId) return;
-        
-        if (!confirm('This will sync prices from the API and may overwrite custom prices. Continue?')) {
-            return;
-        }
-        
-        $('#loadingSpinner').show();
-        
-        $.ajax({
-            url: '/admin/country-service/sync-api-prices',
-            method: 'POST',
-            data: {
-                country_id: currentCountryId,
-                _token: '{{ csrf_token() }}'
-            },
-            timeout: 300000 // 5 minutes timeout for API sync
-        })
-        .done(function(response) {
-            if (response.success) {
-                toastr.success(response.message);
-                if (response.errors && response.errors.length > 0) {
-                    response.errors.forEach(function(error) {
-                        toastr.warning(error);
-                    });
-                }
-                $('#loadPricesBtn').click(); // Reload the table
-            } else {
-                toastr.error(response.message || 'Failed to sync prices from API');
-            }
-        })
-        .fail(function(xhr) {
-            let errorMessage = 'Failed to sync prices from API';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage = xhr.responseJSON.message;
-            } else if (xhr.status === 500) {
-                errorMessage = 'Server error occurred during sync. Please try again.';
-            } else if (xhr.status === 0) {
-                errorMessage = 'Sync timeout. Please try again with fewer services.';
-            }
-            toastr.error(errorMessage);
-        })
-        .always(function() {
-            $('#loadingSpinner').hide();
-        });
-    });
+
 
     // Render pricing table
     function renderPricingTable(data) {

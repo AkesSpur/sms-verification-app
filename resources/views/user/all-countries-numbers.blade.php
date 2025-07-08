@@ -826,7 +826,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 statusResult.innerHTML = '<div class="mt-3 p-3 bg-green-100 text-green-700 rounded-lg">' + (data.message || 'Number purchased successfully!') + '</div>';
-                showNotification(data.message || 'Number purchased successfully!', 'success');
                 
                 // Reset form
                 this.reset();

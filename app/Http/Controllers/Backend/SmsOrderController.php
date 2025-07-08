@@ -9,7 +9,7 @@ use App\Models\Service;
 use App\Models\Country;
 use App\Models\GeneralSetting;
 use App\Models\Transaction;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Response;
 
 class SmsOrderController extends Controller
 {
-    protected $smsActivateService;
+    protected $smsPoolService;
 
-    public function __construct(SmsActivateService $smsActivateService)
+    public function __construct(SmsPoolService $smsPoolService)
     {
-        $this->smsActivateService = $smsActivateService;
+        $this->smsPoolService = $smsPoolService;
     }
 
     /**
@@ -223,7 +223,7 @@ class SmsOrderController extends Controller
             }
 
             // Call SMS service to retry
-            $result = $this->smsActivateService->getStatus($order->activation_id);
+            $result = $this->smsPoolService->checkSmsStatus($order->activation_id);
             
             if ($result['status'] === 'OK' && isset($result['code'])) {
                 $order->markSmsReceived($result['code']);

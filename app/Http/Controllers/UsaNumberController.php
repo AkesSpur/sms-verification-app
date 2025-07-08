@@ -12,7 +12,7 @@ use App\Models\Transaction;
 use App\Models\BlacklistedNumber;
 use App\Models\EmailConfiguration;
 use App\Mail\SaleNotificationMail;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,15 +29,15 @@ class UsaNumberController extends Controller
     protected $smsService;
     protected $pricingService;
     protected $usaCountryCode; // USA country code for SMS Activate
-    protected $maxOrdersPerHour = 5;
-    protected $maxOrdersPerDay = 20;
+    protected $maxOrdersPerHour = 20;
+    protected $maxOrdersPerDay = 80;
     protected $minBalanceRequired = 100.00; // Minimum balance in Naira
 
-    public function __construct(SmsActivateService $smsService, PricingService $pricingService)
+    public function __construct(SmsPoolService $smsService, PricingService $pricingService)
     {
         $this->smsService = $smsService;
         $this->pricingService = $pricingService;
-        $this->usaCountryCode = SmsActivateService::getUsaCountryCode();
+        $this->usaCountryCode = SmsPoolService::getUsaCountryCode();
         $this->middleware('auth');
         
         // Apply throttle middleware only for non-admin users
@@ -138,7 +138,7 @@ class UsaNumberController extends Controller
                 ->where('created_at', '>', now()->subHour())
                 ->count();
 
-            if ($recentOrders >= 3) {
+            if ($recentOrders >= 20) {
                 return response()->json([
                     'available' => false,
                     'message' => 'You have reached the hourly limit for this service.'
@@ -150,25 +150,35 @@ class UsaNumberController extends Controller
             // $balance = $this->smsService->getBalance();
             // Check API availability (cached for 5 minutes)
             $cacheKey = "usa_availability_{$serviceCode}";
-            $availability = Cache::remember($cacheKey, 300, function() use ($serviceCode) {
+            $balance = $this->smsService->getBalance();
+            Log::info('Account Balance', ['balance '=> $balance]);
+            $availability = Cache::remember($cacheKey, 300, function() use ($service) {
                 try {
-                    Log::info('🔍 Checking SMS Activate API availability', [
-                        'service_code' => $serviceCode,
+                    Log::info('🔍 Checking SMSPool API availability', [
+                        'service_code' => $service->code,
+                        'service_id' => $service->code,
                         'country_code' => $this->usaCountryCode
                     ]);
                     
-                    $result = $this->smsService->checkAvailability($serviceCode, $this->usaCountryCode);
+                    $result = $this->smsService->checkAvailability($service->code, $this->smsService->getUsaCountry()['code']);
                     
-                    Log::info('📡 SMS Activate API Response', [
-                        'service_code' => $serviceCode,
+                    Log::info('📡 SMSPool API Response', [
+                        'service_code' => $service->code,
                         'raw_result' => $result,
-                        'available_status' => $result['available'] ?? 'not_set'
+                        'available_status' => is_array($result) ? ($result['available'] ?? 'not_set') : (is_bool($result) ? ($result ? 'true' : 'false') : 'unknown')
                     ]);
                     
-                    return $result['available'];
+                    // Handle both array and boolean responses
+                    if (is_array($result)) {
+                        return $result['available'] ?? false;
+                    } elseif (is_bool($result)) {
+                        return $result;
+                    } else {
+                        return false;
+                    }
                 } catch (\Exception $e) {
                     Log::warning('❌ Failed to check USA availability', [
-                        'service' => $serviceCode,
+                        'service' => $service->code,
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString()
                     ]);
@@ -278,7 +288,7 @@ class UsaNumberController extends Controller
                 }
 
                 // Request number from API with Naira price (service will handle USD conversion internally)
-                $response = $this->smsService->purchaseNumber($serviceCode, $user->id, $this->usaCountryCode, $priceInNaira, 'usa_numbers_web');
+                $response = $this->smsService->purchaseNumber($service->code, $user->id, $this->smsService->getUsaCountry()['code'], $priceInNaira, 'usa_numbers_web');
 
                 if (!$response['success']) {
                     throw new \Exception('Failed to get USA number from provider.');
@@ -289,7 +299,7 @@ class UsaNumberController extends Controller
                 $activationId = $response['activation_id'];
                 $country = $response['country'];
 
-                // Transaction and balance deduction are handled by SmsActivateService
+                // Transaction and balance deduction are handled by SmsPoolService
 
                 // Hit rate limiter (skip for admin users)
                 if ($user->role !== 'admin') {
@@ -372,8 +382,15 @@ class UsaNumberController extends Controller
                 !$order->sms_received_at && 
                 in_array($order->status, ['pending', 'active'])) {
                 
-                // Auto-cancel the order
-                $order->cancel('Auto-cancelled: SMS window expired', 'system');
+                // Auto-cancel the order without API request since it's expired
+                $order->update([
+                    'status' => 'cancelled',
+                    'cancelled_at' => now(),
+                    'cancellation_reason' => 'Auto-cancelled: SMS window expired (1+ minute past expiration)'
+                ]);
+                
+                // Process refund
+                $order->processRefund('Auto-cancelled: SMS window expired', 'system');
                 
                 return response()->json([
                     'success' => true,
@@ -407,17 +424,53 @@ class UsaNumberController extends Controller
             }
 
             // Get status from API
-            $status = $this->smsService->getStatus($order->activation_id);
+            $status = $this->smsService->checkSmsStatus($order->activation_id);
 
             return DB::transaction(function () use ($order, $status) {
-                // Handle JSON response
-                if (isset($status['response'])) {
-                    return $this->processApiResponse($order, $status['response']);
-                }
-
-                // Handle colon-separated response
+                // Handle SMSPool API response format
                 if (isset($status['status'])) {
-                    return $this->processApiStatus($order, $status['status'], $status['code'] ?? null);
+                    $apiStatus = $status['status'];
+                    
+                    if ($apiStatus === 'completed' && isset($status['code'])) {
+                        // Extract verification code from the message using regex
+                        $extractedCode = $this->extractVerificationCode($status['code']);
+                        
+                        $order->update([
+                            'sms_code' => $extractedCode ?: $status['code'],
+                            'sms_received_at' => now(),
+                            'status' => Order::STATUS_COMPLETED
+                        ]);
+
+                        Log::info('USA SMS code received', [
+                            'order_id' => $order->id,
+                            'user_id' => $order->user_id,
+                            'full_message' => $status['full_sms'] ?? $status['code'],
+                            'extracted_code' => $extractedCode
+                        ]);
+
+                        return response()->json([
+                            'success' => true,
+                            'order' => [
+                                'status' => Order::STATUS_COMPLETED,
+                                'sms_code' => $extractedCode ?: $status['code'],
+                                'phone_number' => $order->phone_number
+                            ],
+                            'message' => 'SMS code received successfully!'
+                        ]);
+                    }
+                    
+                    if (in_array($apiStatus, ['cancelled', 'expired'])) {
+                        $order->update(['status' => Order::STATUS_EXPIRED]);
+                        return response()->json([
+                            'success' => true,
+                            'order' => [
+                                'status' => Order::STATUS_EXPIRED,
+                                'sms_code' => $order->sms_code,
+                                'phone_number' => $order->phone_number
+                            ],
+                            'message' => 'Order was cancelled or expired by provider.'
+                        ]);
+                    }
                 }
 
                 // No changes
@@ -489,7 +542,7 @@ class UsaNumberController extends Controller
         }
 
         try {
-            // Request SMS retry from SMS Activate API
+            // Request SMS retry from SMSPool API
             $result = $this->smsService->requestSmsRetry($order->activation_id);
             
             if ($result['success']) {
@@ -549,17 +602,23 @@ class UsaNumberController extends Controller
             return response()->json(['error' => 'Order not found or cannot be cancelled'], 404);
         }
 
-        // Check if order can be cancelled (within 20 minutes)
-        if ($order->created_at->diffInMinutes(now()) > 20) {
+        // Check if order can be cancelled (within SMS window + 1 minute grace period)
+        if ($order->sms_window_expires_at && $order->sms_window_expires_at->addMinute()->isPast()) {
             return response()->json([
-                'error' => 'Order cannot be cancelled after 20 minutes'
+                'error' => 'Order cannot be cancelled as SMS window has expired'
             ], 400);
         }
 
         try {
             return DB::transaction(function () use ($order, $user) {
-                // Cancel with API
-                $this->smsService->setStatus($order->activation_id, 8); // Cancel status
+                // Check if order is past expiration (1+ minute) - skip API call
+                $skipApiCall = $order->sms_window_expires_at && 
+                              $order->sms_window_expires_at->addMinute()->isPast();
+                
+                if (!$skipApiCall) {
+                    // Cancel with SMSPool API only if within valid timeframe
+                    $this->smsService->cancelNumber($order->activation_id);
+                }
 
                 // Update order status
                 $order->update(['status' => 'cancelled']);

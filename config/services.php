@@ -43,4 +43,12 @@ return [
         'retry_delay' => env('SMS_ACTIVATE_RETRY_DELAY', 1000), // milliseconds
     ],
 
+    'smspool' => [
+        'api_key' => env('SMSPOOL_API_KEY'),
+        'base_url' => env('SMSPOOL_BASE_URL', 'https://api.smspool.net'),
+        'timeout' => env('SMSPOOL_TIMEOUT', 30),
+        'max_retries' => env('SMSPOOL_MAX_RETRIES', 3),
+        'retry_delay' => env('SMSPOOL_RETRY_DELAY', 1000), // milliseconds
+    ],
+
 ];

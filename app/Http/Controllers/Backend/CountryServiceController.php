@@ -7,22 +7,21 @@ use App\Models\Country;
 use App\Models\GeneralSetting;
 use App\Models\Service;
 use App\Services\PricingService;
-use App\Services\SmsActivateService;
+use App\Services\SmsPoolService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\FacadesLog;
 use Illuminate\Support\Facades\Validator;
 
 class CountryServiceController extends Controller
 {
     private $pricingService;
-    private $smsActivateService;
+    private $smsPoolService;
 
-    public function __construct(PricingService $pricingService, SmsActivateService $smsActivateService)
+    public function __construct(PricingService $pricingService, SmsPoolService $smsPoolService)
     {
         $this->pricingService = $pricingService;
-        $this->smsActivateService = $smsActivateService;
+        $this->smsPoolService = $smsPoolService;
     }
 
     /**
@@ -37,7 +36,7 @@ class CountryServiceController extends Controller
     }
 
     /**
-     * Get pricing data for a specific country.
+     * Get pricing data for a specific country (database only, no API calls)
      */
     public function getCountryPrices($countryId)
     {
@@ -47,24 +46,24 @@ class CountryServiceController extends Controller
             
             $pricingData = [];
             
-            // Fetch all API prices in a single call to avoid timeout
-            $allApiPrices = $this->fetchAllApiPrices($country->code);
+            Log::info('Loading country prices from database only', [
+                'country_id' => $countryId,
+                'country_code' => $country->code
+            ]);
             
             foreach ($services as $service) {
                 $pivotData = $service->countries()->where('country_id', $countryId)->first();
                 
-                // Get current price using bulk API data
+                // Only use database data, no API calls
                 $currentPrice = null;
-                try {
-                    $currentPrice = $this->calculateServicePrice($service, $countryId, $allApiPrices, $pivotData);
-                } catch (\Exception $e) {
-                    Log::warning('Failed to calculate service price', [
-                        'service_id' => $service->id,
-                        'country_id' => $countryId,
-                        'error' => $e->getMessage()
-                    ]);
-                    // Fallback to pivot price or base price
-                    $currentPrice = $pivotData ? ($pivotData->pivot->final_price ?? $pivotData->pivot->price) : $service->base_price;
+                $apiPriceUsd = null;
+                
+                if ($pivotData && $pivotData->pivot) {
+                    $currentPrice = $pivotData->pivot->final_price ?? $pivotData->pivot->price;
+                    $apiPriceUsd = $pivotData->pivot->api_price_usd ?? null;
+                } else {
+                    // No pricing data available - will show empty
+                    $currentPrice = null;
                 }
                 
                 $pricingData[] = [
@@ -72,11 +71,12 @@ class CountryServiceController extends Controller
                     'service_name' => $service->name,
                     'service_code' => $service->code,
                     'base_price' => $service->base_price ?? 0,
-                    'current_price' => $currentPrice ?? 0,
+                    'current_price' => $currentPrice,
                     'custom_price' => $pivotData ? ($pivotData->pivot->final_price ?? $pivotData->pivot->price) : null,
                     'is_active' => $pivotData ? $pivotData->pivot->is_active : false,
                     'has_custom_pricing' => $pivotData !== null,
                     'allow_refunds' => $service->allow_refunds ?? false,
+                    'api_price_usd' => $apiPriceUsd,
                     'api_price' => $pivotData ? $pivotData->pivot->api_price : null,
                     'markup_percentage' => $pivotData ? $pivotData->pivot->markup_percentage : $service->markup_percentage,
                     'final_price' => $pivotData ? $pivotData->pivot->final_price : null,
@@ -104,114 +104,7 @@ class CountryServiceController extends Controller
         }
     }
 
-    /**
-     * Fetch all API prices for a country in a single call
-     */
-    private function fetchAllApiPrices($countryCode)
-    {
-        try {
-            // Use cache to avoid repeated API calls
-            $cacheKey = "bulk_api_prices_{$countryCode}";
-            
-            return Cache::remember($cacheKey, 300, function() use ($countryCode) { // 5 minutes cache
-                Log::info('Fetching bulk API prices', ['country_code' => $countryCode]);
-                
-                // Get all prices for the country from SMS Activate API
-                $response = $this->smsActivateService->getPrices($countryCode);
-                
-                // Handle different response formats
-                if (is_array($response)) {
-                    // Direct array response
-                    if (isset($response[$countryCode])) {
-                        Log::info('Successfully fetched bulk API prices (array format)', [
-                            'country_code' => $countryCode,
-                            'services_count' => count($response[$countryCode])
-                        ]);
-                        return $response[$countryCode];
-                    }
-                } elseif (is_string($response) && strpos($response, 'ACCESS_PRICES:') === 0) {
-                    // String response with ACCESS_PRICES prefix
-                    $jsonData = str_replace('ACCESS_PRICES:', '', $response);
-                    $data = json_decode($jsonData, true);
-                    
-                    if (json_last_error() === JSON_ERROR_NONE && isset($data[$countryCode])) {
-                        Log::info('Successfully fetched bulk API prices (string format)', [
-                            'country_code' => $countryCode,
-                            'services_count' => count($data[$countryCode])
-                        ]);
-                        return $data[$countryCode];
-                    }
-                } elseif (is_string($response)) {
-                    // Try to parse as direct JSON string
-                    $data = json_decode($response, true);
-                    if (json_last_error() === JSON_ERROR_NONE && isset($data[$countryCode])) {
-                        Log::info('Successfully fetched bulk API prices (JSON string)', [
-                            'country_code' => $countryCode,
-                            'services_count' => count($data[$countryCode])
-                        ]);
-                        return $data[$countryCode];
-                    }
-                }
-                
-                Log::warning('Failed to parse bulk API prices response', [
-                    'country_code' => $countryCode,
-                    'response_type' => gettype($response),
-                    'response_preview' => is_string($response) ? substr($response, 0, 200) : 'Non-string response'
-                ]);
-                
-                return [];
-            });
-        } catch (\Exception $e) {
-            Log::error('Failed to fetch bulk API prices', [
-                'country_code' => $countryCode,
-                'error' => $e->getMessage()
-            ]);
-            return [];
-        }
-    }
 
-    /**
-     * Calculate service price using bulk API data
-     */
-    private function calculateServicePrice($service, $countryId, $allApiPrices, $pivotData)
-    {
-        $generalSettings = GeneralSetting::first();
-        $exchangeRate = $generalSettings->naira_to_dollar_rate ?? 1700.00;
-        $markupPercentage = $generalSettings->api_price_markup_percentage ?? 20.00;
-        
-        // Check if price exists in pivot table
-        $pivotPrice = null;
-        if ($pivotData && $pivotData->pivot) {
-            $pivotPrice = $pivotData->pivot->final_price ?? $pivotData->pivot->price;
-        }
-        
-        // Get API price from bulk data
-        $apiPriceUsd = null;
-        if (isset($allApiPrices[$service->code]['cost'])) {
-            $apiPriceUsd = (float) $allApiPrices[$service->code]['cost'];
-        }
-        
-        // Calculate API price in Naira with markup
-        $apiPriceInNaira = null;
-        if ($apiPriceUsd !== null) {
-            $priceWithMarkup = $apiPriceUsd * (1 + ($markupPercentage / 100));
-            $apiPriceInNaira = $priceWithMarkup * $exchangeRate;
-            $apiPriceInNaira = ceil($apiPriceInNaira / 10) * 10; // Round to next 10th
-        }
-        
-        // If no pivot price, use API price
-        if ($pivotPrice === null) {
-            return $apiPriceInNaira ?? $service->base_price ?? 0;
-        }
-        
-        // If API price is available, compare and use the higher one
-        if ($apiPriceInNaira !== null) {
-            return max($pivotPrice, $apiPriceInNaira);
-        }
-        
-        // Fallback to pivot price
-        return $pivotPrice;
-    }
 
     /**
      * Update or create custom pricing for a country-service combination.
@@ -378,114 +271,114 @@ class CountryServiceController extends Controller
     /**
      * Sync API prices for all services in a country.
      */
-    public function syncApiPrices(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'country_id' => 'required|exists:countries,id'
-        ]);
+    // public function syncApiPrices(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'country_id' => 'required|exists:countries,id'
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Validation failed',
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
 
-        try {
-            $country = Country::findOrFail($request->country_id);
-            $services = Service::where('status', 'active')->get();
+    //     try {
+    //         $country = Country::findOrFail($request->country_id);
+    //         $services = Service::where('status', 'active')->get();
             
-            $successCount = 0;
-            $totalCount = $services->count();
-            $errors = [];
+    //         $successCount = 0;
+    //         $totalCount = $services->count();
+    //         $errors = [];
 
-            // Fetch all API prices in a single call to avoid timeout
-            $allApiPrices = $this->fetchAllApiPrices($country->code);
+    //         // Fetch all API prices in a single call to avoid timeout
+    //         $allApiPrices = $this->fetchAllApiPrices($country->code);
             
-            if (empty($allApiPrices)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to fetch API prices from SMS Activate',
-                    'errors' => ['No API response received']
-                ], 500);
-            }
+    //         if (empty($allApiPrices)) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Failed to fetch API prices from SMSPool',
+    //                 'errors' => ['No API response received']
+    //             ], 500);
+    //         }
 
-            $generalSettings = GeneralSetting::first();
-            $exchangeRate = $generalSettings->naira_to_dollar_rate ?? 1700.00;
-            $defaultMarkupPercentage = $generalSettings->api_price_markup_percentage ?? 20.00;
+    //         $generalSettings = GeneralSetting::first();
+    //         $exchangeRate = $generalSettings->naira_to_dollar_rate ?? 1700.00;
+    //         $defaultMarkupPercentage = $generalSettings->api_price_markup_percentage ?? 20.00;
 
-            foreach ($services as $service) {
-                try {
-                    // Get API price from bulk data
-                    if (isset($allApiPrices[$service->code]['cost'])) {
-                        $apiPriceUsd = (float) $allApiPrices[$service->code]['cost'];
-                        $markupPercentage = $defaultMarkupPercentage;
-                        // $markupPercentage = $service->markup_percentage ?? $defaultMarkupPercentage;
+    //         foreach ($services as $service) {
+    //             try {
+    //                 // Get API price from bulk data
+    //                 if (isset($allApiPrices[$service->code]['cost'])) {
+    //                     $apiPriceUsd = (float) $allApiPrices[$service->code]['cost'];
+    //                     $markupPercentage = $defaultMarkupPercentage;
+    //                     // $markupPercentage = $service->markup_percentage ?? $defaultMarkupPercentage;
                         
-                        // Calculate final price with markup and convert to Naira
-                        $priceWithMarkup = $apiPriceUsd * (1 + ($markupPercentage / 100));
-                        $finalPriceNaira = $priceWithMarkup * $exchangeRate;
-                        $finalPriceNaira = ceil($finalPriceNaira / 10) * 10; // Round to next 10th
+    //                     // Calculate final price with markup and convert to Naira
+    //                     $priceWithMarkup = $apiPriceUsd * (1 + ($markupPercentage / 100));
+    //                     $finalPriceNaira = $priceWithMarkup * $exchangeRate;
+    //                     $finalPriceNaira = ceil($finalPriceNaira / 10) * 10; // Round to next 10th
                         
-                        // Update pivot entry directly
-                        $service->countries()->syncWithoutDetaching([
-                            $country->id => [
-                                'api_price' => $apiPriceUsd,
-                                'price' => $finalPriceNaira,
-                                'final_price' => $finalPriceNaira,
-                                'markup_percentage' => $markupPercentage,
-                                'is_active' => true,
-                                'status' => 'active',
-                                'last_price_update' => now(),
-                                'updated_at' => now()
-                            ]
-                        ]);
+    //                     // Update pivot entry directly
+    //                     $service->countries()->syncWithoutDetaching([
+    //                         $country->id => [
+    //                             'api_price' => $apiPriceUsd,
+    //                             'price' => $finalPriceNaira,
+    //                             'final_price' => $finalPriceNaira,
+    //                             'markup_percentage' => $markupPercentage,
+    //                             'is_active' => true,
+    //                             'status' => 'active',
+    //                             'last_price_update' => now(),
+    //                             'updated_at' => now()
+    //                         ]
+    //                     ]);
                         
-                        $successCount++;
+    //                     $successCount++;
                         
-                        Log::info('API price synced', [
-                            'service' => $service->name,
-                            'country' => $country->name,
-                            'api_price_usd' => $apiPriceUsd,
-                            'final_price_naira' => $finalPriceNaira,
-                            'markup_percentage' => $markupPercentage
-                        ]);
-                    } else {
-                        $errors[] = "No API price found for service: {$service->name} (code: {$service->code})";
-                        Log::warning('No API price found in bulk data', [
-                            'service' => $service->name,
-                            'service_code' => $service->code,
-                            'country' => $country->name
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    $errors[] = "Error syncing {$service->name}: {$e->getMessage()}";
-                    Log::error('API sync failed for service', [
-                        'service' => $service->name,
-                        'country' => $country->name,
-                        'error' => $e->getMessage()
-                    ]);
-                }
-            }
+    //                     Log::info('API price synced', [
+    //                         'service' => $service->name,
+    //                         'country' => $country->name,
+    //                         'api_price_usd' => $apiPriceUsd,
+    //                         'final_price_naira' => $finalPriceNaira,
+    //                         'markup_percentage' => $markupPercentage
+    //                     ]);
+    //                 } else {
+    //                     $errors[] = "No API price found for service: {$service->name} (code: {$service->code})";
+    //                     Log::warning('No API price found in bulk data', [
+    //                         'service' => $service->name,
+    //                         'service_code' => $service->code,
+    //                         'country' => $country->name
+    //                     ]);
+    //                 }
+    //             } catch (\Exception $e) {
+    //                 $errors[] = "Error syncing {$service->name}: {$e->getMessage()}";
+    //                 Log::error('API sync failed for service', [
+    //                     'service' => $service->name,
+    //                     'country' => $country->name,
+    //                     'error' => $e->getMessage()
+    //                 ]);
+    //             }
+    //         }
 
-            return response()->json([
-                'success' => $successCount === $totalCount,
-                'message' => "Synced {$successCount} out of {$totalCount} services",
-                'success_count' => $successCount,
-                'total_count' => $totalCount,
-                'errors' => $errors
-            ]);
-        } catch (\Exception $e) {
-            Log::error('API sync failed', [
-                'country_id' => $request->country_id,
-                'error' => $e->getMessage()
-            ]);
+    //         return response()->json([
+    //             'success' => $successCount === $totalCount,
+    //             'message' => "Synced {$successCount} out of {$totalCount} services",
+    //             'success_count' => $successCount,
+    //             'total_count' => $totalCount,
+    //             'errors' => $errors
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error('API sync failed', [
+    //             'country_id' => $request->country_id,
+    //             'error' => $e->getMessage()
+    //         ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'API sync failed: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'API sync failed: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 }
