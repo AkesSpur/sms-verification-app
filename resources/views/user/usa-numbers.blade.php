@@ -868,6 +868,13 @@ function processCancelOrder(orderId) {
     const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
     if (!orderElement) return;
     
+    // Disable all cancel buttons for this order to prevent multiple requests
+    const cancelButtons = document.querySelectorAll(`button[onclick*="cancelOrder(${orderId})"]`);
+    cancelButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Cancelling...';
+    });
+    
     // Show loading state
     showNotification('Cancelling order...', 'info', 2000);
     
@@ -894,6 +901,13 @@ function processCancelOrder(orderId) {
     .catch(error => {
         console.error('Error:', error);
         showNotification('Error cancelling order', 'error');
+        
+        // Re-enable cancel buttons on error
+        const cancelButtons = document.querySelectorAll(`button[onclick*="cancelOrder(${orderId})"]`);
+        cancelButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-times mr-2"></i>Cancel Order';
+        });
     });
 }
 

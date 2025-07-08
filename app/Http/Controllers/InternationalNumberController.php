@@ -749,6 +749,13 @@ class InternationalNumberController extends Controller
             return response()->json(['error' => 'Order not found or cannot be cancelled'], 404);
         }
 
+        // Check if order has already been refunded to prevent multiple refunds
+        if ($order->refunded) {
+            return response()->json([
+                'error' => 'Order has already been refunded and cannot be cancelled again'
+            ], 400);
+        }
+
         // Check if order can be cancelled (within 20 minutes)
         if ($order->created_at->diffInMinutes(now()) > 20) {
             return response()->json([
@@ -769,6 +776,13 @@ class InternationalNumberController extends Controller
                             'error' => $e->getMessage()
                         ]);
                     }
+                }
+
+                // Double-check refund status within transaction to prevent race conditions
+                if ($order->refunded) {
+                    return response()->json([
+                        'error' => 'Order has already been refunded'
+                    ], 400);
                 }
 
                 // Update order status

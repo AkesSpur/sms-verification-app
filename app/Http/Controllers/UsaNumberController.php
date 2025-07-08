@@ -602,6 +602,13 @@ class UsaNumberController extends Controller
             return response()->json(['error' => 'Order not found or cannot be cancelled'], 404);
         }
 
+        // Check if order has already been refunded to prevent multiple refunds
+        if ($order->refunded) {
+            return response()->json([
+                'error' => 'Order has already been refunded and cannot be cancelled again'
+            ], 400);
+        }
+
         // Check if order can be cancelled (within SMS window + 1 minute grace period)
         if ($order->sms_window_expires_at && $order->sms_window_expires_at->addMinute()->isPast()) {
             return response()->json([
@@ -618,6 +625,13 @@ class UsaNumberController extends Controller
                 if (!$skipApiCall) {
                     // Cancel with SMSPool API only if within valid timeframe
                     $this->smsService->cancelNumber($order->activation_id);
+                }
+
+                // Double-check refund status within transaction to prevent race conditions
+                if ($order->refunded) {
+                    return response()->json([
+                        'error' => 'Order has already been refunded'
+                    ], 400);
                 }
 
                 // Update order status

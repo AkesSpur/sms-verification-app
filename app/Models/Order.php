@@ -372,6 +372,17 @@ public function getStatusTextAttribute()
 public function processRefund($reason = null, $changedBy = 'system')
 {
     try {
+        // Check if order has already been refunded to prevent multiple refunds
+        if ($this->refunded) {
+            Log::warning("Attempted to refund order #{$this->id} that has already been refunded", [
+                'order_id' => $this->id,
+                'user_id' => $this->user_id,
+                'reason' => $reason,
+                'changed_by' => $changedBy
+            ]);
+            return;
+        }
+        
         // Get the user
         $user = User::findorFail($this->user_id);
         

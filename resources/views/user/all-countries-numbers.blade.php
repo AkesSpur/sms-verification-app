@@ -1219,6 +1219,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Perform the actual cancel order operation
     function performCancelOrder(orderId) {
+        // Disable all cancel buttons for this order to prevent multiple requests
+        const cancelButtons = document.querySelectorAll(`button[onclick*="cancelOrder(${orderId})"]`);
+        cancelButtons.forEach(btn => {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Cancelling...';
+        });
+        
         fetch(`/user/international/order/${orderId}/cancel`, {
             method: 'POST',
             headers: {
@@ -1269,6 +1276,13 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error cancelling order:', error);
             showNotification('Error cancelling order', 'error');
+            
+            // Re-enable cancel buttons on error
+            const cancelButtons = document.querySelectorAll(`button[onclick*="cancelOrder(${orderId})"]`);
+            cancelButtons.forEach(btn => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-times mr-1"></i>Cancel';
+            });
         });
     }
 
