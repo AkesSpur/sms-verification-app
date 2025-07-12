@@ -41,10 +41,18 @@
                                 <span class="text-sm text-gray-600">Stock Available:</span>
                                 <span class="text-sm font-semibold text-green-600">{{ $product->available_stock ?? 0}} items</span>
                             </div>
+                            
+                            @if($product->description)
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Description</h4>
+                                <div class="prose prose-sm max-w-none text-gray-600 text-sm">
+                                    {!! $product->description !!}
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>                
                 </div>
-
 
             </div>
 
