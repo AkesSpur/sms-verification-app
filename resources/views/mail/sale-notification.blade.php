@@ -132,6 +132,11 @@
                 <div class="notification-badge">New Gift Sale</div>
                 <h1>Gift Order Sale!</h1>
                 <p class="subtitle">A new gift order has been placed</p>
+            @elseif($saleType === 'social_media')
+                <div class="logo">🚀</div>
+                <div class="notification-badge">New Social Media Sale</div>
+                <h1>Social Media Boosting Sale!</h1>
+                <p class="subtitle">A new social media boosting order has been placed</p>
             @endif
         </div>
 
@@ -210,11 +215,39 @@
                     <span class="label">Price:</span> ₦{{ number_format($saleData['price'], 2) }}
                 </div>
             </div>
+        @elseif($saleType === 'social_media')
+            <div class="product-container">
+                <div class="digital-icon">🚀</div>
+                <div class="product-detail">
+                    <span class="label">Order ID:</span> {{ $saleData['order_id'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Order Number:</span> {{ $saleData['order_number'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Product:</span> {{ $saleData['product_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Category:</span> {{ $saleData['category'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Quantity:</span> {{ $saleData['quantity'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Social Media Link:</span> {{ $saleData['social_media_link'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Customer:</span> {{ $saleData['customer_name'] }}
+                </div>
+                <div class="product-detail">
+                    <span class="label">Price:</span> ₦{{ number_format($saleData['price'], 2) }}
+                </div>
+            </div>
         @endif
 
         <div class="total-amount">
             Total Amount: 
-            @if($saleType === 'sms' || $saleType === 'gift')
+            @if($saleType === 'sms' || $saleType === 'gift' || $saleType === 'social_media')
                 ₦{{ number_format($saleData['price'], 2) }}
             @elseif($saleType === 'digital_product')
                 ₦{{ number_format(collect($saleData)->sum('price'), 2) }}

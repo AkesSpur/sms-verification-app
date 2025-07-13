@@ -8,9 +8,11 @@ use App\Models\SocialMediaOrder;
 use App\Models\GeneralSetting;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SaleNotificationMail;
 
 class SocialMediaBoostingController extends Controller
 {
@@ -130,6 +132,29 @@ class SocialMediaBoostingController extends Controller
                 ['order_id' => $order->id, 'product_id' => $product->id],
                 $order
             );
+
+            // Send email notification to admin
+            $settings = GeneralSetting::first();
+            if ($settings && $settings->contact_email) {
+                $saleData = [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'product_name' => $product->name,
+                    'category' => $product->category->name ?? 'Social Media Boosting',
+                    'quantity' => $quantity,
+                    'customer_name' => $user->name,
+                    'social_media_link' => $request->social_media_link,
+                    'price' => $totalAmount
+                ];
+
+                try {
+                    Mail::to($settings->contact_email)->queue(
+                        new SaleNotificationMail('social_media', $saleData, $totalAmount)
+                    );
+                } catch (\Exception $e) {
+                    Log::error('Failed to send social media sale notification email: ' . $e->getMessage());
+                }
+            }
 
             DB::commit();
 
