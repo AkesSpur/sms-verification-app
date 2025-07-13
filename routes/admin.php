@@ -19,6 +19,9 @@ use App\Http\Controllers\Backend\DigitalProductOrderController;
 use App\Http\Controllers\Backend\GiftController;
 use App\Http\Controllers\Backend\BannerController;
 use App\Http\Controllers\Backend\SmsOrderController;
+use App\Http\Controllers\Backend\SocialMediaCategoryController;
+use App\Http\Controllers\Backend\SocialMediaProductController;
+use App\Http\Controllers\Backend\SocialMediaOrderController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -131,6 +134,16 @@ Route::post('sms-orders/{order}/retry-sms', [SmsOrderController::class, 'retrySm
 Route::post('sms-orders/{order}/force-cancel', [SmsOrderController::class, 'forceCancel'])->name('sms-orders.force-cancel');
 Route::post('sms-orders/{order}/mark-review', [SmsOrderController::class, 'markForReview'])->name('sms-orders.mark-review');
 Route::post('sms-orders/{order}/remove-review', [SmsOrderController::class, 'removeFromReview'])->name('sms-orders.remove-review');
+
+/* Social Media Boosting Management Routes */
+Route::resource('social-media-categories', SocialMediaCategoryController::class);
+Route::get('social-media-products/by-category/{category}', [SocialMediaProductController::class, 'getByCategory'])->name('social-media-products.by-category');
+Route::resource('social-media-products', SocialMediaProductController::class);
+Route::get('social-media-orders/export', [SocialMediaOrderController::class, 'export'])->name('social-media-orders.export');
+Route::put('social-media-orders/{socialMediaOrder}/status', [SocialMediaOrderController::class, 'updateStatus'])->name('social-media-orders.update-status');
+Route::post('social-media-orders/bulk-update-status', [SocialMediaOrderController::class, 'bulkUpdateStatus'])->name('social-media-orders.bulk-update-status');
+Route::put('social-media-orders/{socialMediaOrder}/update-status', [SocialMediaOrderController::class, 'updateStatus'])->name('social-media-orders.update-status');
+Route::resource('social-media-orders', SocialMediaOrderController::class)->only(['index', 'show']);
 
 /** Payment settings routes */
 Route::get('payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');

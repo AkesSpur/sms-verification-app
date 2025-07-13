@@ -219,6 +219,7 @@ class UsersController extends Controller
             'gift_purchase', 'gift_refund' => 'Gift Service',
             'digital_purchase', 'digital_refund' => 'Digital Products',
             'sms_purchase', 'sms_refund' => 'SMS Service',
+            'social_media_purchase', 'social_media_refund' => 'Boosting Service',
             'fund_addition', 'fund_withdrawal' => 'Wallet Management',
             default => 'General'
         };

@@ -10,6 +10,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Gateways\PaystackController;
 use App\Http\Controllers\UsaNumberController;
 use App\Http\Controllers\InternationalNumberController;
+use App\Http\Controllers\SocialMediaBoostingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -69,6 +70,17 @@ Route::prefix('user')->middleware(['auth', 'verified'])->group(function () {
         Route::get('/order/{order}/status', [InternationalNumberController::class, 'checkStatus'])->name('international.order.status');
         Route::post('/order/{order}/cancel', [InternationalNumberController::class, 'cancelOrder'])->name('international.order.cancel');
         Route::get('/order/{order}', [InternationalNumberController::class, 'show'])->name('international.order.show');
+    });
+    
+    // Social Media Boosting Routes
+    Route::prefix('social-media-boosting')->group(function () {
+        Route::get('/', [SocialMediaBoostingController::class, 'index'])->name('user.social-media-boosting.index');
+        Route::get('/category/{slug}', [SocialMediaBoostingController::class, 'category'])->name('user.social-media-boosting.category');
+        Route::get('/category/{categorySlug}/product/{productSlug}', [SocialMediaBoostingController::class, 'product'])->name('user.social-media-boosting.product');
+        Route::post('/calculate-price/{product}', [SocialMediaBoostingController::class, 'calculatePrice'])->name('user.social-media-boosting.calculate-price');
+        Route::post('/purchase/{product}', [SocialMediaBoostingController::class, 'purchase'])->name('user.social-media-boosting.purchase');
+        Route::get('/orders', [SocialMediaBoostingController::class, 'orders'])->name('user.social-media-orders.index');
+        Route::get('/orders/{order}', [SocialMediaBoostingController::class, 'showOrder'])->name('user.social-media-orders.show');
     });
 });
 

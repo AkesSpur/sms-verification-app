@@ -11,6 +11,7 @@ use App\Models\ReviewQueue;
 use App\Models\GiftOrder;
 use App\Models\Transaction;
 use App\Models\DigitalProduct;
+use App\Models\SocialMediaOrder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -65,10 +66,23 @@ class AdminController extends Controller
             ->whereYear('created_at', Carbon::now()->year)
             ->sum('total_amount');
 
+        // Social Media Boosting Revenue
+        $todaysSocialRevenue = SocialMediaOrder::where('status', 'completed')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('total_amount');
+
+        $monthSocialRevenue = SocialMediaOrder::where('status', 'completed')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total_amount');
+
+        $yearSocialRevenue = SocialMediaOrder::where('status', 'completed')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_amount');
+
         // Combined Revenue Totals
-        $todaysRevenue = $todaysSmsRevenue + $todaysDigitalRevenue + $todaysGiftRevenue;
-        $monthRevenue = $monthSmsRevenue + $monthDigitalRevenue + $monthGiftRevenue;
-        $yearRevenue = $yearSmsRevenue + $yearDigitalRevenue + $yearGiftRevenue;
+        $todaysRevenue = $todaysSmsRevenue + $todaysDigitalRevenue + $todaysGiftRevenue + $todaysSocialRevenue;
+        $monthRevenue = $monthSmsRevenue + $monthDigitalRevenue + $monthGiftRevenue + $monthSocialRevenue;
+        $yearRevenue = $yearSmsRevenue + $yearDigitalRevenue + $yearGiftRevenue + $yearSocialRevenue;
 
         $totalServices = Service::where('status', 'active')->count();
         $totalUsers = User::where('role', 'client')->count();
@@ -124,13 +138,26 @@ class AdminController extends Controller
             'gift_pending_revenue' => GiftOrder::where('payment_status', 'pending')->sum('total_amount'),
             'gift_today_orders' => GiftOrder::whereDate('created_at', Carbon::today())->count(),
             
+            // Social Media Boosting Orders
+            'social_total_orders' => SocialMediaOrder::count(),
+            'social_completed_orders' => SocialMediaOrder::where('status', 'completed')->count(),
+            'social_pending_orders' => SocialMediaOrder::where('status', 'pending')->count(),
+            'social_processing_orders' => SocialMediaOrder::where('status', 'processing')->count(),
+            'social_cancelled_orders' => SocialMediaOrder::where('status', 'cancelled')->count(),
+            'social_total_revenue' => SocialMediaOrder::where('status', 'completed')->sum('total_amount'),
+            'social_today_revenue' => $todaysSocialRevenue,
+            'social_month_revenue' => $monthSocialRevenue,
+            'social_year_revenue' => $yearSocialRevenue,
+            'social_today_orders' => SocialMediaOrder::whereDate('created_at', Carbon::today())->count(),
+            
             // Combined Revenue Totals
             'total_revenue_today' => $todaysRevenue,
             'total_revenue_month' => $monthRevenue,
             'total_revenue_year' => $yearRevenue,
             'total_revenue_all_time' => Order::where('status', 'completed')->sum('final_price') + 
                                       DigitalProductOrder::where('status', 'completed')->sum('total_amount') + 
-                                      GiftOrder::where('payment_status', 'paid')->sum('total_amount'),
+                                      GiftOrder::where('payment_status', 'paid')->sum('total_amount') + 
+                                      SocialMediaOrder::where('status', 'completed')->sum('total_amount'),
             
             // Transactions
             'total_transactions' => Transaction::count(),
@@ -159,6 +186,26 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
+        // Recent Social Media Purchases (Last 24 hours)
+        $recentSocialPurchases = SocialMediaOrder::with(['user', 'product'])
+            ->where('created_at', '>=', $twentyFourHoursAgo)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Pending Orders Data
+        $pendingGiftOrders = GiftOrder::with(['user', 'gift'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        $pendingSocialOrders = SocialMediaOrder::with(['user', 'product'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
         return view('admin.dashboard',compact(
             'todaysOrders',
             'todaysPendingOrders',
@@ -178,6 +225,9 @@ class AdminController extends Controller
             'todaysGiftRevenue',
             'monthGiftRevenue',
             'yearGiftRevenue',
+            'todaysSocialRevenue',
+            'monthSocialRevenue',
+            'yearSocialRevenue',
             'totalServices',
             'totalUsers',
             'totalAdmins',
@@ -186,7 +236,10 @@ class AdminController extends Controller
             'popularServices',
             'stats',
             'recentDigitalPurchases',
-            'popularDigitalProducts'
+            'popularDigitalProducts',
+            'recentSocialPurchases',
+            'pendingGiftOrders',
+            'pendingSocialOrders'
         ));
     }
 

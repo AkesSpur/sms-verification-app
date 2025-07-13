@@ -65,6 +65,20 @@
                         <span>Gift Management</span>
                     </a>
                 </li>
+                <li class="dropdown {{ setActive(['admin.social-media-categories.*', 'admin.social-media-products.*']) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                        <i class="fab fa-instagram"></i>
+                        <span>Social Media Boosting</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setActive(['admin.social-media-categories.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.social-media-categories.index') }}">Categories</a>
+                        </li>
+                        <li class="{{ setActive(['admin.social-media-products.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.social-media-products.index') }}">Products</a>
+                        </li>
+                    </ul>
+                </li>
 
                 <!-- Order Management Section -->
                 <li class="menu-header">Order Management</li>
@@ -82,6 +96,9 @@
                         </li>
                         <li class="{{ setActive(['admin.gift-orders.*']) }}">
                             <a class="nav-link" href="{{ route('admin.gift-orders.index') }}">Gift Orders</a>
+                        </li>
+                        <li class="{{ setActive(['admin.social-media-orders.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.social-media-orders.index') }}">Social Media Orders</a>
                         </li>
                         {{-- Uncomment when routes are available
                         <li class="{{ setActive(['admin.order.*']) }}">

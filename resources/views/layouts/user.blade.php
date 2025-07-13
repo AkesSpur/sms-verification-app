@@ -116,6 +116,13 @@
                         <span class="font-medium" x-show="!sidebarCollapsed">Logs Store</span>
                     </a>
                     
+                    <a href="{{ route('user.social-media-boosting.index') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.social-media-boosting.*') || request()->routeIs('user.social-media-orders.*') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-thumbs-up w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Social Media Boosting</span>
+                    </a>
+                    
                     <a href="{{ route('profile.edit') }}" 
                        class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('profile.edit') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
                        :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">

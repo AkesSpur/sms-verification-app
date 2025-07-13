@@ -146,6 +146,8 @@ class Transaction extends Model
             'digital_refund' => 'Digital Product Refund',
             'sms_purchase' => 'SMS Service Purchase',
             'sms_refund' => 'SMS Service Refund',
+            'social_media_purchase' => 'Social Media Boosting Purchase',
+            'social_media_refund' => 'Social Media Boosting Refund',
             default => ucfirst(str_replace('_', ' ', $this->category))
         };
     }

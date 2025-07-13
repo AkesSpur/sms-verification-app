@@ -6,6 +6,105 @@
             <h1>Dashboard</h1>
         </div>
         
+        <!-- Pending Orders Section -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="mb-3"><i class="fas fa-clock text-warning"></i> Pending Orders</h5>
+            </div>
+            
+            <!-- Pending Gift Orders -->
+            <div class="col-lg-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-gift text-danger"></i> Pending Gift Orders</h4>
+                        <div class="card-header-action">
+                            <a href="{{ route('admin.gift-orders.index', ['status' => 'pending']) }}" class="btn btn-primary">View All</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if($pendingGiftOrders->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>User</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pendingGiftOrders as $order)
+                                            <tr>
+                                                <td>#{{ $order->id }}</td>
+                                                <td>{{ $order->user->name ?? 'Guest' }}</td>
+                                                <td>₦{{ number_format($order->total_amount, 2) }}</td>
+                                                <td><span class="badge badge-warning">{{ ucfirst($order->status) }}</span></td>
+                                                <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-gift fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No pending gift orders</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pending Social Media Orders -->
+            <div class="col-lg-6 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-thumbs-up text-success"></i> Pending Social Media Orders</h4>
+                        <div class="card-header-action">
+                            <a href="{{ route('admin.social-media-orders.index', ['status' => 'pending']) }}" class="btn btn-primary">View All</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if($pendingSocialOrders->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>User</th>
+                                            <th>Service</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pendingSocialOrders as $order)
+                                            <tr>
+                                                <td>#{{ $order->id }}</td>
+                                                <td>{{ $order->user->name ?? 'Guest' }}</td>
+                                                <td>{{ $order->product->name ?? 'N/A' }}</td>
+                                                <td>₦{{ number_format($order->total_amount, 2) }}</td>
+                                                <td><span class="badge badge-warning">{{ ucfirst($order->status) }}</span></td>
+                                                <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-thumbs-up fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No pending social media orders</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        
            <!-- Gift Orders Statistics -->
            <div class="row">
             <div class="col-12">
@@ -128,6 +227,75 @@
             </div>
         </div>
 
+        <!-- Social Media Boosting Statistics -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="mb-3"><i class="fas fa-thumbs-up"></i> Social Media Boosting Orders</h5>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-primary">
+                        <i class="fas fa-thumbs-up"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Social Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['social_total_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <a href="{{ route('admin.social-media-orders.index', ['status' => 'pending']) }}">
+                    <div class="card card-statistic-1">
+                        <div class="card-icon bg-warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header">
+                                <h4>Pending Social Orders</h4>
+                            </div>
+                            <div class="card-body">
+                                {{ number_format($stats['social_pending_orders']) }}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Completed</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['social_completed_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-info">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Social Revenue</h4>
+                        </div>
+                        <div class="card-body">
+                            ₦{{ number_format($stats['social_total_revenue']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Transaction Statistics -->
         <div class="row">
             <div class="col-12">
@@ -224,7 +392,7 @@
                                                 <td>{{ $purchase->product->name ?? 'N/A' }}</td>
                                                 <td>{{ $purchase->user->name ?? 'Guest' }}</td>
                                                 <td>{{ $purchase->quantity }}</td>
-                                                <td>₦{{ number_format($purchase->amount, 2) }}</td>
+                                                <td>₦{{ number_format($purchase->total_amount, 2) }}</td>
                                                 <td>
                                                     @if($purchase->status == 'completed')
                                                         <span class="badge badge-success">Completed</span>
@@ -244,6 +412,62 @@
                             <div class="text-center py-4">
                                 <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">No digital product purchases in the last 24 hours</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Social Media Purchases -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-thumbs-up"></i> Recent Social Media Purchases (Last 24 Hours)</h4>
+                    </div>
+                    <div class="card-body">
+                        @if($recentSocialPurchases->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Name</th>
+                                            <th>Customer</th>
+                                            <th>Quantity</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Purchase Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recentSocialPurchases as $purchase)
+                                            <tr>
+                                                <td>{{ $purchase->product->name ?? 'N/A' }}</td>
+                                                <td>{{ $purchase->user->name ?? 'Guest' }}</td>
+                                                <td>{{ $purchase->quantity }}</td>
+                                                <td>₦{{ number_format($purchase->total_amount, 2) }}</td>
+                                                <td>
+                                                    @if($purchase->status == 'completed')
+                                                        <span class="badge badge-success">Completed</span>
+                                                    @elseif($purchase->status == 'pending')
+                                                        <span class="badge badge-warning">Pending</span>
+                                                    @elseif($purchase->status == 'processing')
+                                                        <span class="badge badge-info">Processing</span>
+                                                    @else
+                                                        <span class="badge badge-danger">{{ ucfirst($purchase->status) }}</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $purchase->created_at->format('M d, Y H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-thumbs-up fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No social media purchases in the last 24 hours</p>
                             </div>
                         @endif
                     </div>
@@ -325,7 +549,7 @@
             </div>
             
             <!-- SMS Revenue -->
-            <div class="col-lg-4 col-md-12">
+            <div class="col-lg-3 col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h4><i class="fas fa-sms text-primary"></i> SMS Verification Revenue</h4>
@@ -356,7 +580,7 @@
             </div>
             
             <!-- Digital Products Revenue -->
-            <div class="col-lg-4 col-md-12">
+            <div class="col-lg-3 col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h4><i class="fas fa-download text-warning"></i> Digital Products Revenue</h4>
@@ -387,7 +611,7 @@
             </div>
             
             <!-- Gift Orders Revenue -->
-            <div class="col-lg-4 col-md-12">
+            <div class="col-lg-3 col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h4><i class="fas fa-gift text-danger"></i> Gift Orders Revenue</h4>
@@ -411,6 +635,37 @@
                             <div class="col-6">
                                 <div class="text-muted">All Time</div>
                                 <div class="font-weight-bold text-dark">₦{{ number_format($stats['gift_total_revenue']) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Social Media Boosting Revenue -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-thumbs-up text-success"></i> Social Media Revenue</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-muted">Today</div>
+                                <div class="font-weight-bold text-primary">₦{{ number_format($todaysSocialRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">This Month</div>
+                                <div class="font-weight-bold text-info">₦{{ number_format($monthSocialRevenue) }}</div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="text-muted">This Year</div>
+                                <div class="font-weight-bold text-success">₦{{ number_format($yearSocialRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">All Time</div>
+                                <div class="font-weight-bold text-dark">₦{{ number_format($stats['social_total_revenue']) }}</div>
                             </div>
                         </div>
                     </div>

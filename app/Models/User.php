@@ -94,6 +94,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the social media orders for the user.
+     */
+    public function socialMediaOrders()
+    {
+        return $this->hasMany(SocialMediaOrder::class);
+    }
+
+    /**
      * Get the transactions for the user.
      */
     public function transactions()
