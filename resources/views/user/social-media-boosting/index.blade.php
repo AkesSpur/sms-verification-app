@@ -77,11 +77,11 @@
                     </select>
                 </div>
 
-                <!-- Category Description -->
-                <div id="categoryDescription" class="hidden mb-6 p-4 bg-blue-50 rounded-lg">
+                {{-- Category Description --}}
+                {{-- <div id="categoryDescription" class="hidden mb-6 p-4 bg-blue-50 rounded-lg">
                     <h3 class="text-sm font-medium text-blue-900 mb-2">About this category</h3>
                     <p class="text-sm text-blue-800"></p>
-                </div>
+                </div> --}}
 
                 <!-- Product Details -->
                 <div id="productDetails" class="hidden mb-6 p-4 bg-gray-50 rounded-lg">
@@ -104,10 +104,10 @@
                             <div class="font-semibold" id="maxQuantityDisplay">-</div>
                         </div>
                     </div>
-                    <div id="productDescriptionDiv" class="mt-3 hidden">
+                    {{-- <div id="productDescriptionDiv" class="mt-3 hidden">
                         <span class="text-gray-500">Description:</span>
                         <p class="text-gray-700 text-sm mt-1" id="productDescription"></p>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 
@@ -245,7 +245,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const categorySelect = document.getElementById('category');
     const productSelect = document.getElementById('product');
-    const categoryDescription = document.getElementById('categoryDescription');
+    // const categoryDescription = document.getElementById('categoryDescription');
     const productDetails = document.getElementById('productDetails');
     const orderForm = document.getElementById('orderForm');
     const noProductMessage = document.getElementById('noProductMessage');
@@ -268,13 +268,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (categoryId) {
             // Show category description
-            const description = selectedOption.dataset.description;
-            if (description && description.trim()) {
-                categoryDescription.querySelector('p').textContent = description;
-                categoryDescription.classList.remove('hidden');
-            } else {
-                categoryDescription.classList.add('hidden');
-            }
+            // const description = selectedOption.dataset.description;
+            // if (description && description.trim()) {
+            //     categoryDescription.querySelector('p').textContent = description;
+            //     categoryDescription.classList.remove('hidden');
+            // } else {
+            //     categoryDescription.classList.add('hidden');
+            // }
             
             // Load products for selected category
             const category = categoriesData.find(cat => cat.id == categoryId);
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         } else {
-            categoryDescription.classList.add('hidden');
+            // categoryDescription.classList.add('hidden');
         }
     });
     
@@ -380,12 +380,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('minQuantityDisplay').textContent = formatNumber(product.min_quantity);
         document.getElementById('maxQuantityDisplay').textContent = formatNumber(product.max_quantity);
         
-        if (product.description && product.description.trim()) {
-            document.getElementById('productDescription').innerHTML = product.description;
-            document.getElementById('productDescriptionDiv').classList.remove('hidden');
-        } else {
-            document.getElementById('productDescriptionDiv').classList.add('hidden');
-        }
+        // if (product.description && product.description.trim()) {
+        //     document.getElementById('productDescription').innerHTML = product.description;
+        //     document.getElementById('productDescriptionDiv').classList.remove('hidden');
+        // } else {
+        //     document.getElementById('productDescriptionDiv').classList.add('hidden');
+        // }
         
         productDetails.classList.remove('hidden');
         
