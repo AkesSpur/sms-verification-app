@@ -115,6 +115,88 @@
                                 </div>
                             </div>
                             
+                            <!-- External Order Information -->
+                            @if($order->external_order_id)
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-external-link-alt"></i> External Order Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">External Order ID:</label>
+                                                <p class="mb-2"><code>{{ $order->external_order_id }}</code></p>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">External Status:</label>
+                                                <p class="mb-2">
+                                                    @if($order->external_status)
+                                                        <span class="badge badge-info">{{ ucfirst($order->external_status) }}</span>
+                                                    @else
+                                                        <span class="text-muted">Not available</span>
+                                                    @endif
+                                                </p>
+                                            </div>
+                                            
+                                            @if($order->external_start_count)
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">Start Count:</label>
+                                                <p class="mb-2">{{ number_format($order->external_start_count) }}</p>
+                                            </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            @if($order->external_remains !== null)
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">Remaining:</label>
+                                                <p class="mb-2">{{ number_format($order->external_remains) }}</p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($order->external_charge)
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">External Charge:</label>
+                                                <p class="mb-2">${{ number_format($order->external_charge, 4) }}</p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($order->external_start_count && $order->external_remains !== null)
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">Progress:</label>
+                                                @php
+                                                    // Calculate delivered quantity based on order status
+                                                    if ($order->status === 'processing') {
+                                                        if (($order->external_remains ?? 0) == 0) {
+                                                            $delivered = 0;
+                                                        } else {
+                                                            $delivered = $order->quantity - ($order->external_remains ?? 0);
+                                                        }
+                                                    } elseif ($order->status === 'completed') {
+                                                        $delivered = $order->quantity;
+                                                    } else {
+                                                        $delivered = max(0, ($order->external_start_count ?? 0) - ($order->external_remains ?? 0));
+                                                    }
+                                                    $progress = $order->quantity > 0 ? min(100, ($delivered / $order->quantity) * 100) : 0;
+                                                @endphp
+                                                <div class="progress mb-2" style="height: 25px;">
+                                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ $progress }}%" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100">
+                                                        {{ number_format($progress, 1) }}%
+                                                    </div>
+                                                </div>
+                                                <p class="mb-2 small text-muted">
+                                                    {{ number_format($delivered) }} delivered of {{ number_format($order->quantity) }} ordered
+                                                </p>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                            
                             <!-- Product Information -->
                             <div class="card mb-4">
                                 <div class="card-header">

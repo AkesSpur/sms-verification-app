@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\SocialMediaCategory;
 use App\Models\SocialMediaProduct;
+use App\Services\OwletApiService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SocialMediaProductController extends Controller
@@ -154,6 +156,71 @@ class SocialMediaProductController extends Controller
     }
 
     /**
+     * Sync services from Owlet API
+     */
+    public function syncOwletServices()
+    {
+        try {
+            $owletService = new OwletApiService();
+            $services = $owletService->services();
+            
+            if (!$services || !isset($services['services'])) {
+                toastr('Failed to fetch services from Owlet API', 'error');
+                return redirect()->back();
+            }
+            
+            $syncedCount = 0;
+            $skippedCount = 0;
+            
+            foreach ($services['services'] as $service) {
+                // Check if product already exists with this external service ID
+                $existingProduct = SocialMediaProduct::where('external_service_id', $service['service'])->first();
+                
+                if ($existingProduct) {
+                    $skippedCount++;
+                    continue;
+                }
+                
+                // Try to find a suitable category or use the first one
+                $category = SocialMediaCategory::active()->first();
+                
+                if (!$category) {
+                    Log::warning('No active social media category found for Owlet service sync');
+                    continue;
+                }
+                
+                // Create new product
+                SocialMediaProduct::create([
+                    'category_id' => $category->id,
+                    'name' => $service['name'],
+                    'description' => $service['name'] . ' - Synced from Owlet API',
+                    'price_per_1000' => $service['rate'],
+                    'min_quantity' => $service['min'],
+                    'max_quantity' => $service['max'],
+                    'status' => true,
+                    'sort_order' => 0,
+                    'external_service_id' => $service['service']
+                ]);
+                
+                $syncedCount++;
+            }
+            
+            $message = "Synced {$syncedCount} new services";
+            if ($skippedCount > 0) {
+                $message .= ", skipped {$skippedCount} existing services";
+            }
+            
+            toastr($message, 'success');
+            
+        } catch (\Exception $e) {
+            Log::error('Owlet services sync failed: ' . $e->getMessage());
+            toastr('Failed to sync services: ' . $e->getMessage(), 'error');
+        }
+        
+        return redirect()->route('admin.social-media-products.index');
+    }
+
+    /**
      * Get products by category (AJAX)
      */
     public function getByCategory($categoryId)
@@ -164,5 +231,88 @@ class SocialMediaProductController extends Controller
             ->get(['id', 'name', 'price_per_1000', 'min_quantity', 'max_quantity', 'description']);
 
         return response()->json($products);
+    }
+
+    /**
+     * Bulk update prices
+     */
+    public function bulkUpdatePrices(Request $request)
+    {
+        $request->validate([
+            'action_type' => 'required|in:percentage,fixed',
+            'value' => 'required|numeric|min:0',
+            'product_ids' => 'required|array|min:1',
+            'product_ids.*' => 'exists:social_media_products,id'
+        ]);
+
+        try {
+            $actionType = $request->action_type;
+            $value = $request->value;
+            $productIds = $request->product_ids;
+
+            $products = SocialMediaProduct::whereIn('id', $productIds)->get();
+            $updatedCount = 0;
+
+            foreach ($products as $product) {
+                $oldPrice = $product->price_per_1000;
+                
+                if ($actionType === 'percentage') {
+                    // Increase by percentage
+                    $newPrice = $oldPrice * (1 + ($value / 100));
+                } else {
+                    // Set fixed price
+                    $newPrice = $value;
+                }
+
+                $product->update(['price_per_1000' => round($newPrice, 2)]);
+                $updatedCount++;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully updated prices for {$updatedCount} products.",
+                'updated_count' => $updatedCount
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update prices: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Bulk update status
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:0,1',
+            'product_ids' => 'required|array|min:1',
+            'product_ids.*' => 'exists:social_media_products,id'
+        ]);
+
+        try {
+            $status = $request->status;
+            $productIds = $request->product_ids;
+
+            $updatedCount = SocialMediaProduct::whereIn('id', $productIds)
+                ->update(['status' => $status]);
+
+            $statusText = $status == 1 ? 'activated' : 'deactivated';
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully {$statusText} {$updatedCount} products.",
+                'updated_count' => $updatedCount
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

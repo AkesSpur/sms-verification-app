@@ -15,6 +15,19 @@
                 <div class="card-header">
                     <h4>All Products</h4>
                     <div class="card-header-action">
+                        <button type="button" class="btn btn-info me-2" onclick="syncOwletServices()">
+                            <i class="fas fa-sync"></i> Sync Owlet Services
+                        </button>
+                        <div class="btn-group me-2" id="bulkActions" style="display: none;">
+                            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                                <i class="fas fa-edit"></i> Bulk Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showBulkPriceModal()"><i class="fas fa-dollar-sign"></i> Update Prices</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="bulkUpdateStatus(1)"><i class="fas fa-check"></i> Activate Selected</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="bulkUpdateStatus(0)"><i class="fas fa-times"></i> Deactivate Selected</a></li>
+                            </ul>
+                        </div>
                         <a href="{{ route('admin.social-media-products.create') }}" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Add New Product
                         </a>
@@ -50,6 +63,9 @@
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
+                                        <th width="3%">
+                                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                        </th>
                                         <th width="5%">#</th>
                                         <th width="20%">Product Name</th>
                                         <th width="15%">Category</th>
@@ -63,6 +79,9 @@
                                 <tbody>
                                     @foreach($products as $product)
                                         <tr>
+                                            <td>
+                                                <input type="checkbox" class="product-checkbox" value="{{ $product->id }}" onchange="toggleBulkActions()">
+                                            </td>
                                             <td>{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
                                             <td>
                                                 <strong>{{ $product->name }}</strong>
@@ -152,14 +171,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this product? This action cannot be undone.</p>
                 <p class="text-warning"><strong>Warning:</strong> All orders for this product will be affected.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <form id="deleteForm" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
@@ -169,15 +190,87 @@
         </div>
     </div>
 </div>
+
+<!-- Bulk Price Update Modal -->
+<div class="modal fade" id="bulkPriceModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Price Update</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="bulkPriceForm">
+                    <div class="mb-3">
+                        <label class="form-label">Update Type</label>
+                        <select class="form-control" id="priceActionType" onchange="togglePriceInputLabel()">
+                            <option value="percentage">Increase by Percentage</option>
+                            <option value="fixed">Set Fixed Price</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" id="priceValueLabel">Percentage Increase (%)</label>
+                        <input type="number" class="form-control" id="priceValue" min="0" step="0.01" required>
+                        <small class="form-text text-muted" id="priceHelpText">Enter the percentage to increase prices (e.g., 10 for 10% increase)</small>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Selected Products:</strong> <span id="selectedCount">0</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="executeBulkPriceUpdate()">Update Prices</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+function syncOwletServices() {
+    if (confirm('This will sync services from Owlet API and create new products. Continue?')) {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+        button.disabled = true;
+        
+        fetch('{{ route("admin.social-media-products.sync-owlet-services") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toastr.success(data.message);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                toastr.error(data.message || 'Failed to sync services');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('An error occurred while syncing services');
+        })
+        .finally(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+    }
+}
+
 function deleteProduct(productId) {
     const deleteForm = document.getElementById('deleteForm');
     deleteForm.action = `/admin/social-media-products/${productId}`;
-    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    modal.show();
+    $('#deleteModal').modal('show');
 }
 
 function filterByCategory() {
@@ -232,5 +325,157 @@ document.getElementById('searchInput').addEventListener('input', function() {
         updateFilters(category, status, search);
     }, 500);
 });
+
+// Bulk operations functions
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    toggleBulkActions();
+}
+
+function toggleBulkActions() {
+    const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+    const bulkActions = document.getElementById('bulkActions');
+    
+    if (checkboxes.length > 0) {
+        bulkActions.style.display = 'block';
+    } else {
+        bulkActions.style.display = 'none';
+    }
+    
+    // Update select all checkbox state
+    const allCheckboxes = document.querySelectorAll('.product-checkbox');
+    const selectAll = document.getElementById('selectAll');
+    selectAll.checked = checkboxes.length === allCheckboxes.length;
+}
+
+function getSelectedProductIds() {
+    const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function showBulkPriceModal() {
+    const selectedIds = getSelectedProductIds();
+    if (selectedIds.length === 0) {
+        toastr.warning('Please select at least one product');
+        return;
+    }
+    
+    document.getElementById('selectedCount').textContent = selectedIds.length;
+    $('#bulkPriceModal').modal('show');
+}
+
+function togglePriceInputLabel() {
+    const actionType = document.getElementById('priceActionType').value;
+    const label = document.getElementById('priceValueLabel');
+    const helpText = document.getElementById('priceHelpText');
+    const input = document.getElementById('priceValue');
+    
+    if (actionType === 'percentage') {
+        label.textContent = 'Percentage Increase (%)';
+        helpText.textContent = 'Enter the percentage to increase prices (e.g., 10 for 10% increase)';
+        input.placeholder = 'e.g., 10';
+    } else {
+        label.textContent = 'Fixed Price (₦)';
+        helpText.textContent = 'Enter the new fixed price for all selected products';
+        input.placeholder = 'e.g., 1000';
+    }
+    
+    input.value = '';
+}
+
+function executeBulkPriceUpdate() {
+    const selectedIds = getSelectedProductIds();
+    const actionType = document.getElementById('priceActionType').value;
+    const value = document.getElementById('priceValue').value;
+    
+    if (!value || value <= 0) {
+        toastr.error('Please enter a valid value');
+        return;
+    }
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    button.disabled = true;
+    
+    fetch('{{ route("admin.social-media-products.bulk-update-prices") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            action_type: actionType,
+            value: parseFloat(value),
+            product_ids: selectedIds
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            toastr.success(data.message);
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            toastr.error(data.message || 'Failed to update prices');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('An error occurred while updating prices');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        $('#bulkPriceModal').modal('hide');
+    });
+}
+
+function bulkUpdateStatus(status) {
+    const selectedIds = getSelectedProductIds();
+    if (selectedIds.length === 0) {
+        toastr.warning('Please select at least one product');
+        return;
+    }
+    
+    const statusText = status == 1 ? 'activate' : 'deactivate';
+    if (!confirm(`Are you sure you want to ${statusText} ${selectedIds.length} selected products?`)) {
+        return;
+    }
+    
+    fetch('{{ route("admin.social-media-products.bulk-update-status") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            status: status,
+            product_ids: selectedIds
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            toastr.success(data.message);
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            toastr.error(data.message || 'Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('An error occurred while updating status');
+    });
+}
 </script>
 @endpush

@@ -110,7 +110,7 @@
                                                                 <br>
                                                                 <small class="text-muted">{{ $product->orders_count ?? 0 }} orders</small>
                                                             </td>
-                                                            <td>${{ number_format($product->price_per_1000, 2) }}</td>
+                                                            <td>₦{{ number_format($product->price_per_1000, 2) }}</td>
                                                             <td>{{ number_format($product->min_quantity) }} - {{ number_format($product->max_quantity) }}</td>
                                                             <td>
                                                                 @if($product->status)
@@ -177,7 +177,7 @@
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <h4 class="text-warning">${{ number_format($socialMediaCategory->products->sum('revenue') ?? 0, 2) }}</h4>
+                                            <h4 class="text-warning">₦{{ number_format($socialMediaCategory->products->sum('revenue') ?? 0, 2) }}</h4>
                                             <small class="text-muted">Revenue</small>
                                         </div>
                                     </div>

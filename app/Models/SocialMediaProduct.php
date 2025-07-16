@@ -19,7 +19,8 @@ class SocialMediaProduct extends Model
         'min_quantity',
         'max_quantity',
         'status',
-        'sort_order'
+        'sort_order',
+        'external_service_id'
     ];
 
     protected $casts = [
@@ -28,7 +29,8 @@ class SocialMediaProduct extends Model
         'min_quantity' => 'integer',
         'max_quantity' => 'integer',
         'status' => 'boolean',
-        'sort_order' => 'integer'
+        'sort_order' => 'integer',
+        'external_service_id' => 'integer'
     ];
 
     /**

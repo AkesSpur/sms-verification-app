@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             TransactionSeeder::class,
             PaystackSeeder::class,
             LocalbankSeeder::class,
+            OwletServicesSeeder::class,
         ]);
 
         // Create a test user

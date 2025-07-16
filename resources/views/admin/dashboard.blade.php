@@ -57,13 +57,13 @@
                 </div>
             </div>
             
-            <!-- Pending Social Media Orders -->
+            <!-- Pending & Processing Social Media Orders -->
             <div class="col-lg-6 col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4><i class="fas fa-thumbs-up text-success"></i> Pending Social Media Orders</h4>
+                        <h4><i class="fas fa-thumbs-up text-success"></i> Pending & Processing Social Media Orders</h4>
                         <div class="card-header-action">
-                            <a href="{{ route('admin.social-media-orders.index', ['status' => 'pending']) }}" class="btn btn-primary">View All</a>
+                            <a href="{{ route('admin.social-media-orders.index') }}" class="btn btn-primary">View All</a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -77,6 +77,7 @@
                                             <th>Service</th>
                                             <th>Amount</th>
                                             <th>Status</th>
+                                            <th>Progress</th>
                                             <th>Date</th>
                                         </tr>
                                     </thead>
@@ -87,7 +88,42 @@
                                                 <td>{{ $order->user->name ?? 'Guest' }}</td>
                                                 <td>{{ $order->product->name ?? 'N/A' }}</td>
                                                 <td>₦{{ number_format($order->total_amount, 2) }}</td>
-                                                <td><span class="badge badge-warning">{{ ucfirst($order->status) }}</span></td>
+                                                <td>
+                                                    @if($order->status === 'pending')
+                                                        <span class="badge badge-warning">Pending</span>
+                                                    @elseif($order->status === 'processing')
+                                                        <span class="badge badge-info">Processing</span>
+                                                    @else
+                                                        <span class="badge badge-secondary">{{ ucfirst($order->status) }}</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($order->status === 'processing' && $order->external_order_id)
+                                                        @php
+                                                            // Calculate delivered quantity based on order status
+                                                            if ($order->status === 'processing') {
+                                                                if (($order->external_remains ?? 0) == 0) {
+                                                                    $delivered = 0;
+                                                                } else {
+                                                                    $delivered = $order->quantity - ($order->external_remains ?? 0);
+                                                                }
+                                                            } elseif ($order->status === 'completed') {
+                                                                $delivered = $order->quantity;
+                                                            } else {
+                                                                $delivered = max(0, ($order->external_start_count ?? 0) - ($order->external_remains ?? 0));
+                                                            }
+                                                            $progress = $order->quantity > 0 ? min(100, ($delivered / $order->quantity) * 100) : 0;
+                                                        @endphp
+                                                        <div class="progress" style="height: 20px;">
+                                                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ $progress }}%" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100">
+                                                                {{ number_format($progress, 1) }}%
+                                                            </div>
+                                                        </div>
+                                                        <small class="text-muted">{{ number_format($delivered) }}/{{ number_format($order->quantity) }}</small>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
                                                 <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
                                             </tr>
                                         @endforeach
@@ -97,7 +133,7 @@
                         @else
                             <div class="text-center py-4">
                                 <i class="fas fa-thumbs-up fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No pending social media orders</p>
+                                <p class="text-muted">No pending or processing social media orders</p>
                             </div>
                         @endif
                     </div>
@@ -259,6 +295,11 @@
                             </div>
                             <div class="card-body">
                                 {{ number_format($stats['social_pending_orders']) }}
+                                @if ($processingSocialOrders)
+                                <span class="text-small text-muted">
+                                 ({{$processingSocialOrders}} in process)
+                                </span>                                    
+                                @endif
                             </div>
                         </div>
                     </div>

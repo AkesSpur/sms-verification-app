@@ -201,10 +201,14 @@ class AdminController extends Controller
             ->get();
 
         $pendingSocialOrders = SocialMediaOrder::with(['user', 'product'])
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'processing'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
+         
+        // get the count of processing orders 
+        $processingSocialOrders = SocialMediaOrder::whereIn('status',['processing'])
+            ->count();
 
         return view('admin.dashboard',compact(
             'todaysOrders',
@@ -239,7 +243,8 @@ class AdminController extends Controller
             'popularDigitalProducts',
             'recentSocialPurchases',
             'pendingGiftOrders',
-            'pendingSocialOrders'
+            'pendingSocialOrders',
+            'processingSocialOrders'
         ));
     }
 

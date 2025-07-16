@@ -138,6 +138,9 @@ Route::post('sms-orders/{order}/remove-review', [SmsOrderController::class, 'rem
 /* Social Media Boosting Management Routes */
 Route::resource('social-media-categories', SocialMediaCategoryController::class);
 Route::get('social-media-products/by-category/{category}', [SocialMediaProductController::class, 'getByCategory'])->name('social-media-products.by-category');
+Route::post('social-media-products/sync-owlet-services', [SocialMediaProductController::class, 'syncOwletServices'])->name('social-media-products.sync-owlet-services');
+Route::post('social-media-products/bulk-update-prices', [SocialMediaProductController::class, 'bulkUpdatePrices'])->name('social-media-products.bulk-update-prices');
+Route::post('social-media-products/bulk-update-status', [SocialMediaProductController::class, 'bulkUpdateStatus'])->name('social-media-products.bulk-update-status');
 Route::resource('social-media-products', SocialMediaProductController::class);
 Route::get('social-media-orders/export', [SocialMediaOrderController::class, 'export'])->name('social-media-orders.export');
 Route::put('social-media-orders/{socialMediaOrder}/status', [SocialMediaOrderController::class, 'updateStatus'])->name('social-media-orders.update-status');

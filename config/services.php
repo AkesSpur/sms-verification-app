@@ -51,4 +51,10 @@ return [
         'retry_delay' => env('SMSPOOL_RETRY_DELAY', 1000), // milliseconds
     ],
 
+    'owlet' => [
+        'api_key' => env('OWLET_API_KEY'),
+        'base_url' => env('OWLET_BASE_URL', 'https://the-owlet.com/api/v2'),
+        'timeout' => env('OWLET_TIMEOUT', 30),
+    ],
+
 ];

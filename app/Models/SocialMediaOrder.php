@@ -22,7 +22,12 @@ class SocialMediaOrder extends Model
         'payment_status',
         'order_number',
         'admin_notes',
-        'purchased_at'
+        'purchased_at',
+        'external_order_id',
+        'external_status',
+        'external_start_count',
+        'external_remains',
+        'external_charge'
     ];
 
     protected $casts = [
@@ -31,7 +36,10 @@ class SocialMediaOrder extends Model
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
         'total_amount' => 'decimal:2',
-        'purchased_at' => 'datetime'
+        'purchased_at' => 'datetime',
+        'external_start_count' => 'integer',
+        'external_remains' => 'integer',
+        'external_charge' => 'decimal:2'
     ];
 
     /**
@@ -208,5 +216,74 @@ class SocialMediaOrder extends Model
             'cancelled' => 'bg-red-100 text-red-800',
             default => 'bg-gray-100 text-gray-800'
         };
+    }
+
+    /**
+     * Update order with external API response
+     */
+    public function updateFromExternalApi($apiResponse)
+    {
+        $updateData = [];
+        
+        if (isset($apiResponse['order'])) {
+            $updateData['external_order_id'] = $apiResponse['order'];
+        }
+        
+        if (isset($apiResponse['status'])) {
+            $updateData['external_status'] = $apiResponse['status'];
+            
+            // Map external status to internal status
+            $updateData['status'] = $this->mapExternalStatus($apiResponse['status']);
+        }
+        
+        if (isset($apiResponse['start_count'])) {
+            $updateData['external_start_count'] = $apiResponse['start_count'];
+        }
+        
+        if (isset($apiResponse['remains'])) {
+            $updateData['external_remains'] = $apiResponse['remains'];
+        }
+        
+        if (isset($apiResponse['charge'])) {
+            $updateData['external_charge'] = $apiResponse['charge'];
+        }
+        
+        $this->update($updateData);
+    }
+
+    /**
+     * Map external API status to internal status
+     */
+    private function mapExternalStatus($externalStatus)
+    {
+        return match(strtolower($externalStatus)) {
+            'pending' => 'pending',
+            'in progress', 'processing' => 'processing',
+            'completed', 'complete' => 'completed',
+            'cancelled', 'canceled' => 'cancelled',
+            'partial' => 'processing',
+            default => 'pending'
+        };
+    }
+
+    /**
+     * Check if order has external order ID
+     */
+    public function hasExternalOrder()
+    {
+        return !empty($this->external_order_id);
+    }
+
+    /**
+     * Get progress percentage based on external data
+     */
+    public function getProgressPercentage()
+    {
+        if (!$this->external_start_count || !$this->external_remains) {
+            return 0;
+        }
+        
+        $delivered = $this->external_start_count - $this->external_remains;
+        return min(100, max(0, ($delivered / $this->quantity) * 100));
     }
 }

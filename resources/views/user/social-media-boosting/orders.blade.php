@@ -128,6 +128,52 @@
                             </div>
                         </div>
 
+                        @if($order->hasExternalOrder() && ($order->status === 'processing' || $order->status === 'completed'))
+                            <!-- External Order Progress -->
+                            <div class="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-4 mb-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-sm font-semibold text-indigo-900">Order Progress</h4>
+                                 
+                                </div>
+                                
+                                @if($order->external_start_count && $order->external_remains !== null)
+                                    @php
+                                        // Calculate delivered based on order status and remains
+                                        if ($order->status === 'processing' && $order->external_remains == 0) {
+                                            $delivered = 0;
+                                        } elseif ($order->status === 'processing' && $order->external_remains > 0) {
+                                            $delivered = $order->quantity - $order->external_remains;
+                                        } elseif ($order->status === 'completed') {
+                                            $delivered = $order->quantity;
+                                        } else {
+                                            $delivered = $order->external_start_count - $order->external_remains;
+                                        }
+                                        $progress = min(100, max(0, ($delivered / $order->quantity) * 100));
+                                    @endphp
+                                    
+                                    <div class="grid grid-cols-2 gap-4 mb-3">
+                                     
+                                        <div class="text-center">
+                                            <div class="text-lg font-bold text-green-600">{{ number_format($delivered) }}</div>
+                                            <div class="text-xs text-green-600">Delivered</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-lg font-bold text-orange-600">{{ number_format($order->external_remains) }}</div>
+                                            <div class="text-xs text-orange-600">Remaining</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Progress Bar -->
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300" 
+                                             style="width: {{ $progress }}%"></div>
+                                    </div>
+                                    <div class="text-center text-sm text-indigo-700 font-medium">{{ number_format($progress, 1) }}% Complete</div>
+                                @endif
+                                
+                            </div>
+                        @endif
+
                         @if($order->admin_notes)
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                                 <div class="flex items-start">
@@ -173,6 +219,11 @@
                                         Cancelled
                                     </span>
                                 @endif
+                                <a href="{{ route('user.social-media-orders.show', $order) }}" 
+                                   class="inline-flex items-center px-3 py-1 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    View
+                                </a>
                             </div>
                         </div>
                     </div>

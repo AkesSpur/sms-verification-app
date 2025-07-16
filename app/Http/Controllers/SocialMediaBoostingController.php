@@ -7,6 +7,7 @@ use App\Models\SocialMediaProduct;
 use App\Models\SocialMediaOrder;
 use App\Models\GeneralSetting;
 use App\Models\Transaction;
+use App\Services\OwletApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -106,7 +107,7 @@ class SocialMediaBoostingController extends Controller
         DB::beginTransaction();
 
         try {
-            // Create the order
+            // Create the order first
             $order = SocialMediaOrder::create([
                 'user_id' => $user->id,
                 'product_id' => $product->id,
@@ -118,6 +119,31 @@ class SocialMediaBoostingController extends Controller
                 'payment_method' => 'wallet',
                 'payment_status' => 'paid'
             ]);
+
+            // Try to place order with Owlet API
+            $owletService = new OwletApiService();
+            $apiResponse = $owletService->placeOrder(
+                $product->external_service_id ?? $product->id, // Use external service ID if available
+                $request->social_media_link,
+                $quantity
+            );
+
+            if ($apiResponse && isset($apiResponse['order'])) {
+                // Update order with external API data
+                $order->updateFromExternalApi($apiResponse);
+                $orderStatus = 'processing'; // API order placed successfully
+                $successMessage = 'Order placed successfully! Your order is now being processed.';
+            } else {
+                // API failed, keep as manual processing
+                $orderStatus = 'pending';
+                $successMessage = 'Order placed successfully! Your order is now pending and will be processed by our team.';
+                Log::warning('Owlet API order placement failed for order: ' . $order->id, [
+                    'response' => $apiResponse
+                ]);
+            }
+
+            // Update order status
+            $order->update(['status' => $orderStatus]);
 
             // Deduct amount from user's wallet
             $user->decrement('balance', $totalAmount);
@@ -159,7 +185,7 @@ class SocialMediaBoostingController extends Controller
             DB::commit();
 
             return redirect()->route('user.social-media-orders.index')
-                ->with('success', 'Order placed successfully! Your order is now pending and will be processed by our team.');
+                ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollback();
