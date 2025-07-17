@@ -28,7 +28,7 @@
         }
     </style>
     
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20 rounded-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 rounded-lg">
     <!-- Flash Messages -->
     @if(session('success'))
         <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -55,7 +55,7 @@
     @endif
 
     <!-- Breadcrumb -->
-    <nav class="flex mb-6 mt-20 pt-20" aria-label="Breadcrumb">
+    <nav class="flex mb-6 mt-20 pt-10" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
             <li class="inline-flex items-center">
                 <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
