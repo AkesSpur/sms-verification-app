@@ -542,7 +542,7 @@
     <section id="secondary-nav" class="w-full secondary-nav-bg border-b border-gray-100 transition-all duration-300" data-aos="fade-down" data-aos-delay="200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-center py-2">
-                <div class="flex space-x-6">
+                <div class="flex space-x-6">                    
                     <!-- Gifts Link -->
                     <a href="{{ route('all-gifts') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
                         Gifts
@@ -552,6 +552,11 @@
                     <a href="{{ route('all-categories') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
                         All Logs
                     </a>
+                                        <!-- Services Link -->
+                    <a href="{{ route('services') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
+                        Account Boosting
+                    </a>
+
                 </div>
             </div>
         </div>
@@ -622,12 +627,12 @@
                     </div>
                     
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-medium text-gray-900 mb-6 leading-tight">
-                        SMS Verification, VPN Access &
-                        <span class="block gradient-text">Premium Gifts</span>
+                        Complete Digital Solutions &
+                        <span class="block gradient-text">Premium Services</span>
                     </h1>
                     <p class="text-xl md:text-2xl text-gray-600 mb-6 max-w-2xl mx-auto lg:mx-0">
-                        Get instant SMS verification, secure VPN logins, and premium gifts delivered worldwide. 
-                        <span class="text-slate-700 font-semibold">All-in-one digital marketplace</span> for your needs.
+                        Get instant SMS verification, boost your social media presence, secure VPN logins, and premium gifts delivered worldwide. 
+                        <span class="text-slate-700 font-semibold">Complete digital marketplace</span> for all your needs.
                     </p>
                     
                     <!-- Trust Indicators -->
@@ -639,6 +644,10 @@
                         <div class="trust-indicator">
                             <i class="fas fa-clock"></i>
                             <span>Instant Delivery</span>
+                        </div>
+                        <div class="trust-indicator">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Account Boosting</span>
                         </div>
                         <div class="trust-indicator">
                             <i class="fas fa-gift"></i>
@@ -772,6 +781,35 @@
                                     <animate attributeName="cy" values="8;25;8" dur="2.8s" repeatCount="indefinite"/>
                                 </circle>
                             </svg>
+                        </div>
+                        
+                        <!-- Floating Social Media Icons -->
+                        <div class="absolute top-8 right-32 z-30">
+                            <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fab fa-instagram text-white text-lg"></i>
+                                <animateTransform attributeName="transform" type="translate" values="0,0; 0,-8; 0,0" dur="3s" repeatCount="indefinite"/>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute top-24 right-16 z-30">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fab fa-facebook-f text-white text-sm"></i>
+                                <animateTransform attributeName="transform" type="translate" values="0,0; 0,-6; 0,0" dur="2.5s" repeatCount="indefinite"/>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute top-40 right-24 z-30">
+                            <div class="w-9 h-9 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fab fa-youtube text-white text-sm"></i>
+                                <animateTransform attributeName="transform" type="translate" values="0,0; 0,-7; 0,0" dur="3.5s" repeatCount="indefinite"/>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute top-56 right-8 z-30">
+                            <div class="w-7 h-7 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fab fa-twitter text-white text-xs"></i>
+                                <animateTransform attributeName="transform" type="translate" values="0,0; 0,-5; 0,0" dur="2.8s" repeatCount="indefinite"/>
+                            </div>
                         </div>
                         
                         <!-- VPN Shield Illustration -->
@@ -1392,6 +1430,125 @@
             </div>
 
 
+        </div>
+    </section>
+
+    <!-- Social Media Boosting Section-->
+    <section id="social-media-boosting" class="py-20 bg-gradient-to-br from-purple-50 to-pink-50 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-white via-purple-50 to-white opacity-60"></div>
+        
+        <!-- Celebration Background Elements -->
+        <div class="absolute inset-0 pointer-events-none">
+            <!-- Floating Social Media Icons -->
+            <div class="absolute top-20 left-10 gift-bounce" style="animation-delay: 0s;">
+                <svg class="w-8 h-8 text-pink-300" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.347-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
+                </svg>
+            </div>
+            <div class="absolute top-32 right-16 gift-bounce" style="animation-delay: 1s;">
+                <svg class="w-6 h-6 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                </svg>
+            </div>
+            <div class="absolute bottom-20 left-1/4 gift-bounce" style="animation-delay: 2s;">
+                <svg class="w-7 h-7 text-purple-300" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+            </div>
+            
+            <!-- Sparkle Elements -->
+            <div class="absolute top-16 right-1/3 celebration-sparkle">
+                <div class="w-3 h-3 bg-pink-400 rounded-full"></div>
+            </div>
+            <div class="absolute bottom-32 right-20 celebration-sparkle" style="animation-delay: 1.5s;">
+                <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+            </div>
+            <div class="absolute top-1/2 left-16 celebration-sparkle" style="animation-delay: 0.8s;">
+                <div class="w-4 h-4 bg-blue-400 rounded-full"></div>
+            </div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <span class="premium-badge mb-6">
+                    <i class="fas fa-chart-line"></i>
+                    Social Media Growth
+                </span>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Boost Your <span class="gradient-text">Social Media</span></h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Grow your social media presence with our professional boosting services for all major platforms
+                </p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale p-6 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fab fa-instagram text-2xl text-pink-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Instagram Growth</h3>
+                    <p class="text-gray-600 text-sm">Increase followers, likes, views, and engagement on your Instagram posts and stories</p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale p-6 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fab fa-facebook text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Facebook Boost</h3>
+                    <p class="text-gray-600 text-sm">Boost your Facebook page likes, post engagement, and reach more potential customers</p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale p-6 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fab fa-youtube text-2xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">YouTube Growth</h3>
+                    <p class="text-gray-600 text-sm">Grow your YouTube channel with more subscribers, views, and engagement on your videos</p>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="text-center bg-white rounded-xl shadow-lg p-8" data-aos="fade-up" data-aos-delay="300">
+                <div class="mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-3xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Boost Your Social Media Presence</h3>
+                    <p class="text-gray-600 mb-6">Enhance your social media accounts with our premium boosting services - followers, likes, views, and engagement across all major platforms</p>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="{{ route('services') }}" class="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-8 py-4 rounded-lg font-semibold transition-all hover-scale shadow-lg">
+                        <i class="fas fa-chart-line mr-2"></i>Start Boosting Now
+                    </a>
+                    
+                    @auth
+                    <div class="flex items-center text-green-600">
+                        <i class="fas fa-wallet mr-2"></i>
+                        <span class="text-sm font-medium">Balance: ₦{{ number_format(auth()->user()->balance, 0) }}</span>
+                    </div>
+                    @endauth
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="text-sm">
+                        <div class="font-semibold text-gray-900">Fast Delivery</div>
+                        <div class="text-gray-500">Quick results</div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-semibold text-gray-900">Safe & Secure</div>
+                        <div class="text-gray-500">Platform compliant</div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-semibold text-gray-900">24/7 Support</div>
+                        <div class="text-gray-500">Always available</div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-semibold text-gray-900">Best Prices</div>
+                        <div class="text-gray-500">Competitive rates</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 

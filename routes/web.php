@@ -14,6 +14,7 @@ use App\Http\Controllers\SocialMediaBoostingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/account-boosting', [SocialMediaBoostingController::class, 'services'])->name('services');
 Route::get('/checkout', [HomeController::class, 'checkout'])->name('checkout');
 Route::get('/product/{slug}', [HomeController::class, 'showProduct'])->name('product.show');
 Route::get('/all-categories', [HomeController::class, 'allCategories'])->name('all-categories');

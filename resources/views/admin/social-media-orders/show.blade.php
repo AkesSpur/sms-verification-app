@@ -159,7 +159,7 @@
                                             @if($order->external_charge)
                                             <div class="form-group">
                                                 <label class="font-weight-bold">External Charge:</label>
-                                                <p class="mb-2">${{ number_format($order->external_charge, 4) }}</p>
+                                                <p class="mb-2">₦{{ number_format($order->external_charge, 2) }}</p>
                                             </div>
                                             @endif
                                             

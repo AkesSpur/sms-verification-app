@@ -33,6 +33,16 @@ class SocialMediaBoostingController extends Controller
     }
 
     /**
+     * Display services page with social media boosting categories.
+     */
+    public function services()
+    {
+        $categories = SocialMediaCategory::active()->ordered()->with('activeProducts')->get();
+        
+        return view('services', compact('categories'));
+    }
+
+    /**
      * Display products for a specific category.
      */
     public function category($slug)
@@ -101,6 +111,12 @@ class SocialMediaBoostingController extends Controller
 
         // Check if user has sufficient balance
         if ($user->balance < $totalAmount) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Insufficient wallet balance. Please top up your wallet.'
+                ], 400);
+            }
             return redirect()->back()->with('error', 'Insufficient wallet balance. Please top up your wallet.');
         }
 
@@ -184,12 +200,28 @@ class SocialMediaBoostingController extends Controller
 
             DB::commit();
 
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'order_id' => $order->id,
+                    'new_balance' => $user->fresh()->balance
+                ]);
+            }
+
             return redirect()->route('user.social-media-orders.index')
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Social Media Order Creation Failed: ' . $e->getMessage());
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to process your order. Please try again.'
+                ], 500);
+            }
 
             return redirect()->back()->with('error', 'Failed to process your order. Please try again.');
         }
