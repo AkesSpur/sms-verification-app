@@ -122,8 +122,12 @@ class SyncMultipleOwletOrders extends Command
                         } else {
                             $statusResponse = $owletService->getOrderStatus($order->external_order_id);
                             
-                            if ($statusResponse && isset($statusResponse['order'])) {
+                            if ($statusResponse && isset($statusResponse['status'])) {
                                 $oldStatus = $order->status;
+                                
+                                // Add the external order ID to the response for updateFromExternalApi method
+                                $statusResponse['order'] = $order->external_order_id;
+                                
                                 $order->updateFromExternalApi($statusResponse);
                                 
                                 if ($oldStatus !== $order->status) {
@@ -135,6 +139,12 @@ class SyncMultipleOwletOrders extends Command
                                 $batchSynced++;
                             } else {
                                 $this->warn("  Failed to get status for order #{$order->id}");
+                                Log::warning('Owlet API response missing status in batch sync', [
+                                    'order_id' => $order->id,
+                                    'external_order_id' => $order->external_order_id,
+                                    'response' => $statusResponse,
+                                    'batch' => $batchCount
+                                ]);
                                 $batchErrors++;
                             }
                         }

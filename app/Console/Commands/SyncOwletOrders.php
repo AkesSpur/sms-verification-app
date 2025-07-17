@@ -55,8 +55,12 @@ class SyncOwletOrders extends Command
                 
                 $statusResponse = $owletService->getOrderStatus($order->external_order_id);
                 
-                if ($statusResponse && isset($statusResponse['order'])) {
+                if ($statusResponse && isset($statusResponse['status'])) {
                     $oldStatus = $order->status;
+                    
+                    // Add the external order ID to the response for updateFromExternalApi method
+                    $statusResponse['order'] = $order->external_order_id;
+                    
                     $order->updateFromExternalApi($statusResponse);
                     
                     if ($oldStatus !== $order->status) {
@@ -68,6 +72,11 @@ class SyncOwletOrders extends Command
                     $syncedCount++;
                 } else {
                     $this->warn("  Failed to get status for order #{$order->id}");
+                    Log::warning('Owlet API response missing status', [
+                        'order_id' => $order->id,
+                        'external_order_id' => $order->external_order_id,
+                        'response' => $statusResponse
+                    ]);
                     $errorCount++;
                 }
                 
