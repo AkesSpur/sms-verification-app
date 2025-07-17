@@ -55,7 +55,7 @@
     @endif
 
     <!-- Breadcrumb -->
-    <nav class="flex mb-6 mt-20 pt-10" aria-label="Breadcrumb">
+    <nav class="flex mb-6 mt-20 pt-10" aria-label="Breadcrumb" data-aos="fade-down" data-aos-delay="100">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
             <li class="inline-flex items-center">
                 <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
@@ -77,15 +77,16 @@
     </nav>
 
     <!-- Header -->
-    <div class="mb-8">
+    <div class="mb-8" data-aos="fade-up" data-aos-delay="200">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Social Media Boosting Services</h1>
-                <p class="text-gray-600">Boost your social media presence with our premium account boosting services</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2" data-aos="fade-right" data-aos-delay="300">Social Media Boosting Services</h1>
+                <p class="text-gray-600" data-aos="fade-right" data-aos-delay="400">Boost your social media presence with our premium account boosting services</p>
             </div>
             @auth
                 <a href="{{ route('user.social-media-orders.index') }}" 
-                   class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors relative">
+                   class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors relative"
+                   data-aos="fade-left" data-aos-delay="500">
                     <i class="fas fa-list mr-2"></i>
                     My Orders
                 </a>
@@ -94,13 +95,13 @@
     </div>
 
     @if(isset($categories) && $categories->count() > 0)
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" data-aos="fade-up" data-aos-delay="600">
             <!-- Product Selection -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 ">Select Service</h2>
+            <div class="bg-white rounded-lg shadow-md p-6" data-aos="fade-right" data-aos-delay="700">
+                <h2 class="text-xl font-bold text-gray-900 mb-6" data-aos="fade-down" data-aos-delay="800">Select Service</h2>
                 
                 <!-- Category Selection -->
-                <div class="mb-6">
+                <div class="mb-6" data-aos="fade-up" data-aos-delay="900">
                     <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
                         Category <span class="text-red-500">*</span>
                     </label>
@@ -115,7 +116,7 @@
                 </div>
 
                 <!-- Product Selection -->
-                <div class="mb-6">
+                <div class="mb-6" data-aos="fade-up" data-aos-delay="1000">
                     <label for="product" class="block text-sm font-medium text-gray-700 mb-2">
                         Product <span class="text-red-500">*</span>
                     </label>
@@ -125,7 +126,7 @@
                 </div>
 
                 <!-- Product Details -->
-                <div id="productDetails" class="hidden mb-6 p-4 bg-gray-50 rounded-lg">
+                <div id="productDetails" class="hidden mb-6 p-4 bg-gray-50 rounded-lg" data-aos="fade-up" data-aos-delay="1100">
                     <h3 class="text-sm font-medium text-gray-900 mb-3">Product Details</h3>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
@@ -149,15 +150,15 @@
             </div>
 
             <!-- Order Form -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Place Your Order</h2>
+            <div class="bg-white rounded-lg shadow-md p-6" data-aos="fade-left" data-aos-delay="700">
+                <h2 class="text-xl font-bold text-gray-900 mb-6" data-aos="fade-down" data-aos-delay="800">Place Your Order</h2>
                 
                 <form id="orderForm" style="display: none;">
                     @csrf
                     <input type="hidden" id="selectedProductId" name="product_id">
                     
                     <!-- Social Media Link -->
-                    <div class="mb-6">
+                    <div class="mb-6" data-aos="fade-up" data-aos-delay="900">
                         <label for="social_media_link" class="block text-sm font-medium text-gray-700 mb-2">
                             Social Media Account Link <span class="text-red-500">*</span>
                         </label>
@@ -171,7 +172,7 @@
                     </div>
 
                     <!-- Quantity -->
-                    <div class="mb-6">
+                    <div class="mb-6" data-aos="fade-up" data-aos-delay="1000">
                         <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
                             Quantity <span class="text-red-500">*</span>
                         </label>
@@ -187,7 +188,7 @@
                     </div>
 
                     <!-- Price Calculator -->
-                    <div class="mb-6 bg-gray-50 rounded-lg p-4">
+                    <div class="mb-6 bg-gray-50 rounded-lg p-4" data-aos="fade-up" data-aos-delay="1100">
                         <h3 class="text-lg font-semibold text-gray-900 mb-3">Order Summary</h3>
                         <div class="space-y-2">
                             <div class="flex justify-between text-sm">
@@ -208,7 +209,7 @@
 
                     @auth
                         <!-- Wallet Balance -->
-                        <div class="mb-6 bg-green-50 rounded-lg p-4">
+                        <div class="mb-6 bg-green-50 rounded-lg p-4" data-aos="fade-up" data-aos-delay="1200">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <i class="fas fa-wallet text-green-600 mr-2"></i>
@@ -221,7 +222,8 @@
                         <!-- Submit Button -->
                         <button type="submit" 
                                 id="submitBtn"
-                                class="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-8 py-4 rounded-lg font-semibold transition-all hover-scale shadow-lg duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                class="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-8 py-4 rounded-lg font-semibold transition-all hover-scale shadow-lg duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                data-aos="zoom-in" data-aos-delay="1300">
                             <i class="fas fa-shopping-cart mr-2"></i>
                             Place Order
                         </button>
@@ -278,10 +280,10 @@
                 Join thousands of satisfied customers and start using our premium digital services today
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center" data-aos="fade-up" data-aos-delay="400">
-                <a href="{{ route('register') }}" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-all">
+                <a href="{{ route('register') }}" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-8 py-4 rounded-lg font-semibold transition-all hover-scale shadow-lg">
                     <i class="fas fa-user-plus mr-2"></i>Create Account
                 </a>
-                <a href="{{ route('login') }}" class="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-all">
+                <a href="{{ route('login') }}" class="border-2 border-slate-900 text-black-600 px-8 py-4 rounded-lg font-semibold hover:bg-slate-900 hover:text-white transition-all">
                     <i class="fas fa-sign-in-alt mr-2"></i>Login
                 </a>
             </div>

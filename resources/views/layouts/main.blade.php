@@ -217,7 +217,7 @@
 
 
     <!-- Footer -->
-<footer class="bg-white py-12 border-t border-gray-100 mt-auto">
+<footer class="bg-white py-12 border-t border-gray-100 mt-auto" data-aos="fade-up" data-aos-delay="200">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-center">
             <!-- Logo and Company Name -->
