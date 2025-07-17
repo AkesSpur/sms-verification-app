@@ -175,7 +175,7 @@ class SocialMediaBoostingController extends Controller
 
                 try {
                     Mail::to($settings->contact_email)->queue(
-                        new SaleNotificationMail('social_media', $saleData, $totalAmount)
+                        new SaleNotificationMail('social_media', $saleData, $totalAmount, $settings->site_name ?? 'Admin')
                     );
                 } catch (\Exception $e) {
                     Log::error('Failed to send social media sale notification email: ' . $e->getMessage());

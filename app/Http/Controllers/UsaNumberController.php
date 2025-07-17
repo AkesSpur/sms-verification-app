@@ -981,7 +981,7 @@ class UsaNumberController extends Controller
             $settings = GeneralSetting::first();
 
             Mail::to($settings->contact_email)
-                 ->queue(new SaleNotificationMail('usa_sms', $saleData, $saleData['price']));
+                 ->queue(new SaleNotificationMail('usa_sms', $saleData, $saleData['price'], $settings->site_name ?? 'Admin'));
 
         } catch (\Exception $e) {
             Log::error('Failed to send sales notification email for USA order ' . $order->id . ': ' . $e->getMessage());

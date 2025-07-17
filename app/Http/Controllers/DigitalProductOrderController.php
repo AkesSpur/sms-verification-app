@@ -160,7 +160,7 @@ class DigitalProductOrderController extends Controller
                         $settings = GeneralSetting::first();
 
                         Mail::to($settings->contact_email)->queue(
-                            new SaleNotificationMail('digital_product', $saleData, $amount)
+                            new SaleNotificationMail('digital_product', $saleData, $amount, $settings->site_name ?? 'Admin')
                         );
                     }
                 } catch (\Exception $e) {

@@ -186,7 +186,7 @@
                     <span class="label">Customer:</span> {{ $product['customer_name'] }}
                 </div>
                 <div class="product-detail">
-                    <span class="label">Price:</span> {{$saleData['settings']->currency_icon}}{{ number_format($product['price'], 2) }}
+                    <span class="label">Price:</span> {{ $settings->currency_icon ?? '₦' }}{{ number_format($product['price'], 2) }}
                 </div>
             </div>
             @endforeach

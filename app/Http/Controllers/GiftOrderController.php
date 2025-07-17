@@ -166,7 +166,7 @@ class GiftOrderController extends Controller
                         $settings = GeneralSetting::first();
 
                         Mail::to($settings->contact_email)->queue(
-                            new SaleNotificationMail('gift', $saleData, $saleData['price'])
+                            new SaleNotificationMail('gift', $saleData, $saleData['price'], $settings->site_name ?? 'Admin')
                         );
                     }
                 } catch (\Exception $e) {
