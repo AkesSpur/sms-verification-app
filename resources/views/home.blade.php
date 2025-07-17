@@ -1518,7 +1518,7 @@
                 </div>
                 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <a href="{{ route('services') }}" class="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-8 py-4 rounded-lg font-semibold transition-all hover-scale shadow-lg">
+                    <a href="{{ route('services') }}" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-8 py-4 rounded-lg font-semibold transition-all hover-scale shadow-lg">
                         <i class="fas fa-chart-line mr-2"></i>Start Boosting Now
                     </a>
                     
