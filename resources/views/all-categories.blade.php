@@ -86,16 +86,15 @@
                     <p class="text-gray-600">{{ $category->description ?? 'Digital Logs for ' . strtolower($category->name) }}</p>
                 </div>
                 
-                <!-- Initial 8 subcategories -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="subcategories-grid-{{ $index }}">
+                <!-- All subcategories -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     @php
                         $activeSubcategories = $category->activeSubcategories->filter(function($subcategory) {
                             return $subcategory->activeProducts->count() > 0;
                         });
-                        $totalSubcategories = $activeSubcategories->count();
                     @endphp
                     
-                    @foreach($activeSubcategories->take(8) as $subcategory)
+                    @foreach($activeSubcategories as $subcategory)
                         <!-- {{ $subcategory->name }} -->
                         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
                             <div class="p-6 text-center">
@@ -116,39 +115,6 @@
                         </div>
                     @endforeach
                 </div>
-                
-                <!-- Hidden additional subcategories -->
-                @if($totalSubcategories > 8)
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6 hidden" id="additional-subcategories-{{ $index }}">
-                    @foreach($activeSubcategories->skip(8) as $subcategory)
-                        <!-- {{ $subcategory->name }} Gift Card -->
-                        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover-scale cursor-pointer group" onclick="openProductModal('{{ $subcategory->name }}', {{ $subcategory->id }})">
-                            <div class="p-6 text-center">
-                                <div class="w-20 h-20 mx-auto mb-4 rounded-xl overflow-hidden group-hover:scale-110 transition-transform">
-                                    @if($subcategory->image)
-                                        <img src="{{ asset( $subcategory->image) }}" alt="{{ $subcategory->name }}" class="w-full h-full object-contain">
-                                    @else
-                                        <div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                            <span class="text-white font-bold text-lg">{{ substr($subcategory->name, 0, 2) }}</span>
-                                        </div>
-                                    @endif
-                                </div>
-                                <h4 class="font-bold text-gray-900 mb-2">{{ $subcategory->name }}</h4>
-                                <div class="text-xs text-green-600 font-semibold">
-                                    <i class="fas fa-check-circle mr-1"></i>Instant Delivery
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-                
-                <!-- View More/Less Button -->
-                <div class="text-center mt-8">
-                    <button id="toggle-button-{{ $index }}" onclick="toggleSubcategories({{ $index }})" class="bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-6 py-3 rounded-lg font-semibold transition-all hover-scale shadow-lg">
-                        <i class="fas fa-chevron-down mr-2" id="toggle-icon-{{ $index }}"></i>View More ({{ $totalSubcategories - 8 }} more)
-                    </button>
-                </div>
-                @endif
             </div>
             @endforeach
 
@@ -286,23 +252,23 @@
         });
         
         // Toggle subcategories visibility
-        function toggleSubcategories(categoryIndex) {
-            const additionalSubcategories = document.getElementById(`additional-subcategories-${categoryIndex}`);
-            const toggleButton = document.getElementById(`toggle-button-${categoryIndex}`);
-            const toggleIcon = document.getElementById(`toggle-icon-${categoryIndex}`);
+        // function toggleSubcategories(categoryIndex) {
+        //     const additionalSubcategories = document.getElementById(`additional-subcategories-${categoryIndex}`);
+        //     const toggleButton = document.getElementById(`toggle-button-${categoryIndex}`);
+        //     const toggleIcon = document.getElementById(`toggle-icon-${categoryIndex}`);
             
-            if (additionalSubcategories.classList.contains('hidden')) {
-                // Show additional subcategories
-                additionalSubcategories.classList.remove('hidden');
-                toggleButton.innerHTML = '<i class="fas fa-chevron-up mr-2"></i>View Less';
-            } else {
-                // Hide additional subcategories
-                additionalSubcategories.classList.add('hidden');
-                const totalSubcategories = additionalSubcategories.children.length + 8;
-                const remainingCount = totalSubcategories - 8;
-                toggleButton.innerHTML = `<i class="fas fa-chevron-down mr-2"></i>View More (${remainingCount} more)`;
-            }
-        }
+        //     if (additionalSubcategories.classList.contains('hidden')) {
+        //         // Show additional subcategories
+        //         additionalSubcategories.classList.remove('hidden');
+        //         toggleButton.innerHTML = '<i class="fas fa-chevron-up mr-2"></i>View Less';
+        //     } else {
+        //         // Hide additional subcategories
+        //         additionalSubcategories.classList.add('hidden');
+        //         const totalSubcategories = additionalSubcategories.children.length + 8;
+        //         const remainingCount = totalSubcategories - 8;
+        //         toggleButton.innerHTML = `<i class="fas fa-chevron-down mr-2"></i>View More (${remainingCount} more)`;
+        //     }
+        // }
         
         // Carousel functionality
         @if($banners->count() > 0)
