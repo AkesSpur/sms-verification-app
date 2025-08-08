@@ -192,11 +192,11 @@
     </div>
 
     <!-- Contact Support Icons -->
-    <div class="fixed bottom-4 left-4 z-50 flex flex-col space-y-3 md:hidden">
+    <div class="fixed bottom-4 left-4 z-50 flex flex-col space-y-3">
         @if($settings->whatsapp_support_link)
         <!-- WhatsApp -->
         <a href="{{ $settings->whatsapp_support_link }}" target="_blank" 
-           class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 group">
+           class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 group  md:hidden">
             <i class="fab fa-whatsapp text-xl"></i>
             <span class="absolute left-full ml-3 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">WhatsApp Support</span>
         </a>
