@@ -192,7 +192,7 @@
     </div>
 
     <!-- Contact Support Icons -->
-    <div class="fixed bottom-4 left-4 z-50 flex flex-col space-y-3">
+    <div class="fixed bottom-4 left-4 z-50 flex flex-col space-y-3 md:hidden">
         @if($settings->whatsapp_support_link)
         <!-- WhatsApp -->
         <a href="{{ $settings->whatsapp_support_link }}" target="_blank" 
