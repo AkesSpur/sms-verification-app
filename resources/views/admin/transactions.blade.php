@@ -350,13 +350,10 @@
     }
 
     function updatePagination(response) {
-        const pagination = $('#transactionPagination');
-        const info = $('#transactionInfo');
+        const pagination = $('#paginationContainer');
         
-        // Update info
-        const start = (response.current_page - 1) * response.per_page + 1;
-        const end = Math.min(response.current_page * response.per_page, response.total);
-        info.text(`Showing ${start} to ${end} of ${response.total} entries`);
+        // Update transaction count
+        $('#transactionCount').text(response.total);
         
         // Update pagination
         pagination.empty();
