@@ -382,20 +382,25 @@ class DaisyOrderController extends Controller
             return;
         }
 
-        // Create refund transaction
-        $order->user->transactions()->create([
-            'type' => 'credit',
-            'amount' => $order->price,
-            'description' => "Refund for cancelled Daisy SMS order #{$order->id}",
-            'reference' => 'REFUND_' . $order->trx,
-            'status' => 'completed',
-            'metadata' => [
-                'original_order_id' => $order->id,
-                'reason' => $reason
-            ]
-        ]);
+        // Add balance and create transaction using the proper transaction system
+        $order->user->addBalance(
+            $order->price,
+            'daisy_refund',
+            "Refund for cancelled Daisy SMS order #{$order->id}",
+            'REFUND_' . $order->trx,
+            auth()->user() // Admin who processed the refund
+        );
 
-        // Update user balance
-        $order->user->increment('balance', $order->price);
+        // Store additional metadata in the transaction
+        $transaction = $order->user->transactions()->latest()->first();
+        if ($transaction) {
+            $transaction->update([
+                'metadata' => array_merge($transaction->metadata ?? [], [
+                    'original_order_id' => $order->id,
+                    'reason' => $reason,
+                    'refund_type' => 'daisy_order_cancellation'
+                ])
+            ]);
+        }
     }
 }

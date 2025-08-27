@@ -23,7 +23,7 @@
                                 <h4>Pending Orders</h4>
                             </div>
                             <div class="card-body">
-                                {{ $stats['pending'] ?? 0 }}
+                                {{ $stats['pending_orders'] ?? 0 }}
                             </div>
                         </div>
                     </div>
@@ -38,7 +38,7 @@
                                 <h4>Active Orders</h4>
                             </div>
                             <div class="card-body">
-                                {{ $stats['active'] ?? 0 }}
+                                {{ $stats['active_orders'] ?? 0 }}
                             </div>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                                 <h4>Completed Orders</h4>
                             </div>
                             <div class="card-body">
-                                {{ $stats['completed'] ?? 0 }}
+                                {{ $stats['completed_orders'] ?? 0 }}
                             </div>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                                 <h4>Total Revenue (NGN)</h4>
                             </div>
                             <div class="card-body">
-                                ₦{{ number_format($stats['total_revenue'] ?? 0, 2) }}
+                                ₦{{ number_format($stats['total_spent'] ?? 0, 2) }}
                             </div>
                         </div>
                     </div>
