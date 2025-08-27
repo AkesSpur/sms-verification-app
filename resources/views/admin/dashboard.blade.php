@@ -141,6 +141,65 @@
             </div>
         </div>
         
+        {{-- <!-- Pending Daisy Orders -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-flower text-info"></i> Pending & Processing Daisy Orders</h4>
+                        <div class="card-header-action">
+                            <a href="#" class="btn btn-primary">View All</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if($pendingDaisyOrders->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>User</th>
+                                            <th>Service</th>
+                                            <th>Phone</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pendingDaisyOrders as $order)
+                                            <tr>
+                                                <td>#{{ $order->id }}</td>
+                                                <td>{{ $order->user->name ?? 'Guest' }}</td>
+                                                <td>{{ $order->service->name ?? 'N/A' }}</td>
+                                                <td>{{ $order->phone ?? 'N/A' }}</td>
+                                                <td>₦{{ number_format($order->price, 2) }}</td>
+                                                <td>
+                                                    @if($order->status === 'pending')
+                                                        <span class="badge badge-warning">Pending</span>
+                                                    @elseif($order->status === 'processing')
+                                                        <span class="badge badge-info">Processing</span>
+                                                    @else
+                                                        <span class="badge badge-secondary">{{ ucfirst($order->status) }}</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-flower fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No pending or processing Daisy orders</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+         --}}
            <!-- Gift Orders Statistics -->
            <div class="row">
             <div class="col-12">
@@ -337,6 +396,78 @@
             </div>
         </div>
 
+        <!-- Daisy Orders Statistics -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="mb-3"><i class="fas fa-flower"></i> Daisy Orders</h5>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-primary">
+                        <i class="fas fa-flower"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Daisy Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['daisy_total_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Pending Daisy Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['daisy_pending_orders']) }}
+                            @if ($processingDaisyOrders)
+                            <span class="text-small text-muted">
+                             ({{$processingDaisyOrders}} in process)
+                            </span>                                    
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Completed</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['daisy_completed_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-info">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Daisy Revenue</h4>
+                        </div>
+                        <div class="card-body">
+                            ₦{{ number_format($stats['daisy_total_revenue']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Transaction Statistics -->
         <div class="row">
             <div class="col-12">
@@ -515,6 +646,65 @@
                 </div>
             </div>
         </div>
+
+        {{-- <!-- Recent Daisy Orders -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-phone"></i> Recent Daisy Orders (Last 24 Hours)</h4>
+                    </div>
+                    <div class="card-body">
+                        @if($recentDaisyOrders->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Name</th>
+                                            <th>Customer</th>
+                                            <th>Phone Number</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Order Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recentDaisyOrders as $order)
+                                            <tr>
+                                                <td>{{ $order->service->name ?? 'N/A' }}</td>
+                                                <td>{{ $order->user->name ?? 'Guest' }}</td>
+                                                <td>{{ $order->phone_number ?? 'N/A' }}</td>
+                                                <td>₦{{ number_format($order->amount, 2) }}</td>
+                                                <td>
+                                                    @if($order->status == 'completed')
+                                                        <span class="badge badge-success">Completed</span>
+                                                    @elseif($order->status == 'pending')
+                                                        <span class="badge badge-warning">Pending</span>
+                                                    @elseif($order->status == 'processing')
+                                                        <span class="badge badge-info">Processing</span>
+                                                    @elseif($order->status == 'cancelled')
+                                                        <span class="badge badge-secondary">Cancelled</span>
+                                                    @else
+                                                        <span class="badge badge-danger">{{ ucfirst($order->status) }}</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-phone fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No Daisy orders in the last 24 hours</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div> --}}
+
 
         <!-- Revenue Statistics -->
         <div class="row">
@@ -707,6 +897,40 @@
                             <div class="col-6">
                                 <div class="text-muted">All Time</div>
                                 <div class="font-weight-bold text-dark">₦{{ number_format($stats['social_total_revenue']) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Second Row for Daisy Revenue -->
+        <div class="row mt-3">
+            <!-- Daisy Orders Revenue -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-flower text-info"></i> Daisy Orders Revenue</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-muted">Today</div>
+                                <div class="font-weight-bold text-primary">₦{{ number_format($todaysDaisyRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">This Month</div>
+                                <div class="font-weight-bold text-info">₦{{ number_format($monthDaisyRevenue) }}</div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="text-muted">This Year</div>
+                                <div class="font-weight-bold text-success">₦{{ number_format($yearDaisyRevenue) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">All Time</div>
+                                <div class="font-weight-bold text-dark">₦{{ number_format($stats['daisy_total_revenue']) }}</div>
                             </div>
                         </div>
                     </div>

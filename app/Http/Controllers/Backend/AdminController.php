@@ -12,6 +12,8 @@ use App\Models\GiftOrder;
 use App\Models\Transaction;
 use App\Models\DigitalProduct;
 use App\Models\SocialMediaOrder;
+use App\Models\DaisyOrder;
+use App\Models\DaisyService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -79,10 +81,23 @@ class AdminController extends Controller
             ->whereYear('created_at', Carbon::now()->year)
             ->sum('total_amount');
 
+        // Daisy Orders Revenue
+        $todaysDaisyRevenue = DaisyOrder::where('status', 'completed')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('price');
+
+        $monthDaisyRevenue = DaisyOrder::where('status', 'completed')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('price');
+
+        $yearDaisyRevenue = DaisyOrder::where('status', 'completed')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('price');
+
         // Combined Revenue Totals
-        $todaysRevenue = $todaysSmsRevenue + $todaysDigitalRevenue + $todaysGiftRevenue + $todaysSocialRevenue;
-        $monthRevenue = $monthSmsRevenue + $monthDigitalRevenue + $monthGiftRevenue + $monthSocialRevenue;
-        $yearRevenue = $yearSmsRevenue + $yearDigitalRevenue + $yearGiftRevenue + $yearSocialRevenue;
+        $todaysRevenue = $todaysSmsRevenue + $todaysDigitalRevenue + $todaysGiftRevenue + $todaysSocialRevenue + $todaysDaisyRevenue;
+        $monthRevenue = $monthSmsRevenue + $monthDigitalRevenue + $monthGiftRevenue + $monthSocialRevenue + $monthDaisyRevenue;
+        $yearRevenue = $yearSmsRevenue + $yearDigitalRevenue + $yearGiftRevenue + $yearSocialRevenue + $yearDaisyRevenue;
 
         $totalServices = Service::where('status', 'active')->count();
         $totalUsers = User::where('role', 'client')->count();
@@ -150,6 +165,19 @@ class AdminController extends Controller
             'social_year_revenue' => $yearSocialRevenue,
             'social_today_orders' => SocialMediaOrder::whereDate('created_at', Carbon::today())->count(),
             
+            // Daisy Orders
+            'daisy_total_orders' => DaisyOrder::count(),
+            'daisy_completed_orders' => DaisyOrder::where('status', 'completed')->count(),
+            'daisy_pending_orders' => DaisyOrder::where('status', 'pending')->count(),
+            'daisy_processing_orders' => DaisyOrder::where('status', 'processing')->count(),
+            'daisy_cancelled_orders' => DaisyOrder::where('status', 'cancelled')->count(),
+            'daisy_failed_orders' => DaisyOrder::where('status', 'failed')->count(),
+            'daisy_total_revenue' => DaisyOrder::where('status', 'completed')->sum('price'),
+            'daisy_today_revenue' => $todaysDaisyRevenue,
+            'daisy_month_revenue' => $monthDaisyRevenue,
+            'daisy_year_revenue' => $yearDaisyRevenue,
+            'daisy_today_orders' => DaisyOrder::whereDate('created_at', Carbon::today())->count(),
+            
             // Combined Revenue Totals
             'total_revenue_today' => $todaysRevenue,
             'total_revenue_month' => $monthRevenue,
@@ -157,7 +185,8 @@ class AdminController extends Controller
             'total_revenue_all_time' => Order::where('status', 'completed')->sum('final_price') + 
                                       DigitalProductOrder::where('status', 'completed')->sum('total_amount') + 
                                       GiftOrder::where('payment_status', 'paid')->sum('total_amount') + 
-                                      SocialMediaOrder::where('status', 'completed')->sum('total_amount'),
+                                      SocialMediaOrder::where('status', 'completed')->sum('total_amount') + 
+                                      DaisyOrder::where('status', 'completed')->sum('price'),
             
             // Transactions
             'total_transactions' => Transaction::count(),
@@ -193,6 +222,14 @@ class AdminController extends Controller
             ->limit(10)
             ->get();
 
+        // Recent Daisy Orders (Last 24 hours)
+        $recentDaisyOrders = DaisyOrder::with(['user', 'service'])
+            ->where('created_at', '>=', $twentyFourHoursAgo)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+
         // Pending Orders Data
         $pendingGiftOrders = GiftOrder::with(['user', 'gift'])
             ->where('status', 'pending')
@@ -208,6 +245,17 @@ class AdminController extends Controller
          
         // get the count of processing orders 
         $processingSocialOrders = SocialMediaOrder::whereIn('status',['processing'])
+            ->count();
+
+        // Pending Daisy Orders
+        $pendingDaisyOrders = DaisyOrder::with(['user', 'service'])
+            ->whereIn('status', ['pending', 'processing'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Processing Daisy Orders count
+        $processingDaisyOrders = DaisyOrder::whereIn('status', ['processing'])
             ->count();
 
         return view('admin.dashboard',compact(
@@ -232,6 +280,9 @@ class AdminController extends Controller
             'todaysSocialRevenue',
             'monthSocialRevenue',
             'yearSocialRevenue',
+            'todaysDaisyRevenue',
+            'monthDaisyRevenue',
+            'yearDaisyRevenue',
             'totalServices',
             'totalUsers',
             'totalAdmins',
@@ -244,7 +295,10 @@ class AdminController extends Controller
             'recentSocialPurchases',
             'pendingGiftOrders',
             'pendingSocialOrders',
-            'processingSocialOrders'
+            'processingSocialOrders',
+            'recentDaisyOrders',
+            'pendingDaisyOrders',
+            'processingDaisyOrders'
         ));
     }
 
