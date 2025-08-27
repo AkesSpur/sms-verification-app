@@ -249,21 +249,21 @@ class DaisyOrder extends Model
     // Static methods
     public static function getStatistics($userId = null)
     {
-        $query = static::query();
+        $baseQuery = static::query();
         
         if ($userId) {
-            $query->byUser($userId);
+            $baseQuery->byUser($userId);
         }
         
         return [
-            'total_orders' => $query->count(),
-            'pending_orders' => $query->where('status', self::STATUS_PENDING)->count(),
-            'active_orders' => $query->where('status', self::STATUS_ACTIVE)->count(),
-            'completed_orders' => $query->where('status', self::STATUS_COMPLETED)->count(),
-            'cancelled_orders' => $query->where('status', self::STATUS_CANCELLED)->count(),
-            'expired_orders' => $query->where('status', self::STATUS_EXPIRED)->count(),
-            'total_spent' => $query->where('status', self::STATUS_COMPLETED)->sum('price'),
-            'average_price' => $query->avg('price')
+            'total_orders' => (clone $baseQuery)->count(),
+            'pending_orders' => (clone $baseQuery)->where('status', self::STATUS_PENDING)->count(),
+            'active_orders' => (clone $baseQuery)->where('status', self::STATUS_ACTIVE)->count(),
+            'completed_orders' => (clone $baseQuery)->where('status', self::STATUS_COMPLETED)->count(),
+            'cancelled_orders' => (clone $baseQuery)->where('status', self::STATUS_CANCELLED)->count(),
+            'expired_orders' => (clone $baseQuery)->where('status', self::STATUS_EXPIRED)->count(),
+            'total_spent' => (clone $baseQuery)->where('status', self::STATUS_COMPLETED)->sum('price'),
+            'average_price' => (clone $baseQuery)->avg('price')
         ];
     }
 
