@@ -21,6 +21,9 @@ class GeneralSetting extends Model
         'naira_to_dollar_rate',
         'whatsapp_support_link',
         'telegram_support_link',
+        'usd_to_ngn_rate',
+        'exchange_rate_updated_at',
+        'exchange_rate_markup_percentage',
     ];
 
     protected $casts = [
@@ -29,5 +32,7 @@ class GeneralSetting extends Model
         'api_price_markup_percentage' => 'decimal:2',
         'enable_dynamic_pricing' => 'boolean',
         'naira_to_dollar_rate' => 'decimal:2',
+        'exchange_rate_updated_at' => 'datetime',
+
     ];
 }

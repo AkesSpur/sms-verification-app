@@ -69,6 +69,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->status == 'active';
     }
 
+    public function daisyOrders()
+    {
+        return $this->hasMany(DaisyOrder::class);
+    }
+    
     /**
      * Get the orders for the user.
      */

@@ -1040,11 +1040,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // In a real app, you would submit this via AJAX
                 // For demo purposes, we'll just show a success message after a delay
-                setTimeout(function() {
-                    showNotification('Number purchased successfully!', 'success');
-                    // Reload the page to show the new number
-                    // window.location.reload();
-                }, 1500);
             });
         }
     });

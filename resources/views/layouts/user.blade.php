@@ -32,6 +32,30 @@
     .text-primary-600 { color: #1e293b; }
     .text-primary-700 { color: #0f172a; }
     .hover\:text-primary-700:hover { color: #0f172a; }
+    
+    /* Custom scrollbar styles */
+    nav::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    nav::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+    
+    nav::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+        transition: background 0.2s ease;
+    }
+    
+    nav::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    nav::-webkit-scrollbar-thumb:active {
+        background: #64748b;
+    }
 </style>
     <style>
         [x-cloak] { display: none !important; }
@@ -45,7 +69,7 @@
 
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:relative lg:translate-x-0" 
+        <div class="fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col" 
              :class="{
                 'translate-x-0': sidebarOpen,
                 '-translate-x-full lg:translate-x-0': !sidebarOpen,
@@ -65,7 +89,7 @@
             </a>
             
             <!-- Navigation -->
-            <nav class="mt-8" :class="sidebarCollapsed ? 'px-2' : 'px-4'">
+            <nav class="mt-8 overflow-y-auto overflow-x-hidden flex-1" :class="sidebarCollapsed ? 'px-2' : 'px-4'">
                 <div class="space-y-2">
                     <a href="{{ route('user.dashboard') }}" 
                        class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.dashboard') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
@@ -74,11 +98,18 @@
                         <span class="font-medium" x-show="!sidebarCollapsed">Dashboard</span>
                     </a>
                     
+                    <a href="{{ route('user.sms.rental.index') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.sms.rental.*') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-flag-usa w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">USA Numbers 1</span>
+                    </a>
+
                     <a href="{{ route('user.usa-numbers') }}" 
                        class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.usa-numbers') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
                        :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
                         <i class="fas fa-flag-usa w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
-                        <span class="font-medium" x-show="!sidebarCollapsed">USA Numbers</span>
+                        <span class="font-medium" x-show="!sidebarCollapsed">USA Numbers 2</span>
                     </a>
                     
                     <a href="{{ route('user.all-countries') }}" 
@@ -133,7 +164,7 @@
             </nav>
             
             <!-- User info and logout -->
-            <div class="absolute bottom-0 left-0 right-0 border-t border-gray-200" :class="sidebarCollapsed ? 'p-2' : 'p-4'">
+            <div class="border-t border-gray-200 flex-shrink-0" :class="sidebarCollapsed ? 'p-2' : 'p-4'">
                 <div class="flex items-center mb-4" :class="sidebarCollapsed ? 'justify-center' : ''">
                     <div class="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
                         <i class="fas fa-user text-white text-sm"></i>
@@ -266,6 +297,11 @@
             });
         }
 
+         // Notify function for displaying messages
+        function notify(type, message) {
+            showToast(message, type);
+        }
+        
         // Auto-close sidebar on mobile when clicking links
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarLinks = document.querySelectorAll('nav a');

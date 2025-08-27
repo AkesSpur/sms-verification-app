@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmailConfiguration;
 use App\Models\GeneralSetting;
 use App\Models\LogoSetting;
+use App\Services\ExchangeRateService;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 
@@ -39,6 +40,7 @@ class SettingController extends Controller
             'api_price_markup_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'enable_dynamic_pricing' => ['nullable', 'boolean'],
             'naira_to_dollar_rate' => ['nullable', 'numeric', 'min:0'],
+            'exchange_rate_markup_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'whatsapp_support_link' => ['nullable', 'url', 'max:500'],
             'telegram_support_link' => ['nullable', 'url', 'max:500'],
         ]);
@@ -55,6 +57,7 @@ class SettingController extends Controller
                 'api_price_markup_percentage' => $request->api_price_markup_percentage ?? 20.00,
                 'enable_dynamic_pricing' => $request->boolean('enable_dynamic_pricing', true),
                 'naira_to_dollar_rate' => $request->naira_to_dollar_rate,
+                'exchange_rate_markup_percentage' => $request->exchange_rate_markup_percentage ?? 0,
                 'whatsapp_support_link' => $request->whatsapp_support_link,
                 'telegram_support_link' => $request->telegram_support_link,
             ]
@@ -114,5 +117,39 @@ class SettingController extends Controller
         toastr('Logo settings successfully updated', 'success', ['success']);
 
         return redirect()->back();
+    }
+
+    /**
+     * Update exchange rate from external API
+     */
+    public function updateExchangeRate(ExchangeRateService $exchangeRateService)
+    {
+        try {
+            $result = $exchangeRateService->updateExchangeRate();
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => [
+                        'original_rate' => $result['original_rate'],
+                        'markup_percentage' => $result['markup_percentage'],
+                        'final_rate' => $result['final_rate'],
+                        'formatted_rate' => '1 USD = ' . number_format($result['final_rate'], 4) . ' NGN',
+                        'updated_at' => now()->format('M d, Y H:i:s')
+                    ]
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating exchange rate: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

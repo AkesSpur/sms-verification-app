@@ -63,12 +63,12 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
         <div class="p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- USA Numbers CTA -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- USA Numbers 1 CTA -->
                 <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
                     <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                            <span class="text-red-600 text-xs font-bold">🇺🇸</span>
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 text-xs font-bold">1</span>
                         </div>
                     </div>
                     <div class="flex items-start mb-4">
@@ -121,8 +121,82 @@
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">USA Numbers</h4>
-                            <p class="text-sm text-gray-600 mb-3">Premium US phone numbers for verification</p>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-1">USA Numbers 1</h4>
+                            <p class="text-sm text-gray-600 mb-3">Server 1 - Premium US phone numbers</p>
+                            <div class="flex items-center text-xs text-gray-500">
+                                <i class="fas fa-server mr-1"></i>
+                                <span>Primary server</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 text-sm mb-4 leading-relaxed">Access our primary server with premium US phone numbers for WhatsApp, Telegram, Discord, Instagram, and other services.</p>
+                    <a href="{{ route('user.sms.rental.index') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                        Browse USA Numbers 1
+                    </a>
+                </div>
+
+                <!-- USA Numbers 2 CTA -->
+                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
+                    <div class="absolute top-4 right-4">
+                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                            <span class="text-red-600 text-xs font-bold">2</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-gray-200">
+                            <svg class="w-10 h-7" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Red stripes -->
+                                <rect width="60" height="40" fill="#B22234"/>
+                                <!-- White stripes -->
+                                <rect y="3" width="60" height="3" fill="white"/>
+                                <rect y="9" width="60" height="3" fill="white"/>
+                                <rect y="15" width="60" height="3" fill="white"/>
+                                <rect y="21" width="60" height="3" fill="white"/>
+                                <rect y="27" width="60" height="3" fill="white"/>
+                                <rect y="33" width="60" height="3" fill="white"/>
+                                <!-- Blue canton -->
+                                <rect width="24" height="21" fill="#3C3B6E"/>
+                                <!-- Stars (simplified pattern) -->
+                                <g fill="white">
+                                    <circle cx="3" cy="3" r="0.8"/>
+                                    <circle cx="7" cy="3" r="0.8"/>
+                                    <circle cx="11" cy="3" r="0.8"/>
+                                    <circle cx="15" cy="3" r="0.8"/>
+                                    <circle cx="19" cy="3" r="0.8"/>
+                                    <circle cx="5" cy="6" r="0.8"/>
+                                    <circle cx="9" cy="6" r="0.8"/>
+                                    <circle cx="13" cy="6" r="0.8"/>
+                                    <circle cx="17" cy="6" r="0.8"/>
+                                    <circle cx="21" cy="6" r="0.8"/>
+                                    <circle cx="3" cy="9" r="0.8"/>
+                                    <circle cx="7" cy="9" r="0.8"/>
+                                    <circle cx="11" cy="9" r="0.8"/>
+                                    <circle cx="15" cy="9" r="0.8"/>
+                                    <circle cx="19" cy="9" r="0.8"/>
+                                    <circle cx="5" cy="12" r="0.8"/>
+                                    <circle cx="9" cy="12" r="0.8"/>
+                                    <circle cx="13" cy="12" r="0.8"/>
+                                    <circle cx="17" cy="12" r="0.8"/>
+                                    <circle cx="21" cy="12" r="0.8"/>
+                                    <circle cx="3" cy="15" r="0.8"/>
+                                    <circle cx="7" cy="15" r="0.8"/>
+                                    <circle cx="11" cy="15" r="0.8"/>
+                                    <circle cx="15" cy="15" r="0.8"/>
+                                    <circle cx="19" cy="15" r="0.8"/>
+                                    <circle cx="5" cy="18" r="0.8"/>
+                                    <circle cx="9" cy="18" r="0.8"/>
+                                    <circle cx="13" cy="18" r="0.8"/>
+                                    <circle cx="17" cy="18" r="0.8"/>
+                                    <circle cx="21" cy="18" r="0.8"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-1">USA Numbers 2</h4>
+                            <p class="text-sm text-gray-600 mb-3">Server 2 - Premium US phone numbers</p>
                             <div class="flex items-center text-xs text-gray-500">
                                 <i class="fas fa-shield-alt mr-1"></i>
                                 <span>High success rate</span>
@@ -134,7 +208,7 @@
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
-                        Browse USA Numbers
+                        Browse USA Numbers 2
                     </a>
                 </div>
 
@@ -170,6 +244,19 @@
         </div>
     </div>
 
+    <!-- Website Builder Contact -->
+<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
+    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
+        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
+        <p>
+            Need a custom website? <a href="https://wa.link/18c124" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
+                Contact the developer
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
+        </p>
+        <i class="fas fa-code text-blue-600 animate-bounce"></i>
+    </div>
+</div>
 </div>
 
 

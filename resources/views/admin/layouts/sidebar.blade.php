@@ -26,6 +26,22 @@
                 </li>
 
                 <!-- SMS & Digital Products Section -->
+                <!-- Service Management Section -->
+                <li class="menu-header">Service Management</li>
+                <li class="dropdown {{ setActive(['admin.daisy-services.*']) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>DaisySMS Services</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setActive(['admin.daisy-services.index']) }}">
+                            <a class="nav-link" href="{{ route('admin.daisy-services.index') }}">All Services</a>
+                        </li>
+                        <li class="{{ setActive(['admin.daisy-services.create']) }}">
+                            <a class="nav-link" href="{{ route('admin.daisy-services.create') }}">Add New Service</a>
+                        </li>
+                    </ul>
+                </li>
                 <li class="menu-header">SMS & Digital Products</li>
                 <li class="{{ setActive(['admin.services.*']) }}">
                     <a href="{{ route('admin.services.index') }}" class="nav-link">
@@ -90,6 +106,11 @@
                     <ul class="dropdown-menu">
                         <li class="{{ setActive(['admin.sms-orders.*']) }}">
                             <a class="nav-link" href="{{ route('admin.sms-orders.index') }}">SMS Orders</a>
+                        </li>
+                        <li class="{{ setActive(['admin.daisy-orders.*']) }}">
+                        <a href="{{ route('admin.daisy-orders.index') }}" class="nav-link">
+                            Daisy SMS Orders
+                        </a>
                         </li>
                         <li class="{{ setActive(['admin.digital-product-orders.*']) }}">
                             <a class="nav-link" href="{{ route('admin.digital-product-orders.index') }}">Digital Product Orders</a>

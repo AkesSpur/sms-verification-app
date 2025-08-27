@@ -1,4 +1,6 @@
 <?php
+use App\Http\Controllers\Backend\DaisyOrderController;
+use App\Http\Controllers\Backend\DaisyServiceController;
 use App\Http\Controllers\Backend\GiftOrderController;
 use App\Http\Controllers\Backend\LocalBankSettingController;
 use App\Http\Controllers\Backend\PaymentSettingController;
@@ -75,6 +77,7 @@ Route::get('settings', [SettingController::class, 'index'])->name('settings.inde
 Route::put('general-setting-update', [SettingController::class, 'updateGeneralSetting'])->name('general-setting-update');
 Route::put('email-setting-update', [SettingController::class, 'updateEmailSetting'])->name('email-setting-update');
 Route::put('logo-setting-update', [SettingController::class, 'updateLogoSetting'])->name('logo-setting-update');
+Route::post('update-exchange-rate', [SettingController::class, 'updateExchangeRate'])->name('update-exchange-rate');
 
 /* Country Service Pricing Routes */
 Route::get('country-service', [CountryServiceController::class, 'index'])->name('country-service.index');
@@ -134,6 +137,42 @@ Route::post('sms-orders/{order}/retry-sms', [SmsOrderController::class, 'retrySm
 Route::post('sms-orders/{order}/force-cancel', [SmsOrderController::class, 'forceCancel'])->name('sms-orders.force-cancel');
 Route::post('sms-orders/{order}/mark-review', [SmsOrderController::class, 'markForReview'])->name('sms-orders.mark-review');
 Route::post('sms-orders/{order}/remove-review', [SmsOrderController::class, 'removeFromReview'])->name('sms-orders.remove-review');
+
+/** DaisyService Management Routes */
+Route::prefix('daisy-services')->name('daisy-services.')->group(function () {
+    Route::get('/', [DaisyServiceController::class, 'index'])->name('index');
+    Route::get('/create', [DaisyServiceController::class, 'create'])->name('create');
+    Route::post('/', [DaisyServiceController::class, 'store'])->name('store');
+    Route::get('/{daisyService}', [DaisyServiceController::class, 'show'])->name('show');
+    Route::get('/{daisyService}/edit', [DaisyServiceController::class, 'edit'])->name('edit');
+    Route::put('/{daisyService}', [DaisyServiceController::class, 'update'])->name('update');
+    Route::delete('/{daisyService}', [DaisyServiceController::class, 'destroy'])->name('destroy');
+    Route::get('/{daisyService}/toggle-status', [DaisyServiceController::class, 'toggleStatus'])->name('toggle-status');
+    Route::get('/{daisyService}/toggle-popular', [DaisyServiceController::class, 'togglePopular'])->name('toggle-popular');
+    Route::get('/{daisyService}/manage-prices', [DaisyServiceController::class, 'managePrices'])->name('manage-prices');
+    Route::put('/{daisyService}/update-prices', [DaisyServiceController::class, 'updatePrices'])->name('update-prices');
+    Route::post('/{daisyService}/sync-prices', [DaisyServiceController::class, 'syncPricesFromApi'])->name('sync-prices');
+    Route::post('/{daisyService}/bulk-update-prices', [DaisyServiceController::class, 'bulkUpdatePrices'])->name('bulk-update-prices');
+    Route::post('/{daisyService}/update-price', [DaisyServiceController::class, 'updatePrice'])->name('update-price');
+    Route::post('/{daisyService}/toggle-price-status', [DaisyServiceController::class, 'togglePriceStatus'])->name('toggle-price-status');
+    Route::delete('/price/{price}', [DaisyServiceController::class, 'deletePrice'])->name('delete-price');
+    Route::post('/bulk-action', [DaisyServiceController::class, 'bulkAction'])->name('bulk-action');
+    Route::get('/api/statistics', [DaisyServiceController::class, 'getStatistics'])->name('statistics');
+    Route::post('/bulk-sync-prices', [DaisyServiceController::class, 'bulkSyncPrices'])->name('bulk-sync-prices');
+    
+
+});
+
+   /** Daisy Order Management Routes */
+Route::prefix('daisy-orders')->name('daisy-orders.')->group(function () {
+    Route::get('/', [DaisyOrderController::class, 'index'])->name('index');
+    Route::get('/{daisyOrder}', [DaisyOrderController::class, 'show'])->name('show');
+    Route::post('/{daisyOrder}/update-status', [DaisyOrderController::class, 'updateStatus'])->name('update-status');
+    Route::post('/{daisyOrder}/refresh-sms', [DaisyOrderController::class, 'refreshSmsStatus'])->name('refresh-sms');
+    Route::post('/{daisyOrder}/cancel', [DaisyOrderController::class, 'cancelOrder'])->name('cancel');
+    Route::post('/bulk-update', [DaisyOrderController::class, 'bulkUpdate'])->name('bulk-update');
+    Route::get('/export/csv', [DaisyOrderController::class, 'export'])->name('export');
+});
 
 /* Social Media Boosting Management Routes */
 Route::resource('social-media-categories', SocialMediaCategoryController::class);

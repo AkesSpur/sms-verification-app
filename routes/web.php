@@ -6,6 +6,7 @@ use App\Http\Controllers\GiftOrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SmsRentalController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Gateways\PaystackController;
 use App\Http\Controllers\UsaNumberController;
@@ -71,6 +72,20 @@ Route::prefix('user')->middleware(['auth', 'verified'])->group(function () {
         Route::get('/order/{order}/status', [InternationalNumberController::class, 'checkStatus'])->name('international.order.status');
         Route::post('/order/{order}/cancel', [InternationalNumberController::class, 'cancelOrder'])->name('international.order.cancel');
         Route::get('/order/{order}', [InternationalNumberController::class, 'show'])->name('international.order.show');
+    });
+
+    //dasiy sms rental route
+    Route::prefix('sms-rental')->name('user.sms.rental.')->group(function () {
+        Route::get('/', [SmsRentalController::class, 'index'])->name('index');
+        Route::post('rent', [SmsRentalController::class, 'rent'])->name('rent');
+        Route::get('check-code/{id}', [SmsRentalController::class, 'checkCode'])->name('check.code');
+        Route::post('cancel/{id}', [SmsRentalController::class, 'cancel'])->name('cancel');
+        Route::post('auto-cancel/{id}', [SmsRentalController::class, 'autoCancel'])->name('auto.cancel');
+        Route::get('history', [SmsRentalController::class, 'history'])->name('history');
+        Route::get('details/{id}', [SmsRentalController::class, 'details'])->name('details');
+        Route::get('services', [SmsRentalController::class, 'getServices'])->name('services');
+        Route::get('countries', [SmsRentalController::class, 'getCountries'])->name('countries');
+        Route::get('prices/{service}/{country}', [SmsRentalController::class, 'getPrices'])->name('prices');
     });
     
     // Social Media Boosting Routes

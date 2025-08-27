@@ -57,4 +57,18 @@ return [
         'timeout' => env('OWLET_TIMEOUT', 30),
     ],
 
+    'exchange_rate' => [
+        'api_key' => env('EXCHANGE_RATE_API_KEY'),
+        'base_url' => env('EXCHANGE_RATE_BASE_URL', 'https://api.exchangerate-api.com/v4/latest'),
+        'timeout' => env('EXCHANGE_RATE_TIMEOUT', 30),
+        'markup_percentage' => env('EXCHANGE_RATE_MARKUP', 0),
+        'log_requests' => env('EXCHANGE_RATE_LOG_REQUESTS', false),
+    ],
+
+    'daisysms' => [
+        'api_key' => env('DAISYSMS_API_KEY'),
+        'base_url' => env('DAISYSMS_BASE_URL', 'https://daisysms.com/stubs/handler_api.php'),
+        'timeout' => env('DAISYSMS_TIMEOUT', 30),
+        'log_requests' => env('DAISYSMS_LOG_REQUESTS', true),
+    ],
 ];
