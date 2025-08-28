@@ -219,7 +219,7 @@ class SocialMediaProductController extends Controller
                     
                     // Calculate price with 25% markup
                     $originalPrice = (float) ($service['rate'] ?? 0);
-                    $markedUpPrice = $originalPrice * 1.25;
+                    $markedUpPrice = ceil($originalPrice * 1.25);
                     
                     // Prepare product data
                     $productData = [
