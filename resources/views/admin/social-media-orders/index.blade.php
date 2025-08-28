@@ -182,18 +182,32 @@
                                             </td>
                                             <td>
                                                 <div>
-                                                    <strong>{{ $order->user->name }}</strong><br>
-                                                    <small class="text-muted">{{ $order->user->email }}</small>
+                                                    @if($order->user)
+                                                        <strong>{{ $order->user->name }}</strong><br>
+                                                        <small class="text-muted">{{ $order->user->email }}</small>
+                                                    @else
+                                                        <strong class="text-danger">User Deleted</strong><br>
+                                                        <small class="text-muted">N/A</small>
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td>
                                                 <div>
-                                                    <strong>{{ $order->product->name }}</strong><br>
-                                                    <small class="text-muted">₦{{ number_format($order->unit_price, 2) }} per 1k</small>
+                                                    @if($order->product)
+                                                        <strong>{{ $order->product->name }}</strong><br>
+                                                        <small class="text-muted">₦{{ number_format($order->unit_price, 2) }} per 1k</small>
+                                                    @else
+                                                        <strong class="text-danger">Product Deleted</strong><br>
+                                                        <small class="text-muted">₦{{ number_format($order->unit_price, 2) }} per 1k</small>
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="badge badge-secondary">{{ $order->product->category->name }}</span>
+                                                @if($order->product && $order->product->category)
+                                                    <span class="badge badge-secondary">{{ $order->product->category->name }}</span>
+                                                @else
+                                                    <span class="badge badge-danger">Category N/A</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 <strong>{{ number_format($order->quantity) }}</strong>

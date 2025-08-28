@@ -15,6 +15,9 @@
                 <div class="card-header">
                     <h4>All Products</h4>
                     <div class="card-header-action">
+                        <button type="button" class="btn btn-success me-2" onclick="testOwletConnection()">
+                            <i class="fas fa-plug"></i> Test API Connection
+                        </button>
                         <button type="button" class="btn btn-info me-2" onclick="syncOwletServices()">
                             <i class="fas fa-sync"></i> Sync Owlet Services
                         </button>
@@ -231,8 +234,46 @@
 
 @push('scripts')
 <script>
-function syncOwletServices() {
-    if (confirm('This will sync services from Owlet API and create new products. Continue?')) {
+function testOwletConnection() {
+        if (confirm('Test connection to Owlet API?')) {
+            fetch('{{ route("admin.social-media-products.test-owlet-connection") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Access denied. Please check your admin permissions.');
+                    } else if (response.status === 500) {
+                        throw new Error('Server error occurred. Please check the logs.');
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    toastr.success(data.message + (data.data ? ' - Balance: ' + JSON.stringify(data.data) : ''));
+                } else {
+                    toastr.error(data.message || 'API connection test failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error details:', error);
+                toastr.error('Error: ' + error.message);
+            });
+        }
+    }
+
+    function syncOwletServices() {
+        if (confirm('This will sync services from Owlet API and create new products. Continue?')) {
         const button = event.target;
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
@@ -245,20 +286,38 @@ function syncOwletServices() {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (!response.ok) {
+                if (response.status === 403) {
+                    throw new Error('Access denied. Please ensure you are logged in as an admin.');
+                }
+                if (response.status === 500) {
+                    throw new Error('Server error occurred. Check the Laravel logs for details.');
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
+            
             if (data.success) {
                 toastr.success(data.message);
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
             } else {
+                console.error('Sync failed:', data);
                 toastr.error(data.message || 'Failed to sync services');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            toastr.error('An error occurred while syncing services');
+            console.error('Sync error details:', error);
+            console.error('Error stack:', error.stack);
+            toastr.error(error.message || 'An error occurred while syncing services');
         })
         .finally(() => {
             button.innerHTML = originalText;

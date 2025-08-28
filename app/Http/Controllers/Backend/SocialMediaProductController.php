@@ -161,63 +161,204 @@ class SocialMediaProductController extends Controller
     public function syncOwletServices()
     {
         try {
+            Log::info('Starting Owlet services sync');
+            
+            // Check if API key is configured
+            $apiKey = config('services.owlet.api_key', env('OWLET_API_KEY'));
+            if (empty($apiKey)) {
+                Log::error('Owlet API key not configured');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Owlet API key is not configured. Please set OWLET_API_KEY in your .env file.'
+                ]);
+            }
+            
             $owletService = new OwletApiService();
             $services = $owletService->services();
             
-            if (!$services || !isset($services['services'])) {
-                toastr('Failed to fetch services from Owlet API', 'error');
-                return redirect()->back();
+            Log::info('Owlet API response received', ['is_array' => is_array($services), 'service_count' => is_array($services) ? count($services) : 0]);
+            
+            if (!$services || !is_array($services) || empty($services)) {
+                Log::error('Failed to fetch services from Owlet API', ['response' => $services]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch services from Owlet API. Check logs for details.'
+                ]);
             }
             
             $syncedCount = 0;
+            $updatedCount = 0;
             $skippedCount = 0;
+            $categoryMap = [];
             
-            foreach ($services['services'] as $service) {
-                // Check if product already exists with this external service ID
-                $existingProduct = SocialMediaProduct::where('external_service_id', $service['service'])->first();
-                
-                if ($existingProduct) {
+            foreach ($services as $service) {
+                try {
+                    // Skip if required fields are missing
+                    if (empty($service['service']) || empty($service['name']) || empty($service['category'])) {
+                        $skippedCount++;
+                        continue;
+                    }
+                    
+                    // Handle category - create if doesn't exist
+                    $categoryName = $service['category'];
+                    if (!isset($categoryMap[$categoryName])) {
+                        $categorySlug = Str::slug($categoryName);
+                        $category = SocialMediaCategory::firstOrCreate(
+                            ['slug' => $categorySlug],
+                            [
+                                'name' => $categoryName,
+                                'description' => 'Auto-generated category from Owlet API: ' . $categoryName,
+                                'status' => true,
+                                'sort_order' => 0
+                            ]
+                        );
+                        $categoryMap[$categoryName] = $category->id;
+                    }
+                    
+                    $categoryId = $categoryMap[$categoryName];
+                    
+                    // Calculate price with 25% markup
+                    $originalPrice = (float) ($service['rate'] ?? 0);
+                    $markedUpPrice = $originalPrice * 1.25;
+                    
+                    // Prepare product data
+                    $productData = [
+                        'category_id' => $categoryId,
+                        'name' => $service['name'],
+                        'slug' => Str::slug($service['name'] . '-' . $service['service']),
+                        'description' => $this->generateDescription($service),
+                        'price_per_1000' => $markedUpPrice,
+                        'min_quantity' => (int) ($service['min'] ?? 1),
+                        'max_quantity' => (int) ($service['max'] ?? 1000000),
+                        'status' => true,
+                        'sort_order' => 0,
+                        'external_service_id' => (int) $service['service']
+                    ];
+                    
+                    // Check if product already exists by external_service_id
+                    $existingProduct = SocialMediaProduct::where('external_service_id', $service['service'])->first();
+                    
+                    if ($existingProduct) {
+                        // Update existing product
+                        $existingProduct->update($productData);
+                        $updatedCount++;
+                    } else {
+                        // Create new product
+                        SocialMediaProduct::create($productData);
+                        $syncedCount++;
+                    }
+                    
+                } catch (\Exception $e) {
+                    Log::error('Error processing service: ' . ($service['name'] ?? 'Unknown'), [
+                        'error' => $e->getMessage(),
+                        'service' => $service
+                    ]);
                     $skippedCount++;
-                    continue;
                 }
-                
-                // Try to find a suitable category or use the first one
-                $category = SocialMediaCategory::active()->first();
-                
-                if (!$category) {
-                    Log::warning('No active social media category found for Owlet service sync');
-                    continue;
-                }
-                
-                // Create new product
-                SocialMediaProduct::create([
-                    'category_id' => $category->id,
-                    'name' => $service['name'],
-                    'description' => $service['name'] . ' - Synced from Owlet API',
-                    'price_per_1000' => $service['rate'],
-                    'min_quantity' => $service['min'],
-                    'max_quantity' => $service['max'],
-                    'status' => true,
-                    'sort_order' => 0,
-                    'external_service_id' => $service['service']
-                ]);
-                
-                $syncedCount++;
             }
             
-            $message = "Synced {$syncedCount} new services";
+            $message = "Sync completed! Created: {$syncedCount}, Updated: {$updatedCount}";
             if ($skippedCount > 0) {
-                $message .= ", skipped {$skippedCount} existing services";
+                $message .= ", Skipped: {$skippedCount}";
             }
-            
-            toastr($message, 'success');
+
+            Log::info('Sync completed successfully', [
+                'created' => $syncedCount,
+                'updated' => $updatedCount,
+                'skipped' => $skippedCount
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
             
         } catch (\Exception $e) {
-            Log::error('Owlet services sync failed: ' . $e->getMessage());
-            toastr('Failed to sync services: ' . $e->getMessage(), 'error');
+            Log::error('Owlet services sync failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to sync services: ' . $e->getMessage() . ' (Check logs for full details)'
+            ]);
+        }
+    }
+    
+    /**
+     * Generate a description for the product based on service data
+     */
+    private function generateDescription(array $service): string
+    {
+        $description = [];
+        
+        if (!empty($service['type']) && $service['type'] !== 'Default') {
+            $description[] = 'Type: ' . $service['type'];
         }
         
-        return redirect()->route('admin.social-media-products.index');
+        if (isset($service['min']) && isset($service['max'])) {
+            $description[] = 'Quantity: ' . number_format($service['min']) . ' - ' . number_format($service['max']);
+        }
+        
+        if (isset($service['dripfeed']) && $service['dripfeed']) {
+            $description[] = 'Supports dripfeed delivery';
+        }
+        
+        if (isset($service['refill']) && $service['refill']) {
+            $description[] = 'Refillable service';
+        }
+        
+        if (isset($service['cancel']) && $service['cancel']) {
+            $description[] = 'Cancellable';
+        }
+        
+        $baseDescription = 'Social media boosting service from Owlet API.';
+        
+        if (!empty($description)) {
+            return $baseDescription . ' ' . implode('. ', $description) . '.';
+        }
+        
+        return $baseDescription;
+    }
+
+    /**
+     * Test Owlet API connection
+     */
+    public function testOwletConnection()
+    {
+        try {
+            $apiKey = config('services.owlet.api_key', env('OWLET_API_KEY'));
+            if (empty($apiKey)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'API key not configured'
+                ]);
+            }
+
+            $owletService = new OwletApiService();
+            $balance = $owletService->balance();
+            
+            Log::info('Owlet API connection test', ['response' => $balance]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'API connection successful',
+                'data' => $balance
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Owlet API connection test failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'API connection failed: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**

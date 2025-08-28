@@ -208,16 +208,24 @@
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Product Name:</label>
                                                 <p class="mb-2">
-                                                    <a href="{{ route('admin.social-media-products.show', $order->product) }}" class="text-primary">
-                                                        {{ $order->product->name }}
-                                                    </a>
+                                                    @if($order->product)
+                                                        <a href="{{ route('admin.social-media-products.show', $order->product) }}" class="text-primary">
+                                                            {{ $order->product->name }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-danger">Product Deleted</span>
+                                                    @endif
                                                 </p>
                                             </div>
                                             
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Category:</label>
                                                 <p class="mb-2">
-                                                    <span class="badge badge-secondary">{{ $order->product->category->name }}</span>
+                                                    @if($order->product && $order->product->category)
+                                                        <span class="badge badge-secondary">{{ $order->product->category->name }}</span>
+                                                    @else
+                                                        <span class="badge badge-danger">Category N/A</span>
+                                                    @endif
                                                 </p>
                                             </div>
                                         </div>
@@ -225,29 +233,39 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Current Price:</label>
-                                                <p class="mb-2">₦{{ number_format($order->product->price_per_1000, 2) }} per 1,000</p>
-                                                @if($order->unit_price != $order->product->price_per_1000)
-                                                    <small class="text-warning">
-                                                        <i class="fas fa-exclamation-triangle"></i>
-                                                        Price has changed since order was placed
-                                                    </small>
-                                                @endif
+                                                <p class="mb-2">
+                                                    @if($order->product)
+                                                        ₦{{ number_format($order->product->price_per_1000, 2) }} per 1,000
+                                                        @if($order->unit_price != $order->product->price_per_1000)
+                                                            <br><small class="text-warning">
+                                                                <i class="fas fa-exclamation-triangle"></i>
+                                                                Price has changed since order was placed
+                                                            </small>
+                                                        @endif
+                                                    @else
+                                                        <span class="text-danger">Product Deleted</span>
+                                                    @endif
+                                                </p>
                                             </div>
                                             
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Product Status:</label>
                                                 <p class="mb-2">
-                                                    @if($order->product->status)
-                                                        <span class="badge badge-success">Active</span>
+                                                    @if($order->product)
+                                                        @if($order->product->status)
+                                                            <span class="badge badge-success">Active</span>
+                                                        @else
+                                                            <span class="badge badge-danger">Inactive</span>
+                                                        @endif
                                                     @else
-                                                        <span class="badge badge-danger">Inactive</span>
+                                                        <span class="badge badge-secondary">Product Deleted</span>
                                                     @endif
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    @if($order->product->description)
+                                    @if($order->product && $order->product->description)
                                         <div class="form-group">
                                             <label class="font-weight-bold">Product Description:</label>
                                             <div class="border p-3 bg-light rounded">
@@ -268,13 +286,23 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Customer Name:</label>
-                                                <p class="mb-2">{{ $order->user->name }}</p>
+                                                <p class="mb-2">
+                                                    @if($order->user)
+                                                        {{ $order->user->name }}
+                                                    @else
+                                                        <span class="text-danger">User Deleted</span>
+                                                    @endif
+                                                </p>
                                             </div>
                                             
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Email:</label>
                                                 <p class="mb-2">
-                                                    <a href="mailto:{{ $order->user->email }}">{{ $order->user->email }}</a>
+                                                    @if($order->user)
+                                                        <a href="mailto:{{ $order->user->email }}">{{ $order->user->email }}</a>
+                                                    @else
+                                                        <span class="text-danger">N/A</span>
+                                                    @endif
                                                 </p>
                                             </div>
                                         </div>
@@ -282,12 +310,24 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Customer Since:</label>
-                                                <p class="mb-2">{{ $order->user->created_at->format('M d, Y') }}</p>
+                                                <p class="mb-2">
+                                                    @if($order->user)
+                                                        {{ $order->user->created_at->format('M d, Y') }}
+                                                    @else
+                                                        <span class="text-danger">N/A</span>
+                                                    @endif
+                                                </p>
                                             </div>
                                             
                                             <div class="form-group">
                                                 <label class="font-weight-bold">Total Orders:</label>
-                                                <p class="mb-2">{{ $order->user->socialMediaOrders()->count() }} social media orders</p>
+                                                <p class="mb-2">
+                                                    @if($order->user)
+                                                        {{ $order->user->socialMediaOrders()->count() }} social media orders
+                                                    @else
+                                                        <span class="text-danger">N/A</span>
+                                                    @endif
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -361,13 +401,17 @@
                                         
                                         <hr>
                                         
-                                        <a href="{{ route('admin.social-media-products.show', $order->product) }}" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-box"></i> View Product
-                                        </a>
+                                        @if($order->product)
+                                            <a href="{{ route('admin.social-media-products.show', $order->product) }}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-box"></i> View Product
+                                            </a>
+                                        @endif
                                         
-                                        <a href="{{ route('admin.social-media-orders.index', ['search' => $order->user->email]) }}" class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-user"></i> View Customer Orders
-                                        </a>
+                                        @if($order->user)
+                                            <a href="{{ route('admin.social-media-orders.index', ['search' => $order->user->email]) }}" class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-user"></i> View Customer Orders
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

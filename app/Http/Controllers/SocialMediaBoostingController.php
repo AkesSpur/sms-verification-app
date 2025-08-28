@@ -22,7 +22,7 @@ class SocialMediaBoostingController extends Controller
      */
     public function index()
     {
-        $categories = SocialMediaCategory::active()->ordered()->with('activeProducts')->get();
+        $categories = SocialMediaCategory::active()->has('activeProducts')->orderBy('name')->with('activeProducts')->get();
         
         // Calculate uncompleted orders count (pending + processing)
         $uncompletedOrdersCount = SocialMediaOrder::where('user_id', Auth::id())
@@ -37,7 +37,7 @@ class SocialMediaBoostingController extends Controller
      */
     public function services()
     {
-        $categories = SocialMediaCategory::active()->ordered()->with('activeProducts')->get();
+        $categories = SocialMediaCategory::active()->has('activeProducts')->orderBy('name')->with('activeProducts')->get();
         
         return view('services', compact('categories'));
     }
@@ -147,22 +147,34 @@ class SocialMediaBoostingController extends Controller
             if ($apiResponse && isset($apiResponse['order'])) {
                 // Update order with external API data
                 $order->updateFromExternalApi($apiResponse);
-                $orderStatus = 'processing'; // API order placed successfully
+                $order->update(['status' => 'processing']);
+                
+                // Deduct amount from user's wallet
+                $user->decrement('balance', $totalAmount);
+                
                 $successMessage = 'Order placed successfully! Your order is now being processed.';
             } else {
-                // API failed, keep as manual processing
-                $orderStatus = 'pending';
-                $successMessage = 'Order placed successfully! Your order is now pending and will be processed by our team.';
-                Log::warning('Owlet API order placement failed for order: ' . $order->id, [
+                // API failed, don't create the order
+                $order->delete(); // Remove the created order
+                
+                Log::warning('Owlet API order placement failed', [
+                    'product_id' => $product->id,
                     'response' => $apiResponse
                 ]);
+                
+                DB::rollback();
+                
+                $errorMessage = 'Unable to process your order at this time. If you have an ongoing order with this link, please wait for it to complete before placing a new order. Otherwise, please try again later or contact support if the issue persists.';
+                
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage
+                    ], 422);
+                }
+                
+                return redirect()->back()->with('error', $errorMessage);
             }
-
-            // Update order status
-            $order->update(['status' => $orderStatus]);
-
-            // Deduct amount from user's wallet
-            $user->decrement('balance', $totalAmount);
 
             // Create transaction record
             Transaction::createTransaction(

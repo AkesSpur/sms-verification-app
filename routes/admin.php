@@ -178,6 +178,7 @@ Route::prefix('daisy-orders')->name('daisy-orders.')->group(function () {
 Route::resource('social-media-categories', SocialMediaCategoryController::class);
 Route::get('social-media-products/by-category/{category}', [SocialMediaProductController::class, 'getByCategory'])->name('social-media-products.by-category');
 Route::post('social-media-products/sync-owlet-services', [SocialMediaProductController::class, 'syncOwletServices'])->name('social-media-products.sync-owlet-services');
+Route::post('social-media-products/test-owlet-connection', [SocialMediaProductController::class, 'testOwletConnection'])->name('social-media-products.test-owlet-connection');
 Route::post('social-media-products/bulk-update-prices', [SocialMediaProductController::class, 'bulkUpdatePrices'])->name('social-media-products.bulk-update-prices');
 Route::post('social-media-products/bulk-update-status', [SocialMediaProductController::class, 'bulkUpdateStatus'])->name('social-media-products.bulk-update-status');
 Route::resource('social-media-products', SocialMediaProductController::class);
