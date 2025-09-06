@@ -86,7 +86,7 @@ class GiftOrderController extends Controller
     {
         $request->validate([
             'status' => 'required|in:confirmed,cancelled',
-            'tracking_number' => 'nullable|string|max:255',
+            'tracking_number' => 'nullable|string|max:2000',
             'notes' => 'nullable|string|max:1000'
         ]);
 
