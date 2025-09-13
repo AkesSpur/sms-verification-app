@@ -434,6 +434,53 @@
                     @endforelse
                 </div>
             </div>
+            
+            <!-- Digital Products Pagination -->
+            @if($digitalProducts->hasPages())
+            <div class="mt-6">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Showing <span class="font-medium">{{ $digitalProducts->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $digitalProducts->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $digitalProducts->total() }}</span> results
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {{-- Previous Page Link --}}
+                        @if ($digitalProducts->onFirstPage())
+                            <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
+                                Previous
+                            </span>
+                        @else
+                            <a href="{{ $digitalProducts->previousPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Previous
+                            </a>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @foreach ($digitalProducts->getUrlRange(1, $digitalProducts->lastPage()) as $page => $url)
+                            @if ($page == $digitalProducts->currentPage())
+                                <span class="px-3 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg">
+                                    {{ $page }}
+                                </span>
+                            @else
+                                <a href="{{ $url }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                    {{ $page }}
+                                </a>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if ($digitalProducts->hasMorePages())
+                            <a href="{{ $digitalProducts->nextPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Next
+                            </a>
+                        @else
+                            <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
+                                Next
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Gift Orders Tab -->

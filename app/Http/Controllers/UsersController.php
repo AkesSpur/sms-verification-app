@@ -104,13 +104,12 @@ class UsersController extends Controller
             ->latest()
             ->paginate(10);
         
-        // Get actual digital product orders from database
+        // Get actual digital product orders from database with pagination
         $digitalProducts = auth()->user()->digitalProductOrders()
             ->with(['product.subcategory.category', 'log'])
             ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function ($order) {
+            ->paginate(10)
+            ->through(function ($order) {
                 return [
                     'id' => $order->id,
                     'name' => $order->product->name,
