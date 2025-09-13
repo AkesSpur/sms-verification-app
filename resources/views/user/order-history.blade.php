@@ -439,10 +439,10 @@
             @if($digitalProducts->hasPages())
             <div class="mt-6">
                 <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
+                    <div class="hidden sm:block text-sm text-gray-700">
                         Showing <span class="font-medium">{{ $digitalProducts->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $digitalProducts->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $digitalProducts->total() }}</span> results
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex flex-1 justify-between sm:justify-end space-x-2">
                         {{-- Previous Page Link --}}
                         @if ($digitalProducts->onFirstPage())
                             <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
@@ -454,45 +454,47 @@
                             </a>
                         @endif
 
-                        {{-- Pagination Elements --}}
-                        @php
-                            $currentPage = $digitalProducts->currentPage();
-                            $lastPage = $digitalProducts->lastPage();
-                            $window = 2; // Number of pages to show on each side of current page
-                        @endphp
+                        {{-- Pagination Elements - Only visible on desktop --}}
+                        <div class="hidden sm:flex items-center space-x-2">
+                            @php
+                                $currentPage = $digitalProducts->currentPage();
+                                $lastPage = $digitalProducts->lastPage();
+                                $window = 2; // Number of pages to show on each side of current page
+                            @endphp
 
-                        {{-- First Page --}}
-                        @if($lastPage > 5)
-                            <a href="{{ $digitalProducts->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == 1 ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                                1
-                            </a>
-                            
-                            {{-- Left Ellipsis --}}
-                            @if($currentPage > ($window + 2))
-                                <span class="px-2 py-2 text-gray-500">...</span>
+                            {{-- First Page --}}
+                            @if($lastPage > 5)
+                                <a href="{{ $digitalProducts->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == 1 ? 'bg-primary-600 text-white border-transparent' : '' }}">
+                                    1
+                                </a>
+                                
+                                {{-- Left Ellipsis --}}
+                                @if($currentPage > ($window + 2))
+                                    <span class="px-2 py-2 text-gray-500">...</span>
+                                @endif
                             @endif
-                        @endif
 
-                        {{-- Page Window --}}
-                        @foreach(range(max(2, $currentPage - $window), min($lastPage - 1, $currentPage + $window)) as $page)
-                            @if($page > 1 && $page < $lastPage)
-                                <a href="{{ $digitalProducts->url($page) }}" class="px-3 py-2 text-sm font-medium {{ $page == $currentPage ? 'text-white bg-primary-600 border-transparent' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50' }} rounded-lg">
-                                    {{ $page }}
+                            {{-- Page Window --}}
+                            @foreach(range(max(2, $currentPage - $window), min($lastPage - 1, $currentPage + $window)) as $page)
+                                @if($page > 1 && $page < $lastPage)
+                                    <a href="{{ $digitalProducts->url($page) }}" class="px-3 py-2 text-sm font-medium {{ $page == $currentPage ? 'text-white bg-primary-600 border-transparent' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50' }} rounded-lg">
+                                        {{ $page }}
+                                    </a>
+                                @endif
+                            @endforeach
+
+                            {{-- Last Page --}}
+                            @if($lastPage > 5)
+                                {{-- Right Ellipsis --}}
+                                @if($currentPage < ($lastPage - $window - 1))
+                                    <span class="px-2 py-2 text-gray-500">...</span>
+                                @endif
+
+                                <a href="{{ $digitalProducts->url($lastPage) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == $lastPage ? 'bg-primary-600 text-white border-transparent' : '' }}">
+                                    {{ $lastPage }}
                                 </a>
                             @endif
-                        @endforeach
-
-                        {{-- Last Page --}}
-                        @if($lastPage > 5)
-                            {{-- Right Ellipsis --}}
-                            @if($currentPage < ($lastPage - $window - 1))
-                                <span class="px-2 py-2 text-gray-500">...</span>
-                            @endif
-
-                            <a href="{{ $digitalProducts->url($lastPage) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == $lastPage ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                                {{ $lastPage }}
-                            </a>
-                        @endif
+                        </div>
 
                         {{-- Next Page Link --}}
                         @if ($digitalProducts->hasMorePages())
@@ -654,10 +656,10 @@
     @if($smsOrders->hasPages())
     <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-700">
+            <div class="hidden sm:block text-sm text-gray-700">
                 Showing <span class="font-medium">{{ $smsOrders->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $smsOrders->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $smsOrders->total() }}</span> results
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex flex-1 justify-between sm:justify-end space-x-2">
                 {{-- Previous Page Link --}}
                 @if ($smsOrders->onFirstPage())
                     <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
@@ -669,45 +671,47 @@
                     </a>
                 @endif
 
-                {{-- Pagination Elements --}}
-                @php
-                    $currentPage = $smsOrders->currentPage();
-                    $lastPage = $smsOrders->lastPage();
-                    $window = 2; // Number of pages to show on each side of current page
-                @endphp
+                {{-- Pagination Elements - Only visible on desktop --}}
+                <div class="hidden sm:flex items-center space-x-2">
+                    @php
+                        $currentPage = $smsOrders->currentPage();
+                        $lastPage = $smsOrders->lastPage();
+                        $window = 2; // Number of pages to show on each side of current page
+                    @endphp
 
-                {{-- First Page --}}
-                @if($lastPage > 5)
-                    <a href="{{ $smsOrders->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == 1 ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                        1
-                    </a>
-                    
-                    {{-- Left Ellipsis --}}
-                    @if($currentPage > ($window + 2))
-                        <span class="px-2 py-2 text-gray-500">...</span>
+                    {{-- First Page --}}
+                    @if($lastPage > 5)
+                        <a href="{{ $smsOrders->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == 1 ? 'bg-primary-600 text-white border-transparent' : '' }}">
+                            1
+                        </a>
+                        
+                        {{-- Left Ellipsis --}}
+                        @if($currentPage > ($window + 2))
+                            <span class="px-2 py-2 text-gray-500">...</span>
+                        @endif
                     @endif
-                @endif
 
-                {{-- Page Window --}}
-                @foreach(range(max(2, $currentPage - $window), min($lastPage - 1, $currentPage + $window)) as $page)
-                    @if($page > 1 && $page < $lastPage)
-                        <a href="{{ $smsOrders->url($page) }}" class="px-3 py-2 text-sm font-medium {{ $page == $currentPage ? 'text-white bg-primary-600 border-transparent' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50' }} rounded-lg">
-                            {{ $page }}
+                    {{-- Page Window --}}
+                    @foreach(range(max(2, $currentPage - $window), min($lastPage - 1, $currentPage + $window)) as $page)
+                        @if($page > 1 && $page < $lastPage)
+                            <a href="{{ $smsOrders->url($page) }}" class="px-3 py-2 text-sm font-medium {{ $page == $currentPage ? 'text-white bg-primary-600 border-transparent' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50' }} rounded-lg">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endforeach
+
+                    {{-- Last Page --}}
+                    @if($lastPage > 5)
+                        {{-- Right Ellipsis --}}
+                        @if($currentPage < ($lastPage - $window - 1))
+                            <span class="px-2 py-2 text-gray-500">...</span>
+                        @endif
+
+                        <a href="{{ $smsOrders->url($lastPage) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == $lastPage ? 'bg-primary-600 text-white border-transparent' : '' }}">
+                            {{ $lastPage }}
                         </a>
                     @endif
-                @endforeach
-
-                {{-- Last Page --}}
-                @if($lastPage > 5)
-                    {{-- Right Ellipsis --}}
-                    @if($currentPage < ($lastPage - $window - 1))
-                        <span class="px-2 py-2 text-gray-500">...</span>
-                    @endif
-
-                    <a href="{{ $smsOrders->url($lastPage) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == $lastPage ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                        {{ $lastPage }}
-                    </a>
-                @endif
+                </div>
 
                 {{-- Next Page Link --}}
                 @if ($smsOrders->hasMorePages())
