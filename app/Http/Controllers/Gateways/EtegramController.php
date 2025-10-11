@@ -193,7 +193,7 @@ class EtegramController extends Controller
                 
                 // Add authorization header with secret key
                 $headers = [
-                    'Authorization: Bearer ' . $etegramConfig->secret_key,
+                    'Authorization: Bearer ' . $etegramConfig->public_key,
                     'Content-Type: application/json',
                     'Accept: application/json'
                 ];
