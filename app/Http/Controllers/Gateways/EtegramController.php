@@ -167,15 +167,23 @@ class EtegramController extends Controller
             }
             
             // Etegram API endpoint for transaction verification (HTTPS with custom SSL options)
-            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+            // $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+
+            // Correct verification endpoint
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer pk_live-8f369e47704244ff852dee6d3dc08163', // or use public key if required
+            'Accept' => 'application/json',
+        ])// NEW - CORRECT
+->get("https://api-checkout.etegram.com/api/transaction/verify-access-code/{$accessCode}");
+
         
-            // PATCH request with custom SSL and timeout options
-            $response = Http::withOptions([
-                'verify' => false,  // Disable SSL verification
-                'timeout' => 30,    // 30 second timeout
-                'connect_timeout' => 10,  // 10 second connection timeout
-                'http_errors' => false,   // Don't throw exceptions on HTTP errors
-            ])->patch($url);
+            // // PATCH request with custom SSL and timeout options
+            // $response = Http::withOptions([
+            //     'verify' => false,  // Disable SSL verification
+            //     'timeout' => 30,    // 30 second timeout
+            //     'connect_timeout' => 10,  // 10 second connection timeout
+            //     'http_errors' => false,   // Don't throw exceptions on HTTP errors
+            // ])->patch($url);
 
             echo '<pre>';
             var_dump($response);
