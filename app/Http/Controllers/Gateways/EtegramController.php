@@ -229,15 +229,12 @@ class EtegramController extends Controller
                 return redirect()->route('user.transaction');
             }
             
-            // echo "Final Result:\n";
-            // echo "HTTP Code: " . $finalHttpCode . "\n";
-            // echo "Response: " . $finalResponse . "\n";
-            // die;
-
-            if ($response->successful()) {
-                $data = $response->json();
-                if (isset($data['status']) && $data['status'] == true) {
-
+            // Handle the response based on HTTP status code
+            if ($finalHttpCode == 200) {
+                // Parse JSON response
+                $data = json_decode($finalResponse, true);
+                
+                if (json_last_error() == JSON_ERROR_NONE && isset($data['status']) && $data['status'] == true) {
                     $user = Auth::user();
                     $depositAmount = $data['data']['amount'] ?? $pendingTransaction->amount;
                     $newBalance = $user->balance + $depositAmount;
