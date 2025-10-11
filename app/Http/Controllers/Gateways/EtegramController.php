@@ -229,10 +229,10 @@ class EtegramController extends Controller
                 return redirect()->route('user.transaction');
             }
             
-            echo "Final Result:\n";
-            echo "HTTP Code: " . $finalHttpCode . "\n";
-            echo "Response: " . $finalResponse . "\n";
-            die;
+            // echo "Final Result:\n";
+            // echo "HTTP Code: " . $finalHttpCode . "\n";
+            // echo "Response: " . $finalResponse . "\n";
+            // die;
 
             if ($response->successful()) {
                 $data = $response->json();
