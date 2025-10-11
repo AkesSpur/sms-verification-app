@@ -174,7 +174,7 @@ class EtegramController extends Controller
             'Authorization' => 'Bearer pk_live-8f369e47704244ff852dee6d3dc08163', // or use public key if required
             'Accept' => 'application/json',
         ])// NEW - CORRECT
-->patch("https://api-checkout.etegram.com/api/transaction/verify-access-code/{$etegramConfig->merchant_id}/{$accessCode}");
+->get("https://api-checkout.etegram.com/api/transaction/verify-payment/{$accessCode}");
 
         
             // // PATCH request with custom SSL and timeout options
