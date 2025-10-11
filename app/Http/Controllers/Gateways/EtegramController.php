@@ -166,14 +166,10 @@ class EtegramController extends Controller
                 return redirect()->route('user.transaction');
             }
             
-            // Etegram API endpoint for transaction verification (using GET method)
-            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+            // Etegram API endpoint for transaction verification (using PATCH method)
+            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/68e7d25b4d8701df92ded29f/{$accessCode}";
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $etegramConfig->public_key,
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])->get($url);
+            $response = Http::patch($url);
 
             echo '<pre>';
             var_dump($response);
