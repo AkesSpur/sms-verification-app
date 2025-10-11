@@ -170,11 +170,15 @@ class EtegramController extends Controller
             $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $etegramConfig->public_key,
+                // 'Authorization' => 'Bearer ' . $etegramConfig->secret_key,
+                'Authorization' => 'Bearer pk_live-8f369e47704244ff852dee6d3dc08163',
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ])->patch($url, []);
 
+            echo session('etegram_access_code');
+            echo "<br>";
+            echo $accessCode;
             echo '<pre>';
             var_dump($response);
             die;
