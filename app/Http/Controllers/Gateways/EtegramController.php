@@ -228,10 +228,10 @@ class EtegramController extends Controller
                 toastr()->error('Payment verification failed: Unable to connect to Etegram API');
                 return redirect()->route('user.transaction');
             }
-            echo "Final Result:\n";
-            echo "HTTP Code: " . $finalHttpCode . "\n";
-            echo "Response: " . $finalResponse . "\n";
-            die;
+            // echo "Final Result:\n";
+            // echo "HTTP Code: " . $finalHttpCode . "\n";
+            // echo "Response: " . $finalResponse . "\n";
+            // die;
             // Handle the response based on HTTP status code
             if ($finalHttpCode == 200) {
                 // Parse JSON response
