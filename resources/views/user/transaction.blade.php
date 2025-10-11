@@ -127,6 +127,19 @@
                     <!-- Etegram Section -->
                     @if($etegramSetting && $etegramSetting->status)
                     <div id="etegramSection" class="payment-section">
+                        <!-- Warning Message -->
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-red-600 mt-0.5"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-red-800">Service Temporarily Unavailable</h4>
+                                    <p class="text-xs text-red-700 mt-1">Etegram payment service is currently down for maintenance. Please use alternative payment methods or try again later.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <form action="{{ route('user.etegram.redirect') }}" method="POST" class="space-y-6">
                             @csrf
                             <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
