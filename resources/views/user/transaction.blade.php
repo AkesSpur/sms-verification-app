@@ -37,59 +37,18 @@
                     <!-- Payment Method Tabs -->
                     <div class="mb-6">
                         <div class="flex border-b border-gray-200">
-                            <button type="button" onclick="switchPaymentTab('paystack')" id="paystackTab" 
+                            @if($etegramSetting && $etegramSetting->status)
+                            <button type="button" onclick="switchPaymentTab('etegram')" id="etegramTab" 
                                     class="px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-white">
-                                <i class="fas fa-credit-card mr-2"></i>Online Payment
+                                <i class="fas fa-paper-plane mr-2"></i>Etegram
                             </button>
+                            @endif
                             @if($localbankSetting && $localbankSetting->status)
                             <button type="button" onclick="switchPaymentTab('localbank')" id="localbankTab" 
                                     class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
                                 <i class="fas fa-university mr-2"></i>Bank Transfer
                             </button>
                             @endif
-                        </div>
-                    </div>
-
-                    <!-- Paystack Payment Section -->
-                    <div id="paystackSection" class="payment-section">
-                        <form id="depositForm" action="{{ route('user.paystack.redirect') }}" method="GET" class="space-y-6">
-                            <div>
-                                <label for="depositAmount" class="block text-sm font-medium text-gray-700 mb-2">Amount (₦)</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 ml-3 text-sm">₦</span>
-                                    </div>
-                                    <input type="number" id="depositAmount" name="amount" min="100" max="1000000" step="0.01"
-                                           class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                                           placeholder="  Enter amount" required>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Minimum: ₦100 • Maximum: ₦1,000,000
-                                </p>
-                            </div>
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-shield-alt text-blue-600 mt-0.5"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h4 class="text-sm font-medium text-blue-800">Secure Payment</h4>
-                                        <p class="text-xs text-blue-700 mt-1">Your payment is processed securely through Paystack</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="mt-8 flex justify-end space-x-3">
-                            <button type="button" onclick="closeAddFundsModal()" 
-                                    class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-                                Cancel
-                            </button>
-                            <button type="submit" form="depositForm" 
-                                    class="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                                <i class="fas fa-credit-card mr-2"></i>
-                                Proceed to Payment
-                            </button>
                         </div>
                     </div>
 
@@ -162,6 +121,110 @@
                             </button>
                            
                         </div>
+                    </div>
+                    @endif
+
+                    {{-- <!-- VPay Section -->
+                    @if($vpaySetting && $vpaySetting->status)
+                    <div id="vpaySection" class="payment-section" style="display: none;">
+                        <div class="space-y-6">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h4 class="text-sm font-medium text-blue-800">VPay Payment</h4>
+                                        <p class="text-xs text-blue-700 mt-1">You will be redirected to VPay to complete your payment securely</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <form id="vpayDepositForm" action="{{ route('vpay.redirect') }}" method="POST" class="space-y-4">
+                                @csrf
+                                <input type="hidden" name="amount" id="vpayAmount">
+                                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+                                
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                                    <h4 class="text-lg font-medium text-gray-900 mb-4">
+                                        <i class="fas fa-wallet mr-2 text-primary-600"></i>
+                                        Payment Summary
+                                    </h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                            <span class="text-sm font-medium text-gray-600">Amount:</span>
+                                            <span class="text-sm text-gray-900 font-bold" id="vpayAmountDisplay">$0.00</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                            <span class="text-sm font-medium text-gray-600">Payment Method:</span>
+                                            <span class="text-sm text-gray-900 font-medium">VPay</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="mt-8 flex justify-end space-x-3">
+                            <button type="button" onclick="closeAddFundsModal()" 
+                                    class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" form="vpayDepositForm" 
+                                    class="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+                                <i class="fas fa-external-link-alt mr-2"></i>
+                                Pay with VPay
+                            </button>
+                        </div>
+                    </div>
+                    @endif --}}
+
+                    <!-- Etegram Section -->
+                    @if($etegramSetting && $etegramSetting->status)
+                    <div id="etegramSection" class="payment-section">
+                        <form action="{{ route('user.etegram.redirect') }}" method="POST" class="space-y-6">
+                            @csrf
+                            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+                            
+                            <div>
+                                <label for="etegramAmountInput" class="block text-sm font-medium text-gray-700 mb-2">Amount (₦)</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 ml-3 text-sm">₦</span>
+                                    </div>
+                                    <input type="number" id="etegramAmountInput" name="amount" min="100" max="1000000" step="0.01"
+                                           class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                           placeholder="  Enter amount" required>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Minimum: ₦100 • Maximum: ₦1,000,000
+                                </p>
+                            </div>
+                            
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-paper-plane text-green-600 mt-0.5"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h4 class="text-sm font-medium text-green-800">Etegram Payment</h4>
+                                        <p class="text-xs text-green-700 mt-1">Secure payment through Etegram gateway</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 flex justify-end space-x-3">
+                                <button type="button" onclick="closeAddFundsModal()" 
+                                        class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Proceed with Etegram
+                                </button>
+                            </div>
+                        </form>
                     </div>
                     @endif
                 </div>
@@ -586,63 +649,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make closeAddFundsModal globally accessible
     window.closeAddFundsModal = closeAddFundsModal;
 
-    // Form submission
-    document.getElementById('depositForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const amount = document.getElementById('depositAmount').value;
-        
-        if (amount < 100 || amount > 1000000) {
-            alert('Please enter an amount between ₦100 and ₦1,000,000');
-            return;
-        }
-        
-        // Show loading state
-        const submitBtn = document.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-        submitBtn.disabled = true;
-        
-        // Send AJAX request to set deposit amount
-        fetch('{{ route("user.set-deposit-amount") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ amount: amount })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Redirect to Paystack
-                window.location.href = '{{ route("user.paystack.redirect") }}';
-            } else {
-                // Reset button state
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                alert('Error: ' + (data.message || 'Something went wrong'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Reset button state
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-            alert('An error occurred. Please try again.');
-        });
-    });
-
-    // Format amount input with thousand separators
-    document.getElementById('depositAmount').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/,/g, '');
-        if (value && !isNaN(value)) {
-            // Add thousand separators for display
-            const formatted = parseFloat(value).toLocaleString('en-US');
-            // Don't update the actual value, just for visual feedback
-        }
-    });
-    
     // Close modal with Escape key
      document.addEventListener('keydown', function(e) {
          if (e.key === 'Escape') {
@@ -667,16 +673,16 @@ function switchPaymentTab(tabName) {
     });
     
     // Show selected section and activate tab
-    if (tabName === 'paystack') {
-        document.getElementById('paystackSection').style.display = 'block';
-        const paystackTab = document.getElementById('paystackTab');
-        paystackTab.classList.remove('text-gray-500', 'border-transparent');
-        paystackTab.classList.add('text-primary-600', 'border-primary-600');
-    } else if (tabName === 'localbank') {
+    if (tabName === 'localbank') {
         document.getElementById('localbankSection').style.display = 'block';
         const localbankTab = document.getElementById('localbankTab');
         localbankTab.classList.remove('text-gray-500', 'border-transparent');
         localbankTab.classList.add('text-primary-600', 'border-primary-600');
+    } else if (tabName === 'etegram') {
+        document.getElementById('etegramSection').style.display = 'block';
+        const etegramTab = document.getElementById('etegramTab');
+        etegramTab.classList.remove('text-gray-500', 'border-transparent');
+        etegramTab.classList.add('text-primary-600', 'border-primary-600');
     }
 }
 

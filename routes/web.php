@@ -119,6 +119,12 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('paystack/callback', [PaystackController::class, 'verifyTransaction'])->name('user.paystack.callback');
 });
 
+// Etegram routes
+Route::prefix('user')->middleware('auth')->group(function () {
+    Route::post('etegram/redirect', [\App\Http\Controllers\Gateways\EtegramController::class, 'etegramRedirect'])->name('user.etegram.redirect');
+    Route::get('etegram/callback', [\App\Http\Controllers\Gateways\EtegramController::class, 'verifyTransaction'])->name('user.etegram.callback');
+});
+
 // Digital Product Order routes
 Route::prefix('digital-products')->middleware('auth')->group(function () {
     Route::post('/purchase', [DigitalProductOrderController::class, 'store'])->name('digital-products.purchase');
