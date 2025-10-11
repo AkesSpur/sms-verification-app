@@ -27,6 +27,9 @@ class EtegramController extends Controller
 
             $amount = $request->input('amount');
             $userId = $request->input('user_id');
+            
+            // Store amount in session for later use in verification
+            session(['deposit_amount' => $amount]);
 
             // Check if user is authenticated
             if (!Auth::check()) {
@@ -50,7 +53,7 @@ class EtegramController extends Controller
             $lastName = $nameParts[1] ?? 'Name';
 
             // Etegram API endpoint for transaction initialization (using merchant_id)
-            $url = 'https://api-checkout.etegram.com/api/transaction/initialize/68e7d25b4d8701df92ded29f';
+            $url = 'https://api-checkout.etegram.com/api/transaction/initialize/' . $etegramConfig->merchant_id;
             $headers = [
                 // 'Authorization' => 'Bearer ' . $etegramConfig->public_key,
                 'Authorization' => 'Bearer pk_live-8f369e47704244ff852dee6d3dc08163',
@@ -109,14 +112,14 @@ class EtegramController extends Controller
             $existingTransaction = Transaction::where('reference', $accessCode)->first();
             
             if ($existingTransaction) {
-                if ($existingTransaction->status === 'completed') {
+                if ($existingTransaction->status == 'completed') {
                     // Transaction already processed successfully - prevent duplicate processing
                     toastr()->info('This transaction has already been processed successfully.');
                     session()->forget(['deposit_amount', 'etegram_access_code']);
                     return redirect()->route('user.transaction');
                 }
                 
-                if ($existingTransaction->status === 'failed') {
+                if ($existingTransaction->status == 'failed') {
                     // Transaction already failed - allow retry by updating status to pending
                     $existingTransaction->status = 'pending';
                     $existingTransaction->save();
