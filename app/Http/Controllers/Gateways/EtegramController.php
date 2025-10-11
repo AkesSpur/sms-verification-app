@@ -166,11 +166,16 @@ class EtegramController extends Controller
                 return redirect()->route('user.transaction');
             }
             
-            // Etegram API endpoint for transaction verification (testing with HTTP to bypass SSL)
-            $url = "http://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+            // Etegram API endpoint for transaction verification (HTTPS with custom SSL options)
+            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
         
-            // Simple PATCH request without SSL
-            $response = Http::patch($url);
+            // PATCH request with custom SSL and timeout options
+            $response = Http::withOptions([
+                'verify' => false,  // Disable SSL verification
+                'timeout' => 30,    // 30 second timeout
+                'connect_timeout' => 10,  // 10 second connection timeout
+                'http_errors' => false,   // Don't throw exceptions on HTTP errors
+            ])->patch($url);
 
             echo '<pre>';
             var_dump($response);
