@@ -167,7 +167,7 @@ class EtegramController extends Controller
             }
             
             // Etegram API endpoint for transaction verification (using PATCH method as per documentation)
-            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+            $url = "https://api-checkout.etegram.com.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
         
             // Temporarily disable SSL verification for testing
             $response = Http::withoutVerifying()->patch($url);
