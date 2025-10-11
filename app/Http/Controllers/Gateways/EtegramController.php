@@ -167,7 +167,7 @@ class EtegramController extends Controller
             }
             
             // Etegram API endpoint for transaction verification (using PATCH method as per documentation)
-            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+            $url = "https://api-checkout.etegram.com.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
         
             // Use raw cURL as per Etegram sample code
             $ch = curl_init($url);
@@ -176,6 +176,14 @@ class EtegramController extends Controller
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            
+            // Add authorization header with secret key
+            $headers = [
+                'Authorization: Bearer ' . $etegramConfig->secret_key,
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ];
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             
             $response = curl_exec($ch);
             
