@@ -168,7 +168,7 @@ class EtegramController extends Controller
             
             // Try different URL variations - first with single .com
             $urls = [
-                "https://api-checkout.etegram.com/api/transaction/verify-access-code/{$accessCode}",
+                "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}",
                 "https://api-checkout.etegram.com.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}"
             ];
             
