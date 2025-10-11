@@ -175,9 +175,9 @@ class EtegramController extends Controller
                 'Accept' => 'application/json',
             ])->get($url);
 
-            // echo '<pre>';
-            // var_dump($response);
-            // die;
+            echo '<pre>';
+            var_dump($response);
+            die;
 
             if ($response->successful()) {
                 $data = $response->json();
