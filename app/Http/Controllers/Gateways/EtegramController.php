@@ -100,7 +100,7 @@ class EtegramController extends Controller
 
     public function verifyTransaction(Request $request)
     {
-        $accessCode = $request->access_code ?? session('etegram_access_code');
+        $accessCode = $request->get('access-code') ?? session('etegram_access_code');
         
         if (!$accessCode) {
             toastr()->error('Invalid transaction access code');
