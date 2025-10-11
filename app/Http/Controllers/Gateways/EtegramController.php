@@ -171,6 +171,10 @@ class EtegramController extends Controller
 
             $response = Http::patch($url);
 
+            echo '<pre>';
+            var_dump($response);
+            die;
+
             if ($response->successful()) {
                 $data = $response->json();
                 if (isset($data['status']) && $data['status'] === true) {
