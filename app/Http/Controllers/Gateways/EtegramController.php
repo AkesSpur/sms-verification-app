@@ -166,40 +166,72 @@ class EtegramController extends Controller
                 return redirect()->route('user.transaction');
             }
             
-            // Etegram API endpoint for transaction verification (using PATCH method as per documentation)
-            $url = "https://api-checkout.etegram.com.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
-        
-            // Use raw cURL as per Etegram sample code
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            
-            // Add authorization header with secret key
-            $headers = [
-                'Authorization: Bearer ' . $etegramConfig->secret_key,
-                'Content-Type: application/json',
-                'Accept: application/json'
+            // Try different URL variations - first with single .com
+            $urls = [
+                "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}",
+                "https://api-checkout.etegram.com.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}"
             ];
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             
-            $response = curl_exec($ch);
+            $finalResponse = null;
+            $finalHttpCode = 0;
+            $lastError = '';
             
-            if (curl_errno($ch)) {
-                $error = curl_error($ch);
+            foreach ($urls as $index => $url) {
+                echo '<pre>';
+                echo "Trying URL " . ($index + 1) . ": " . $url . "\n";
+                
+                // Use raw cURL as per Etegram sample code
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+                curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output for debugging
+                
+                // Add authorization header with secret key
+                $headers = [
+                    'Authorization: Bearer ' . $etegramConfig->secret_key,
+                    'Content-Type: application/json',
+                    'Accept: application/json'
+                ];
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlError = curl_error($ch);
+                $curlErrno = curl_errno($ch);
+                
+                echo "HTTP Code: " . $httpCode . "\n";
+                echo "cURL Error Number: " . $curlErrno . "\n";
+                echo "cURL Error: " . $curlError . "\n";
+                echo "Response: " . $response . "\n";
+                echo "---\n";
+                
                 curl_close($ch);
-                // toastr()->error('Payment verification failed: ' . $error);
-                // return redirect()->route('user.transaction');
+                
+                // If we got a successful connection (HTTP code > 0), use this response
+                if ($httpCode > 0) {
+                    $finalResponse = $response;
+                    $finalHttpCode = $httpCode;
+                    break;
+                }
+                
+                $lastError = $curlError ?: 'Connection failed';
             }
             
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            // If no URL worked, show error
+            if ($finalHttpCode == 0) {
+                echo "All URLs failed. Last error: " . $lastError . "\n";
+                toastr()->error('Payment verification failed: Unable to connect to Etegram API');
+                return redirect()->route('user.transaction');
+            }
             
-            echo '<pre>';
-            echo "HTTP Code: " . $httpCode . "\n";
-            echo "Response: " . $response . "\n";
+            echo "Final Result:\n";
+            echo "HTTP Code: " . $finalHttpCode . "\n";
+            echo "Response: " . $finalResponse . "\n";
             die;
 
             if ($response->successful()) {
