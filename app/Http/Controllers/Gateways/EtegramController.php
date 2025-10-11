@@ -167,71 +167,40 @@ class EtegramController extends Controller
             }
             
             // Try different URL variations - first with single .com
-            $urls = [
-                "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}",
-                "https://api-checkout.etegram.com.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}"
+            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+            
+            // Use raw cURL as per Etegram sample code
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output for debugging
+            
+            // Add authorization header with secret key
+            $headers = [
+                'Authorization: Bearer ' . $etegramConfig->public_key,
+                'Content-Type: application/json',
+                'Accept: application/json'
             ];
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             
-            $finalResponse = null;
-            $finalHttpCode = 0;
-            $lastError = '';
+            $finalResponse = curl_exec($ch);
+            $finalHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            $curlErrno = curl_errno($ch);
             
-            foreach ($urls as $index => $url) {
-                // echo '<pre>';
-                // echo "Trying URL " . ($index + 1) . ": " . $url . "\n";
-                
-                // Use raw cURL as per Etegram sample code
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-                curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output for debugging
-                
-                // Add authorization header with secret key
-                $headers = [
-                    'Authorization: Bearer ' . $etegramConfig->public_key,
-                    'Content-Type: application/json',
-                    'Accept: application/json'
-                ];
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                
-                $response = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curlError = curl_error($ch);
-                $curlErrno = curl_errno($ch);
-                
-                // echo "HTTP Code: " . $httpCode . "\n";
-                // echo "cURL Error Number: " . $curlErrno . "\n";
-                // echo "cURL Error: " . $curlError . "\n";
-                // echo "Response: " . $response . "\n";
-                // echo "---\n";
-                
-                curl_close($ch);
-                
-                // If we got a successful connection (HTTP code > 0), use this response
-                if ($httpCode > 0) {
-                    $finalResponse = $response;
-                    $finalHttpCode = $httpCode;
-                    break;
-                }
-                
-                $lastError = $curlError ?: 'Connection failed';
-            }
+            curl_close($ch);
             
-            // If no URL worked, show error
+            // If connection failed, show error
             if ($finalHttpCode == 0) {
-                // echo "All URLs failed. Last error: " . $lastError . "\n";
-                toastr()->error('Payment verification failed: Unable to connect to Etegram API');
+                toastr()->error('Payment verification failed: Unable to connect to Etegram API - ' . ($curlError ?: 'Connection failed'));
                 return redirect()->route('user.transaction');
             }
-            // echo "Final Result:\n";
-            // echo "HTTP Code: " . $finalHttpCode . "\n";
-            // echo "Response: " . $finalResponse . "\n";
-            // die;
+            
             // Handle the response based on HTTP status code
             if ($finalHttpCode == 200) {
                 // Parse JSON response
@@ -285,6 +254,35 @@ class EtegramController extends Controller
                     }
                 } elseif ($finalHttpCode == 401) {
                     $errorMessage = 'Authentication failed with Etegram API';
+                } elseif ($finalHttpCode == 403) {
+                    // Handle 403 - Payment has been processed/already verified
+                    $errorData = json_decode($finalResponse, true);
+                    if (json_last_error() == JSON_ERROR_NONE && isset($errorData['message'])) {
+                        $errorMessage = $errorData['message'];
+                    } else {
+                        $errorMessage = $finalResponse; // Use raw response if not JSON
+                    }
+                    
+                    // For 403, the payment might already be processed, so mark as completed
+                    $user = Auth::user();
+                    $depositAmount = session('deposit_amount', 0);
+                    $newBalance = $user->balance + $depositAmount;
+
+                    // Update user balance
+                    $user->update([
+                        'balance' => $newBalance
+                    ]);
+
+                    // Update the pending transaction
+                    $pendingTransaction->balance_after = $newBalance;
+                    $pendingTransaction->status = 'completed';
+                    $pendingTransaction->save();
+
+                    toastr()->success('₦' . number_format($depositAmount, 2) . ' was successfully deposited. Payment was already processed.');
+                    session()->forget(['deposit_amount', 'etegram_access_code']);
+
+                    return redirect()->route('user.transaction');
+                    
                 } elseif ($finalHttpCode == 404) {
                     $errorMessage = 'Transaction not found';
                 } else {
