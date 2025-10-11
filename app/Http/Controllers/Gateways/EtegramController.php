@@ -177,8 +177,8 @@ class EtegramController extends Controller
             $lastError = '';
             
             foreach ($urls as $index => $url) {
-                echo '<pre>';
-                echo "Trying URL " . ($index + 1) . ": " . $url . "\n";
+                // echo '<pre>';
+                // echo "Trying URL " . ($index + 1) . ": " . $url . "\n";
                 
                 // Use raw cURL as per Etegram sample code
                 $ch = curl_init($url);
@@ -204,11 +204,11 @@ class EtegramController extends Controller
                 $curlError = curl_error($ch);
                 $curlErrno = curl_errno($ch);
                 
-                echo "HTTP Code: " . $httpCode . "\n";
-                echo "cURL Error Number: " . $curlErrno . "\n";
-                echo "cURL Error: " . $curlError . "\n";
-                echo "Response: " . $response . "\n";
-                echo "---\n";
+                // echo "HTTP Code: " . $httpCode . "\n";
+                // echo "cURL Error Number: " . $curlErrno . "\n";
+                // echo "cURL Error: " . $curlError . "\n";
+                // echo "Response: " . $response . "\n";
+                // echo "---\n";
                 
                 curl_close($ch);
                 
@@ -224,11 +224,14 @@ class EtegramController extends Controller
             
             // If no URL worked, show error
             if ($finalHttpCode == 0) {
-                echo "All URLs failed. Last error: " . $lastError . "\n";
+                // echo "All URLs failed. Last error: " . $lastError . "\n";
                 toastr()->error('Payment verification failed: Unable to connect to Etegram API');
                 return redirect()->route('user.transaction');
             }
-            
+            echo "Final Result:\n";
+            echo "HTTP Code: " . $finalHttpCode . "\n";
+            echo "Response: " . $finalResponse . "\n";
+            die;
             // Handle the response based on HTTP status code
             if ($finalHttpCode == 200) {
                 // Parse JSON response
@@ -269,12 +272,31 @@ class EtegramController extends Controller
                     return redirect()->route('user.transaction');
                 }
             } else {
+                // Handle non-200 HTTP status codes
+                $errorMessage = 'Payment verification failed';
+                
+                if ($finalHttpCode == 400) {
+                    // Parse response to get specific error message
+                    $errorData = json_decode($finalResponse, true);
+                    if (json_last_error() === JSON_ERROR_NONE && isset($errorData['message'])) {
+                        $errorMessage = $errorData['message'];
+                    } else {
+                        $errorMessage = $finalResponse; // Use raw response if not JSON
+                    }
+                } elseif ($finalHttpCode == 401) {
+                    $errorMessage = 'Authentication failed with Etegram API';
+                } elseif ($finalHttpCode == 404) {
+                    $errorMessage = 'Transaction not found';
+                } else {
+                    $errorMessage = 'HTTP Error ' . $finalHttpCode . ': ' . $finalResponse;
+                }
+                
                 // Update transaction record for API error
                 $pendingTransaction->amount = session('deposit_amount') ?? 0;
                 $pendingTransaction->status = 'failed';
                 $pendingTransaction->save();
 
-                toastr()->error('An error occurred with Etegram verification. Contact support if you have complaints');
+                toastr()->error('Etegram verification error: ' . $errorMessage);
                 session()->forget(['deposit_amount', 'etegram_access_code']);
             
                 return redirect()->route('user.transaction');
