@@ -236,7 +236,7 @@ class EtegramController extends Controller
 
             if ($response->successful()) {
                 $data = $response->json();
-                if (isset($data['status']) && $data['status'] === true) {
+                if (isset($data['status']) && $data['status'] == true) {
 
                     $user = Auth::user();
                     $depositAmount = $data['data']['amount'] ?? $pendingTransaction->amount;
