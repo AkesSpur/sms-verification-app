@@ -100,7 +100,7 @@ class EtegramController extends Controller
 
     public function verifyTransaction(Request $request)
     {
-        $accessCode = $request->get('access-code') ?? session('etegram_access_code');
+        $accessCode = $request->access_code ?? session('etegram_access_code');
         
         if (!$accessCode) {
             toastr()->error('Invalid transaction access code');
@@ -166,24 +166,12 @@ class EtegramController extends Controller
                 return redirect()->route('user.transaction');
             }
             
-            // Etegram API endpoint for transaction verification (HTTPS with custom SSL options)
-            // $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
-
-            // Correct verification endpoint
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer pk_live-8f369e47704244ff852dee6d3dc08163', // or use public key if required
-            'Accept' => 'application/json',
-        ])// NEW - CORRECT
-->get("https://api-checkout.etegram.com/api/transaction/verify-payment/{$accessCode}");
-
+            // Etegram API endpoint for transaction verification (testing with HTTP to bypass SSL)
+            $url = "http://api-checkout.etegram.com/api/transaction/verify-access-code/{$accessCode}";
+            
         
-            // // PATCH request with custom SSL and timeout options
-            // $response = Http::withOptions([
-            //     'verify' => false,  // Disable SSL verification
-            //     'timeout' => 30,    // 30 second timeout
-            //     'connect_timeout' => 10,  // 10 second connection timeout
-            //     'http_errors' => false,   // Don't throw exceptions on HTTP errors
-            // ])->patch($url);
+            // Simple PATCH request without SSL
+            $response = Http::patch($url);
 
             echo '<pre>';
             var_dump($response);
