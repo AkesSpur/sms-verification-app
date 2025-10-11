@@ -100,7 +100,7 @@ class EtegramController extends Controller
 
     public function verifyTransaction(Request $request)
     {
-        $accessCode = $request->get('access-code') ?? session('etegram_access_code');
+        $accessCode = $request->access_code ?? session('etegram_access_code');
         
         if (!$accessCode) {
             toastr()->error('Invalid transaction access code');
@@ -166,15 +166,32 @@ class EtegramController extends Controller
                 return redirect()->route('user.transaction');
             }
             
-            // Etegram API endpoint for transaction verification (testing with HTTP to bypass SSL)
-            $url = "http://api-checkout.etegram.com/api/transaction/verify-access-code/{$accessCode}";
-            
+            // Etegram API endpoint for transaction verification (using PATCH method as per documentation)
+            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
         
-            // Simple PATCH request without SSL
-            $response = Http::patch($url);
-
+            // Use raw cURL as per Etegram sample code
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            
+            $response = curl_exec($ch);
+            
+            if (curl_errno($ch)) {
+                $error = curl_error($ch);
+                curl_close($ch);
+                // toastr()->error('Payment verification failed: ' . $error);
+                // return redirect()->route('user.transaction');
+            }
+            
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
             echo '<pre>';
-            var_dump($response);
+            echo "HTTP Code: " . $httpCode . "\n";
+            echo "Response: " . $response . "\n";
             die;
 
             if ($response->successful()) {
