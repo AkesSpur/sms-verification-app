@@ -223,7 +223,7 @@ class EtegramController extends Controller
                     $pendingTransaction->status = 'completed';
                     $pendingTransaction->save();
 
-                    toastr()->success('₦' . number_format($depositAmount, 2) . ' was successfully deposited into your account via Etegram');
+                    toastr()->success('₦' . number_format($depositAmount, 2) . ' was successfully deposited into your account.');
                     session()->forget(['deposit_amount', 'etegram_access_code']);
 
                     return redirect()->route('user.transaction');
