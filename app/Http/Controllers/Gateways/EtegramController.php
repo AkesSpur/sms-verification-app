@@ -167,18 +167,11 @@ class EtegramController extends Controller
             }
             
             // Etegram API endpoint for transaction verification (using PATCH method as per documentation)
-            $url = "https://api-checkout.etegram.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
+            $url = "https://api-checkout.etegram.com.com/api/transaction/verify-payment/{$etegramConfig->merchant_id}/{$accessCode}";
 
-            $response = Http::withHeaders([
-                // 'Authorization' => 'Bearer ' . $etegramConfig->secret_key,
-                'Authorization' => 'Bearer pk_live-8f369e47704244ff852dee6d3dc08163',
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])->patch($url, []);
+            // Simple PATCH request with no headers as per Etegram documentation
+            $response = Http::patch($url);
 
-            echo session('etegram_access_code');
-            echo "<br>";
-            echo $accessCode;
             echo '<pre>';
             var_dump($response);
             die;
