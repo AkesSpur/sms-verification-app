@@ -161,7 +161,7 @@
                             </div>
                             
                             <!-- Fee Breakdown Section -->
-                            <div id="etegramFeeBreakdown" class="bg-blue-50 border border-blue-200 rounded-lg p-4" style="display: none;">
+                            {{-- <div id="etegramFeeBreakdown" class="bg-blue-50 border border-blue-200 rounded-lg p-4" style="display: none;">
                                 <h4 class="text-sm font-medium text-blue-800 mb-3">
                                     <i class="fas fa-calculator mr-2"></i>Payment Breakdown
                                 </h4>
@@ -184,7 +184,7 @@
                                     <i class="fas fa-info-circle mr-1"></i>
                                     Fee: 1.5% + ₦100 (₦100 waived for amounts under ₦2,500, capped at ₦2,000)
                                 </div>
-                            </div>
+                            </div> --}}
                             
                             <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <div class="flex items-start">
@@ -671,47 +671,47 @@ function switchPaymentTab(tabName) {
     }
 }
 
-// Calculate Etegram fees and display breakdown
-function calculateEtegramFees() {
-    const amountInput = document.getElementById('etegramAmountInput');
-    const feeBreakdown = document.getElementById('etegramFeeBreakdown');
-    const baseAmountElement = document.getElementById('etegramBaseAmount');
-    const feeAmountElement = document.getElementById('etegramFeeAmount');
-    const totalAmountElement = document.getElementById('etegramTotalAmount');
+// // Calculate Etegram fees and display breakdown
+// function calculateEtegramFees() {
+//     const amountInput = document.getElementById('etegramAmountInput');
+//     const feeBreakdown = document.getElementById('etegramFeeBreakdown');
+//     const baseAmountElement = document.getElementById('etegramBaseAmount');
+//     const feeAmountElement = document.getElementById('etegramFeeAmount');
+//     const totalAmountElement = document.getElementById('etegramTotalAmount');
     
-    const amount = parseFloat(amountInput.value) || 0;
+//     const amount = parseFloat(amountInput.value) || 0;
     
-    if (amount > 0) {
-        // Calculate fee: 1.5% + NGN100
-        let percentageFee = amount * 0.015; // 1.5%
-        let fixedFee = 100; // NGN100
+//     if (amount > 0) {
+//         // Calculate fee: 1.5% + NGN100
+//         let percentageFee = amount * 0.015; // 1.5%
+//         let fixedFee = 100; // NGN100
         
-        // NGN100 fee waived for transactions under NGN2500
-        if (amount < 2500) {
-            fixedFee = 0;
-        }
+//         // NGN100 fee waived for transactions under NGN2500
+//         if (amount < 2500) {
+//             fixedFee = 0;
+//         }
         
-        let totalFee = percentageFee + fixedFee;
+//         let totalFee = percentageFee + fixedFee;
         
-        // Local transactions fees are capped at ₦2000
-        if (totalFee > 2000) {
-            totalFee = 2000;
-        }
+//         // Local transactions fees are capped at ₦2000
+//         if (totalFee > 2000) {
+//             totalFee = 2000;
+//         }
         
-        const totalAmount = amount + totalFee;
+//         const totalAmount = amount + totalFee;
         
-        // Format amounts
-        baseAmountElement.textContent = `₦${amount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        feeAmountElement.textContent = `₦${totalFee.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        totalAmountElement.textContent = `₦${totalAmount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+//         // Format amounts
+//         baseAmountElement.textContent = `₦${amount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+//         feeAmountElement.textContent = `₦${totalFee.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+//         totalAmountElement.textContent = `₦${totalAmount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         
-        // Show the breakdown
-        feeBreakdown.style.display = 'block';
-    } else {
-        // Hide the breakdown if no amount
-        feeBreakdown.style.display = 'none';
-    }
-}
+//         // Show the breakdown
+//         feeBreakdown.style.display = 'block';
+//     } else {
+//         // Hide the breakdown if no amount
+//         feeBreakdown.style.display = 'none';
+//     }
+// }
 
 // Contact support functionality
 function contactSupport() {
