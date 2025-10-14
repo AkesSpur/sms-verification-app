@@ -31,7 +31,7 @@ class SyncDaisyPrices extends Command
      */
     public function handle()
     {
-        $this->info('Starting Daisy SMS service prices bulk sync...');
+        // $this->info('Starting Daisy SMS service prices bulk sync...');
         
         try {
             // Create instances of required services
@@ -51,21 +51,21 @@ class SyncDaisyPrices extends Command
             $responseData = $response->getData(true);
             
             if ($responseData['success']) {
-                $this->info('✅ ' . $responseData['message']);
+                // $this->info('✅ ' . $responseData['message']);
                 
                 // Show summary
                 $summary = $responseData['summary'];
-                $this->line("Total services processed: {$summary['total_services']}");
-                $this->line("Successfully synced: {$summary['synced_count']}");
-                $this->line("Skipped: {$summary['skipped_count']}");
-                $this->line("Errors: {$summary['error_count']}");
-                $this->line("API calls made: {$summary['api_calls_made']}");
+                // $this->line("Total services processed: {$summary['total_services']}");
+                // $this->line("Successfully synced: {$summary['synced_count']}");
+                // $this->line("Skipped: {$summary['skipped_count']}");
+                // $this->line("Errors: {$summary['error_count']}");
+                // $this->line("API calls made: {$summary['api_calls_made']}");
                 
                 // Show detailed results if requested
                 if ($this->option('show-summary') && isset($responseData['results'])) {
-                    $this->line('');
-                    $this->line('Detailed Results:');
-                    $this->line('================');
+                    // $this->line('');
+                    // $this->line('Detailed Results:');
+                    // $this->line('================');
                     
                     foreach ($responseData['results'] as $result) {
                         $status = strtoupper($result['status']);
@@ -73,25 +73,25 @@ class SyncDaisyPrices extends Command
                         
                         switch ($result['status']) {
                             case 'synced':
-                                $this->line("✅ [{$status}] {$serviceName}: {$result['message']}");
+                                // $this->line("✅ [{$status}] {$serviceName}: {$result['message']}");
                                 break;
                             case 'skipped':
-                                $this->line("⏭️  [{$status}] {$serviceName}: {$result['reason']}");
+                                // $this->line("⏭️  [{$status}] {$serviceName}: {$result['reason']}");
                                 break;
                             case 'error':
-                                $this->line("❌ [{$status}] {$serviceName}: {$result['reason']}");
+                                // $this->line("❌ [{$status}] {$serviceName}: {$result['reason']}");
                                 break;
                         }
                     }
                 }
                 
             } else {
-                $this->error('❌ ' . $responseData['message']);
+                // $this->error('❌ ' . $responseData['message']);
                 return Command::FAILURE;
             }
             
         } catch (\Exception $e) {
-            $this->error('❌ Command failed: ' . $e->getMessage());
+            // $this->error('❌ Command failed: ' . $e->getMessage());
             return Command::FAILURE;
         }
         
