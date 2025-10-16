@@ -79,7 +79,7 @@
             
             <!-- Logo -->
             <a href="/" class="flex items-center h-16 px-4 bg-primary-600" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'">
-                <h1 class="text-xl font-bold text-white" x-show="!sidebarCollapsed">BlizzSMS</h1>
+                <h1 class="text-xl font-bold text-white" x-show="!sidebarCollapsed">Blizzlogspot</h1>
                 <div class="flex items-center justify-center" x-show="sidebarCollapsed">
                     <i class="fas fa-sms text-white text-xl"></i>
                 </div>
