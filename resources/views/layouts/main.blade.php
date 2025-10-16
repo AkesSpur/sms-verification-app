@@ -139,7 +139,7 @@
                         <a href="{{ route('home') }}" class="text-decoration-none">
                             <h1 class="text-2xl font-bold text-gray-900 navbar-logo transition-colors duration-200">
                                 {{-- <i class="fas fa-mobile-alt mr-2"></i> --}}
-                                BlizzSMS
+                                Blizzlogspot
                             </h1>
                         </a>
                     </div>
@@ -224,7 +224,7 @@
             <div class="mb-6 md:mb-0">
                 <h3 class="text-2xl font-bold text-slate-900">
                     <i class="fas fa-mobile-alt mr-2 text-blue-600"></i>
-                    BlizzSMS
+                    Blizzlogspot
                 </h3>
             </div>
             
