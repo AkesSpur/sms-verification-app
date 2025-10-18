@@ -37,15 +37,9 @@
                     <!-- Payment Method Tabs -->
                     <div class="mb-6">
                         <div class="flex border-b border-gray-200">
-                            @if($etegramSetting && $etegramSetting->status)
-                            <button type="button" onclick="switchPaymentTab('etegram')" id="etegramTab" 
-                                    class="px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-white">
-                                <i class="fas fa-paper-plane mr-2"></i>Instant Paymentt
-                            </button>
-                            @endif
                             @if($localbankSetting && $localbankSetting->status)
                             <button type="button" onclick="switchPaymentTab('localbank')" id="localbankTab" 
-                                    class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
+                                    class="px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-white">
                                 <i class="fas fa-university mr-2"></i>Bank Transfer
                             </button>
                             @endif
@@ -54,7 +48,7 @@
 
                     <!-- Local Bank Transfer Section -->
                      @if($localbankSetting && $localbankSetting->status)
-                     <div id="localbankSection" class="payment-section" style="display: none;">
+                     <div id="localbankSection" class="payment-section">
                          <div class="space-y-6 max-h-96 overflow-y-auto pr-2">
                             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                                 <div class="flex items-start">
@@ -124,93 +118,6 @@
                     </div>
                     @endif
 
-                    <!-- Etegram Section -->
-                    @if($etegramSetting && $etegramSetting->status)
-                    <div id="etegramSection" class="payment-section">
-                        <!-- Important Notice -->
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <h4 class="text-sm font-medium text-blue-800">Important Payment Notice</h4>
-                                    <p class="text-xs text-blue-700 mt-1">After making your transfer, please wait 1-2 minutes before clicking the "I have made transfer" button. This allows time for the payment to be processed in the system.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <form action="{{ route('user.etegram.redirect') }}" method="POST" class="space-y-6">
-                            @csrf
-                            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
-                            
-                            <div>
-                                <label for="etegramAmountInput" class="block text-sm font-medium text-gray-700 mb-2">Amount (₦)</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 ml-3 text-sm">₦</span>
-                                    </div>
-                                    <input type="number" id="etegramAmountInput" name="amount" min="100" max="1000000" step="0.01"
-                                           class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                                           placeholder="  Enter amount" required oninput="calculateEtegramFees()">
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Minimum: ₦100 • Maximum: ₦1,000,000
-                                </p>
-                            </div>
-                            
-                            <!-- Fee Breakdown Section -->
-                            {{-- <div id="etegramFeeBreakdown" class="bg-blue-50 border border-blue-200 rounded-lg p-4" style="display: none;">
-                                <h4 class="text-sm font-medium text-blue-800 mb-3">
-                                    <i class="fas fa-calculator mr-2"></i>Payment Breakdown
-                                </h4>
-                                <div class="space-y-2 text-sm">
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-700">Amount:</span>
-                                        <span class="font-medium text-blue-900" id="etegramBaseAmount">₦0.00</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-700">Transaction Fee:</span>
-                                        <span class="font-medium text-blue-900" id="etegramFeeAmount">₦0.00</span>
-                                    </div>
-                                    <hr class="border-blue-200">
-                                    <div class="flex justify-between font-semibold">
-                                        <span class="text-blue-800">Total to Pay:</span>
-                                        <span class="text-blue-900" id="etegramTotalAmount">₦0.00</span>
-                                    </div>
-                                </div>
-                                <div class="mt-3 text-xs text-blue-600">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Fee: 1.5% + ₦100 (₦100 waived for amounts under ₦2,500, capped at ₦2,000)
-                                </div>
-                            </div> --}}
-                            
-                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-paper-plane text-green-600 mt-0.5"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h4 class="text-sm font-medium text-green-800">Instant Payment</h4>
-                                        <p class="text-xs text-green-700 mt-1">Fast and secure online payment processing</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-8 flex justify-end space-x-3">
-                                <button type="button" onclick="closeAddFundsModal()" 
-                                        class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-                                    Cancel
-                                </button>
-                                <button type="submit" 
-                                        class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                                    <i class="fas fa-paper-plane mr-2"></i>
-                                    Proceed with Etegram
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                     @endif
                 </div>
             </div>
@@ -663,55 +570,10 @@ function switchPaymentTab(tabName) {
         const localbankTab = document.getElementById('localbankTab');
         localbankTab.classList.remove('text-gray-500', 'border-transparent');
         localbankTab.classList.add('text-primary-600', 'border-primary-600');
-    } else if (tabName === 'etegram') {
-        document.getElementById('etegramSection').style.display = 'block';
-        const etegramTab = document.getElementById('etegramTab');
-        etegramTab.classList.remove('text-gray-500', 'border-transparent');
-        etegramTab.classList.add('text-primary-600', 'border-primary-600');
     }
 }
 
-// // Calculate Etegram fees and display breakdown
-// function calculateEtegramFees() {
-//     const amountInput = document.getElementById('etegramAmountInput');
-//     const feeBreakdown = document.getElementById('etegramFeeBreakdown');
-//     const baseAmountElement = document.getElementById('etegramBaseAmount');
-//     const feeAmountElement = document.getElementById('etegramFeeAmount');
-//     const totalAmountElement = document.getElementById('etegramTotalAmount');
-    
-//     const amount = parseFloat(amountInput.value) || 0;
-    
-//     if (amount > 0) {
-//         // Calculate fee: 1.5% + NGN100
-//         let percentageFee = amount * 0.015; // 1.5%
-//         let fixedFee = 100; // NGN100
-        
-//         // NGN100 fee waived for transactions under NGN2500
-//         if (amount < 2500) {
-//             fixedFee = 0;
-//         }
-        
-//         let totalFee = percentageFee + fixedFee;
-        
-//         // Local transactions fees are capped at ₦2000
-//         if (totalFee > 2000) {
-//             totalFee = 2000;
-//         }
-        
-//         const totalAmount = amount + totalFee;
-        
-//         // Format amounts
-//         baseAmountElement.textContent = `₦${amount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-//         feeAmountElement.textContent = `₦${totalFee.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-//         totalAmountElement.textContent = `₦${totalAmount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        
-//         // Show the breakdown
-//         feeBreakdown.style.display = 'block';
-//     } else {
-//         // Hide the breakdown if no amount
-//         feeBreakdown.style.display = 'none';
-//     }
-// }
+// Calculate local bank fees and display breakdown
 
 // Contact support functionality
 function contactSupport() {

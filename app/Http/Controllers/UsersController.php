@@ -86,16 +86,12 @@ class UsersController extends Controller
         // Get local bank settings
         $localbankSetting = Localbank::getActive();
         
-        // Get Etegram configuration
-        $etegramSetting = Etegram::getActiveConfig();
-        
         return view('user.transaction', compact(
             'totalTransactions',
             'totalSpent', 
             'totalRefunds',
             'pendingAmount',
-            'localbankSetting',
-            'etegramSetting'
+            'localbankSetting'
         ));
     }
     
