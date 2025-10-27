@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Country;
 use App\Models\Localbank;
 use App\Models\Order;
+use App\Models\Paystack;
 use App\Models\Service;
 use App\Models\User;
-use App\Models\Etegram;
 use App\Services\SmsPoolService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -85,12 +85,16 @@ class UsersController extends Controller
         
         // Get local bank settings
         $localbankSetting = Localbank::getActive();
+
+        $paystack = Paystack::getActive();
+
         
         return view('user.transaction', compact(
             'totalTransactions',
             'totalSpent', 
             'totalRefunds',
             'pendingAmount',
+            'paystack',
             'localbankSetting'
         ));
     }
