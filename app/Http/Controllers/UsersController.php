@@ -86,7 +86,7 @@ class UsersController extends Controller
         // Get local bank settings
         $localbankSetting = Localbank::getActive();
 
-        $paystack = Paystack::getActive();
+        $paystack = Paystack::getActiveConfig();
 
         
         return view('user.transaction', compact(
