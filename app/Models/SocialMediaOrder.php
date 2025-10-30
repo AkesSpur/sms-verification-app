@@ -237,15 +237,21 @@ class SocialMediaOrder extends Model
         }
         
         if (isset($apiResponse['start_count'])) {
-            $updateData['external_start_count'] = $apiResponse['start_count'];
+            // Handle empty string or null values for integer fields
+            $startCount = $apiResponse['start_count'];
+            $updateData['external_start_count'] = ($startCount === '' || $startCount === null) ? null : (int)$startCount;
         }
         
         if (isset($apiResponse['remains'])) {
-            $updateData['external_remains'] = $apiResponse['remains'];
+            // Handle empty string or null values for integer fields
+            $remains = $apiResponse['remains'];
+            $updateData['external_remains'] = ($remains === '' || $remains === null) ? null : (int)$remains;
         }
         
         if (isset($apiResponse['charge'])) {
-            $updateData['external_charge'] = $apiResponse['charge'];
+            // Handle empty string or null values for decimal fields
+            $charge = $apiResponse['charge'];
+            $updateData['external_charge'] = ($charge === '' || $charge === null) ? null : (float)$charge;
         }
         
         $this->update($updateData);
