@@ -267,7 +267,7 @@ class SocialMediaOrder extends Model
             'in progress', 'processing' => 'processing',
             'completed', 'complete' => 'completed',
             'cancelled', 'canceled' => 'cancelled',
-            'partial' => 'processing',
+            'partial' => 'completed',
             default => 'pending'
         };
     }
