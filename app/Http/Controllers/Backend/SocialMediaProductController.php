@@ -161,7 +161,7 @@ class SocialMediaProductController extends Controller
     public function syncOwletServices()
     {
         try {
-            Log::info('Starting Owlet services sync');
+            Log::info('Starting Owlet services sync with full refresh');
             
             // Check if API key is configured
             $apiKey = config('services.owlet.api_key', env('OWLET_API_KEY'));
@@ -186,8 +186,12 @@ class SocialMediaProductController extends Controller
                 ]);
             }
             
+            // Clear existing data - products first due to foreign key constraints
+            Log::info('Clearing existing social media products and categories');
+            SocialMediaProduct::truncate();
+            SocialMediaCategory::truncate();
+            
             $syncedCount = 0;
-            $updatedCount = 0;
             $skippedCount = 0;
             $categoryMap = [];
             
@@ -203,16 +207,15 @@ class SocialMediaProductController extends Controller
                     $categoryName = $service['category'];
                     if (!isset($categoryMap[$categoryName])) {
                         $categorySlug = Str::slug($categoryName);
-                        $category = SocialMediaCategory::firstOrCreate(
-                            ['slug' => $categorySlug],
-                            [
-                                'name' => $categoryName,
-                                'description' => 'Auto-generated category from Owlet API: ' . $categoryName,
-                                'status' => true,
-                                'sort_order' => 0
-                            ]
-                        );
+                        $category = SocialMediaCategory::create([
+                            'name' => $categoryName,
+                            'slug' => $categorySlug,
+                            'description' => 'Auto-generated category from Owlet API: ' . $categoryName,
+                            'status' => true,
+                            'sort_order' => 0
+                        ]);
                         $categoryMap[$categoryName] = $category->id;
+                        Log::info('Created category: ' . $categoryName);
                     }
                     
                     $categoryId = $categoryMap[$categoryName];
@@ -221,8 +224,8 @@ class SocialMediaProductController extends Controller
                     $originalPrice = (float) ($service['rate'] ?? 0);
                     $markedUpPrice = ceil($originalPrice * 1.25);
                     
-                    // Prepare product data
-                    $productData = [
+                    // Create new product
+                    SocialMediaProduct::create([
                         'category_id' => $categoryId,
                         'name' => $service['name'],
                         'slug' => Str::slug($service['name'] . '-' . $service['service']),
@@ -233,20 +236,9 @@ class SocialMediaProductController extends Controller
                         'status' => true,
                         'sort_order' => 0,
                         'external_service_id' => (int) $service['service']
-                    ];
+                    ]);
                     
-                    // Check if product already exists by external_service_id
-                    $existingProduct = SocialMediaProduct::where('external_service_id', $service['service'])->first();
-                    
-                    if ($existingProduct) {
-                        // Update existing product
-                        $existingProduct->update($productData);
-                        $updatedCount++;
-                    } else {
-                        // Create new product
-                        SocialMediaProduct::create($productData);
-                        $syncedCount++;
-                    }
+                    $syncedCount++;
                     
                 } catch (\Exception $e) {
                     Log::error('Error processing service: ' . ($service['name'] ?? 'Unknown'), [
@@ -257,14 +249,15 @@ class SocialMediaProductController extends Controller
                 }
             }
             
-            $message = "Sync completed! Created: {$syncedCount}, Updated: {$updatedCount}";
+            $categoriesCount = count($categoryMap);
+            $message = "Full sync completed! Created: {$categoriesCount} categories and {$syncedCount} products";
             if ($skippedCount > 0) {
                 $message .= ", Skipped: {$skippedCount}";
             }
 
-            Log::info('Sync completed successfully', [
-                'created' => $syncedCount,
-                'updated' => $updatedCount,
+            Log::info('Full sync completed successfully', [
+                'categories_created' => $categoriesCount,
+                'products_created' => $syncedCount,
                 'skipped' => $skippedCount
             ]);
 
