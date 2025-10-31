@@ -186,10 +186,16 @@ class SocialMediaProductController extends Controller
                 ]);
             }
             
-            // Clear existing data - products first due to foreign key constraints
-            Log::info('Clearing existing social media products and categories');
-            SocialMediaProduct::truncate();
-            SocialMediaCategory::truncate();
+            // Clear existing data for a fresh sync
+            Log::info('Clearing existing social media data for fresh sync');
+            
+            // Delete all products (this will cascade delete orders due to foreign key)
+            SocialMediaProduct::query()->delete();
+            Log::info('Cleared all social media products and their associated orders');
+            
+            // Delete all categories
+            SocialMediaCategory::query()->delete();
+            Log::info('Cleared all social media categories');
             
             $syncedCount = 0;
             $skippedCount = 0;
