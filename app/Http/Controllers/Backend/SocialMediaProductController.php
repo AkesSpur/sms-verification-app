@@ -161,7 +161,7 @@ class SocialMediaProductController extends Controller
     public function syncOwletServices()
     {
         try {
-            Log::info('Starting Owlet services sync with full refresh');
+            Log::info('Starting Owlet services sync (safe refresh)');
             
             // Check if API key is configured
             $apiKey = config('services.owlet.api_key', env('OWLET_API_KEY'));
@@ -186,20 +186,15 @@ class SocialMediaProductController extends Controller
                 ]);
             }
             
-            // Clear existing data for a fresh sync
-            Log::info('Clearing existing social media data for fresh sync');
-            
-            // Delete all products (this will cascade delete orders due to foreign key)
-            SocialMediaProduct::query()->delete();
-            Log::info('Cleared all social media products and their associated orders');
-            
-            // Delete all categories
-            SocialMediaCategory::query()->delete();
-            Log::info('Cleared all social media categories');
-            
-            $syncedCount = 0;
+            // Safe refresh: upsert products and categories; don't delete products with orders
+            $createdCount = 0;
+            $updatedCount = 0;
             $skippedCount = 0;
+            $archivedCount = 0; // products kept but disabled (had orders)
+            $removedCount = 0;  // products deleted (no orders)
             $categoryMap = [];
+            $apiServiceIds = [];
+            $apiCategoryNames = [];
             
             foreach ($services as $service) {
                 try {
@@ -209,19 +204,24 @@ class SocialMediaProductController extends Controller
                         continue;
                     }
                     
-                    // Handle category - create if doesn't exist
+                    $externalId = (int) $service['service'];
+                    $apiServiceIds[] = $externalId;
                     $categoryName = $service['category'];
+                    $apiCategoryNames[] = $categoryName;
+                    
+                    // Handle category - upsert by slug
                     if (!isset($categoryMap[$categoryName])) {
                         $categorySlug = Str::slug($categoryName);
-                        $category = SocialMediaCategory::create([
-                            'name' => $categoryName,
-                            'slug' => $categorySlug,
-                            'description' => 'Auto-generated category from Owlet API: ' . $categoryName,
-                            'status' => true,
-                            'sort_order' => 0
-                        ]);
+                        $category = SocialMediaCategory::firstOrCreate(
+                            ['slug' => $categorySlug],
+                            [
+                                'name' => $categoryName,
+                                'description' => 'Auto-generated category from Owlet API: ' . $categoryName,
+                                'status' => true,
+                                'sort_order' => 0
+                            ]
+                        );
                         $categoryMap[$categoryName] = $category->id;
-                        Log::info('Created category: ' . $categoryName);
                     }
                     
                     $categoryId = $categoryMap[$categoryName];
@@ -230,22 +230,27 @@ class SocialMediaProductController extends Controller
                     $originalPrice = (float) ($service['rate'] ?? 0);
                     $markedUpPrice = ceil($originalPrice * 1.25);
                     
-                    // Create new product
-                    SocialMediaProduct::create([
-                        'category_id' => $categoryId,
-                        'name' => $service['name'],
-                        'slug' => Str::slug($service['name'] . '-' . $service['service']),
-                        'description' => $this->generateDescription($service),
-                        'price_per_1000' => $markedUpPrice,
-                        'min_quantity' => (int) ($service['min'] ?? 1),
-                        'max_quantity' => (int) ($service['max'] ?? 1000000),
-                        'status' => true,
-                        'sort_order' => 0,
-                        'external_service_id' => (int) $service['service']
-                    ]);
+                    // Upsert product by external_service_id
+                    $product = SocialMediaProduct::firstOrNew(['external_service_id' => $externalId]);
+                    $isNew = !$product->exists;
                     
-                    $syncedCount++;
+                    $product->category_id = $categoryId;
+                    $product->name = $service['name'];
+                    $product->slug = Str::slug($service['name'] . '-' . $externalId);
+                    $product->description = $this->generateDescription($service);
+                    $product->price_per_1000 = $markedUpPrice;
+                    $product->min_quantity = (int) ($service['min'] ?? 1);
+                    $product->max_quantity = (int) ($service['max'] ?? 1000000);
+                    $product->status = true; // re-enable on sync
+                    $product->sort_order = 0;
                     
+                    $product->save();
+                    
+                    if ($isNew) {
+                        $createdCount++;
+                    } else {
+                        $updatedCount++;
+                    }
                 } catch (\Exception $e) {
                     Log::error('Error processing service: ' . ($service['name'] ?? 'Unknown'), [
                         'error' => $e->getMessage(),
@@ -255,18 +260,49 @@ class SocialMediaProductController extends Controller
                 }
             }
             
-            $categoriesCount = count($categoryMap);
-            $message = "Full sync completed! Created: {$categoriesCount} categories and {$syncedCount} products";
-            if ($skippedCount > 0) {
-                $message .= ", Skipped: {$skippedCount}";
+            // Cleanup products not present in API response
+            $apiServiceIds = array_unique(array_map('intval', $apiServiceIds));
+            $orphanProducts = SocialMediaProduct::whereNotIn('external_service_id', $apiServiceIds)->get();
+            foreach ($orphanProducts as $product) {
+                if ($product->orders()->exists()) {
+                    // Keep product but disable so it's not selectable for new orders
+                    $product->status = false;
+                    $product->save();
+                    $archivedCount++;
+                    Log::info('Archived product with existing orders', ['product_id' => $product->id, 'external_service_id' => $product->external_service_id]);
+                } else {
+                    // Safe to delete if no orders
+                    $product->delete();
+                    $removedCount++;
+                    Log::info('Removed unused product', ['product_id' => $product->id, 'external_service_id' => $product->external_service_id]);
+                }
             }
-
-            Log::info('Full sync completed successfully', [
-                'categories_created' => $categoriesCount,
-                'products_created' => $syncedCount,
+            
+            // Cleanup unused categories (no products) not present in API
+            $apiCategorySlugs = array_unique(array_map(function ($name) { return Str::slug($name); }, $apiCategoryNames));
+            $unusedCategories = SocialMediaCategory::whereDoesntHave('products')
+                ->whereNotIn('slug', $apiCategorySlugs)
+                ->get();
+            foreach ($unusedCategories as $category) {
+                $category->delete();
+                Log::info('Removed unused category', ['category_id' => $category->id, 'slug' => $category->slug]);
+            }
+            
+            $categoriesCount = count($categoryMap);
+            $message = "Sync completed! Categories: {$categoriesCount}, Created: {$createdCount}, Updated: {$updatedCount}";
+            if ($archivedCount > 0) { $message .= ", Archived: {$archivedCount}"; }
+            if ($removedCount > 0) { $message .= ", Removed: {$removedCount}"; }
+            if ($skippedCount > 0) { $message .= ", Skipped: {$skippedCount}"; }
+            
+            Log::info('Owlet services sync completed (safe refresh)', [
+                'categories_count' => $categoriesCount,
+                'created' => $createdCount,
+                'updated' => $updatedCount,
+                'archived' => $archivedCount,
+                'removed' => $removedCount,
                 'skipped' => $skippedCount
             ]);
-
+            
             return response()->json([
                 'success' => true,
                 'message' => $message
@@ -275,17 +311,14 @@ class SocialMediaProductController extends Controller
         } catch (\Exception $e) {
             Log::error('Owlet services sync failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
             ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to sync services: ' . $e->getMessage() . ' (Check logs for full details)'
-            ]);
+                'message' => 'Owlet services sync failed: ' . $e->getMessage()
+            ], 500);
         }
     }
-    
+
     /**
      * Generate a description for the product based on service data
      */
