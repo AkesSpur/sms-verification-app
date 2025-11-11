@@ -86,7 +86,8 @@ class Transaction extends Model
         string $description,
         array $metadata = [],
         $reference = null,
-        User $admin = null
+        ?User $admin = null,
+        ?string $paymentMethod = null
     ): self {
         $balanceBefore = $user->balance;
         $balanceAfter = $type === 'credit' ? $balanceBefore + $amount : $balanceBefore - $amount;
@@ -103,6 +104,10 @@ class Transaction extends Model
             'admin_id' => $admin?->id,
             'status' => 'completed'
         ];
+
+        if ($paymentMethod) {
+            $transactionData['payment_method'] = $paymentMethod;
+        }
 
         if ($reference) {
             $transactionData['reference_type'] = get_class($reference);
@@ -148,6 +153,8 @@ class Transaction extends Model
             'sms_refund' => 'SMS Service Refund',
             'social_media_purchase' => 'Social Media Boosting Purchase',
             'social_media_refund' => 'Social Media Boosting Refund',
+            'reseller_purchase' => 'Reseller Purchase',
+            'reseller_refund' => 'Reseller Refund',
             default => ucfirst(str_replace('_', ' ', $this->category))
         };
     }

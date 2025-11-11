@@ -509,6 +509,57 @@
                                         Admin Panel
                                     </a>
                                 @endif
+
+                                <!-- USA Numbers 1 -->
+                                <a href="{{ route('user.sms.rental.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-flag-usa w-4 h-4 mr-3 text-gray-400"></i>
+                                    USA Numbers 1
+                                </a>
+                                <!-- USA Numbers 2 -->
+                                <a href="{{ route('user.usa-numbers') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-flag-usa w-4 h-4 mr-3 text-gray-400"></i>
+                                    USA Numbers 2
+                                </a>
+                                <!-- All Countries -->
+                                <a href="{{ route('user.all-countries') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-globe w-4 h-4 mr-3 text-gray-400"></i>
+                                    All Countries
+                                </a>
+                                <!-- Reseller Store -->
+                                <a href="{{ route('user.reseller') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-tags w-4 h-4 mr-3 text-gray-400"></i>
+                                    Reseller Store
+                                </a>
+                                <!-- Order History -->
+                                <a href="{{ route('user.order-history') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-history w-4 h-4 mr-3 text-gray-400"></i>
+                                    Order History
+                                </a>
+                                <!-- Logs Store -->
+                                <a href="{{ route('all-categories') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-store w-4 h-4 mr-3 text-gray-400"></i>
+                                    Logs Store
+                                </a>
+                                <!-- Boosting Of Accounts -->
+                                <a href="{{ route('user.social-media-boosting.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-rocket w-4 h-4 mr-3 text-gray-400"></i>
+                                    Boosting Of Accounts
+                                </a>
+                                <!-- Gift Store -->
+                                <a href="{{ route('all-gifts') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-gift w-4 h-4 mr-3 text-gray-400"></i>
+                                    Gift Store
+                                </a>
+                                <!-- Transactions -->
+                                <a href="{{ route('user.transaction') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-receipt w-4 h-4 mr-3 text-gray-400"></i>
+                                    Transactions
+                                </a>
+                                <!-- Profile Settings -->
+                                <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-user-cog w-4 h-4 mr-3 text-gray-400"></i>
+                                    Profile Settings
+                                </a>
                                 
                                 <!-- Divider -->
                                 <div class="border-t border-gray-100 my-1"></div>
@@ -552,7 +603,13 @@
                     <a href="{{ route('all-categories') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
                         All Logs
                     </a>
-                                        <!-- Services Link -->
+                    
+                    <!-- Reseller Link -->
+                    <a href="{{ route('user.reseller') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
+                        Reseller
+                    </a>
+                    
+                    <!-- Services Link -->
                     <a href="{{ route('services') }}" class="px-4 py-2 text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors duration-300">
                         Account Boosting
                     </a>
@@ -561,6 +618,8 @@
             </div>
         </div>
     </section>
+
+    <!-- Reseller CTA moved to bottom -->
 
     <!-- Hero Section -->
     <section class="relative flex items-start justify-center overflow-hidden pt-16 pb-16">
@@ -1761,6 +1820,22 @@
     </div>
 
    
+    <!-- Reseller CTA Section (Bottom) -->
+    <section class="w-full bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100" data-aos="fade-up" data-aos-offset="50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="text-slate-800 mb-4 md:mb-0">
+                    <h2 class="text-lg md:text-xl font-semibold">Ready to sell in bulk?</h2>
+                    <p class="text-sm text-slate-600">Access wholesale pricing via our Reseller Store.</p>
+                </div>
+                <a href="{{ route('user.reseller') }}" class="inline-flex items-center px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors">
+                    <i class="fas fa-store mr-2"></i>
+                    Become a Reseller
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="bg-white py-12 border-t border-gray-100">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

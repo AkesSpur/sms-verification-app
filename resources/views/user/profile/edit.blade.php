@@ -38,9 +38,25 @@
                                id="name" 
                                name="name" 
                                value="{{ old('name', $user->name) }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                required>
                         @error('name')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input type="text"
+                               id="phone"
+                               name="phone"
+                               maxlength="11"
+                               value="{{ old('phone', $user->phone) }}"
+                               placeholder="Example: 08012345678"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                               required>
+                        <p class="text-xs text-gray-500 mt-1">Provide a valid phone number; it’s required to access your dashboard.</p>
+                        @error('phone')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
@@ -51,7 +67,7 @@
                                id="email" 
                                name="email" 
                                value="{{ old('email', $user->email) }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                required>
                         @error('email')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -76,7 +92,7 @@
                     </div>
                     
                     <div class="flex justify-end">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
                             Save Changes
                         </button>
                     </div>
@@ -99,7 +115,7 @@
                         <input type="password" 
                                id="update_password_current_password" 
                                name="current_password"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                autocomplete="current-password">
                         @error('current_password', 'updatePassword')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -111,7 +127,7 @@
                         <input type="password" 
                                id="update_password_password" 
                                name="password"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                autocomplete="new-password">
                         @error('password', 'updatePassword')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -123,7 +139,7 @@
                         <input type="password" 
                                id="update_password_password_confirmation" 
                                name="password_confirmation"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                autocomplete="new-password">
                         @error('password_confirmation', 'updatePassword')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -131,7 +147,7 @@
                     </div>
                     
                     <div class="flex justify-end">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
                             Save Changes
                         </button>
                     </div>

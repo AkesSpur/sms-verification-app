@@ -118,6 +118,41 @@
                         <i class="fas fa-globe w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
                         <span class="font-medium" x-show="!sidebarCollapsed">All Countries</span>
                     </a>
+
+                    <a href="{{ route('user.reseller') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.reseller') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-tags w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Reseller Store</span>
+                    </a>
+
+                    <a href="{{ route('user.order-history') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.order-history') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-history w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Order History</span>
+                    </a>
+
+                    <a href="{{ route('all-categories') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('all-categories') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-store w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Logs Store</span>
+                    </a>
+
+                    <a href="{{ route('user.social-media-boosting.index') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.social-media-boosting.*') || request()->routeIs('user.social-media-orders.*') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-rocket w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Boosting Of Accounts</span>
+                    </a>
+
+                    <a href="{{ route('all-gifts') }}" 
+                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('all-gifts') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
+                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
+                        <i class="fas fa-gift w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span class="font-medium" x-show="!sidebarCollapsed">Gift Store</span>
+                    </a>
                     
                     <a href="{{ route('user.transaction') }}" 
                        class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.transaction') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
@@ -126,40 +161,13 @@
                         <span class="font-medium" x-show="!sidebarCollapsed">Transactions</span>
                     </a>
                     
-                    <a href="{{ route('user.order-history') }}" 
-                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.order-history') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
-                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
-                        <i class="fas fa-history w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
-                        <span class="font-medium" x-show="!sidebarCollapsed">Order History</span>
-                    </a>
-                    
-                    <a href="{{ route('all-gifts') }}" 
-                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('all-gifts') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
-                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
-                        <i class="fas fa-gift w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
-                        <span class="font-medium" x-show="!sidebarCollapsed">Gift Store</span>
-                    </a>
-                    
-                    <a href="{{ route('all-categories') }}" 
-                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('all-categories') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
-                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
-                        <i class="fas fa-store w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
-                        <span class="font-medium" x-show="!sidebarCollapsed">Logs Store</span>
-                    </a>
-                    
-                    <a href="{{ route('user.social-media-boosting.index') }}" 
-                       class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('user.social-media-boosting.*') || request()->routeIs('user.social-media-orders.*') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
-                       :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
-                        <i class="fas fa-rocket w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
-                        <span class="font-medium" x-show="!sidebarCollapsed">Boosting Of Accounts</span>
-                    </a>
-                    
                     <a href="{{ route('profile.edit') }}" 
                        class="flex items-center py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('profile.edit') ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : '' }}"
                        :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-4'">
                         <i class="fas fa-user-cog w-5 h-5" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
                         <span class="font-medium" x-show="!sidebarCollapsed">Profile Settings</span>
                     </a>
+
                 </div>
             </nav>
             
@@ -299,7 +307,11 @@
 
          // Notify function for displaying messages
         function notify(type, message) {
-            showToast(message, type);
+            if (typeof showToast === 'function') {
+                showToast(message, type);
+            } else {
+                console.log(type + ': ' + message);
+            }
         }
         
         // Auto-close sidebar on mobile when clicking links

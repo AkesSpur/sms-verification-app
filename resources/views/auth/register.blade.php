@@ -21,6 +21,14 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-600 text-sm" />
         </div>
 
+        <!-- Phone Number -->
+        <div>
+            <x-input-label for="phone" :value="__('Phone Number')" />
+            <x-text-input id="phone" type="text" name="phone" :value="old('phone')" required autocomplete="tel" maxlength="11" placeholder="Enter your phone number" />
+            <p class="text-xs text-gray-500 mt-1">Use a valid number; it will be required to access your dashboard.</p>
+            <x-input-error :messages="$errors->get('phone')" class="mt-2 text-red-600 text-sm" />
+        </div>
+
         <!-- Password -->
         <div>
             <x-input-label for="password" :value="__('Password')" />

@@ -246,7 +246,7 @@ class GiftOrderController extends Controller
             }
 
             $user = Auth::user();
-            $perPage = $request->get('per_page', 15);
+            $perPage = $request->get('per_page', 150);
             $status = $request->get('status');
             $search = $request->get('search');
 

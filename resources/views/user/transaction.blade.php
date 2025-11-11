@@ -25,7 +25,7 @@
     <div id="addFundsModal" style="display: none;" class="z-50">
         <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 999;"></div>
         <div class="fixed inset-0 flex items-center justify-center" style="z-index: 1000;" onclick="closeAddFundsModal()">
-            <div class="relative mx-auto p-6 border w-11/12 max-w-md shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
+            <div class="relative mx-auto p-6 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
                 <div class="mt-3">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-xl font-medium text-gray-900">Add Funds to Account</h3>
@@ -47,6 +47,10 @@
                                 <i class="fas fa-university mr-2"></i>Bank Transfer
                             </button>
                             @endif
+                            <button type="button" onclick="switchPaymentTab('virtualAccount')" id="virtualAccountTab" 
+                                    class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
+                                <i class="fas fa-building mr-2"></i>Virtual Account
+                            </button>
                         </div>
                     </div>
 
@@ -164,6 +168,54 @@
                         </div>
                     </div>
                     @endif
+
+                    <!-- Virtual Account Section -->
+                    <div id="virtualAccountSection" class="payment-section" style="display: none;">
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h4 class="text-sm font-medium text-blue-800">Virtual Account Funding</h4>
+                                        <p class="text-xs text-blue-700 mt-1">Create your PaymentPoint virtual bank account and fund it by transfer. Your wallet will be credited automatically.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="vaCreateContainer" class="flex justify-end">
+                                <button id="createVaBtnModal" type="button" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+                                    <i class="fas fa-university mr-2"></i>Create Virtual Account
+                                </button>
+                            </div>
+                            <div id="vaCardModal" class="hidden">
+                                <!-- Professional and Minimalistic Virtual Account Card -->
+                                <div class="w-full max-w-md mx-auto">
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-6">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <h2 class="text-xl font-semibold text-gray-800" id="vaBankNameModal">-</h2>
+                                                <p class="text-sm text-gray-500">Virtual Account</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-500 mb-1">Account Number</p>
+                                            <div class="flex items-center space-x-3">
+                                                <p class="text-2xl font-mono text-gray-900" id="vaAccountNumberModal">-</p>
+                                                <button onclick="copyToClipboard(document.getElementById('vaAccountNumberModal').textContent)" class="text-gray-500 hover:text-gray-700 transition-colors">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-500">Account Name</p>
+                                            <p class="text-lg font-medium text-gray-900" id="vaAccountNameModal">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -332,7 +384,7 @@ $(document).ready(function() {
                 if (typeof toastr !== 'undefined') {
                     toastr.error(response.message, 'Authentication Error');
                 } else {
-                    alert(response.message);
+                    notify('error', response.message);
                 }
                 
                 // Optionally redirect to login after showing the message
@@ -593,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const amount = document.getElementById('depositAmount').value;
         
         if (amount < 100 || amount > 1000000) {
-            alert('Please enter an amount between ₦100 and ₦1,000,000');
+            notify('error', 'Please enter an amount between ₦100 and ₦1,000,000');
             return;
         }
         
@@ -621,7 +673,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reset button state
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
-                alert('Error: ' + (data.message || 'Something went wrong'));
+                notify('error', 'Error: ' + (data.message || 'Something went wrong'));
             }
         })
         .catch(error => {
@@ -629,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reset button state
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-            alert('An error occurred. Please try again.');
+            notify('error', 'An error occurred. Please try again.');
         });
     });
 
@@ -677,6 +729,13 @@ function switchPaymentTab(tabName) {
         const localbankTab = document.getElementById('localbankTab');
         localbankTab.classList.remove('text-gray-500', 'border-transparent');
         localbankTab.classList.add('text-primary-600', 'border-primary-600');
+    } else if (tabName === 'virtualAccount') {
+        document.getElementById('virtualAccountSection').style.display = 'block';
+        const virtualTab = document.getElementById('virtualAccountTab');
+        virtualTab.classList.remove('text-gray-500', 'border-transparent');
+        virtualTab.classList.add('text-primary-600', 'border-primary-600');
+        // Load VA details when tab is opened
+        initVirtualAccountModal();
     }
 }
 
@@ -694,7 +753,82 @@ function contactSupport() {
     // Alternative: You can redirect to a support page or open a chat widget
     // window.open('/support', '_blank');
 }
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        notify('success', 'Account number copied to clipboard!');
+    }, function(err) {
+        notify('error', 'Could not copy text: ', err);
+    });
+}
 </script>
+
+@push('scripts')
+<script>
+function initVirtualAccountModal() {
+    const createBtn = document.getElementById('createVaBtnModal');
+    const card = document.getElementById('vaCardModal');
+    const createContainer = document.getElementById('vaCreateContainer');
+
+    // Fetch existing VA
+    fetch('{{ route('api.user.virtual-account.get') }}', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.has_account) {
+            document.getElementById('vaAccountNumberModal').textContent = data.account.account_number;
+            document.getElementById('vaAccountNameModal').textContent = data.account.account_name;
+            document.getElementById('vaBankNameModal').textContent = data.account.bank_name;
+            card.classList.remove('hidden');
+            createContainer.classList.add('hidden');
+        } else {
+            card.classList.add('hidden');
+            createContainer.classList.remove('hidden');
+        }
+    })
+    .catch(() => {/* ignore */});
+
+    // Create VA
+    if (createBtn && !createBtn.dataset.bound) {
+        createBtn.dataset.bound = '1';
+        createBtn.addEventListener('click', function() {
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+            fetch('{{ route('api.user.virtual-account.create') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('vaAccountNumberModal').textContent = data.account.account_number;
+                    document.getElementById('vaAccountNameModal').textContent = data.account.account_name;
+                    document.getElementById('vaBankNameModal').textContent = data.account.bank_name;
+                    card.classList.remove('hidden');
+                    createContainer.classList.add('hidden');
+                } else {
+                    notify('error', data.message || 'Failed to create virtual account');
+                    createBtn.disabled = false;
+                    createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                notify('error', 'An error occurred');
+                createBtn.disabled = false;
+                createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+            });
+        });
+    }
+}
+</script>
+@endpush
 
 
 @endpush

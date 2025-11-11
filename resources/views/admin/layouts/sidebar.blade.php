@@ -96,9 +96,28 @@
                     </ul>
                 </li>
 
+                <li class="menu-header">Reseller Management</li>
+                <li class="dropdown {{ setActive(['admin.reseller-products.*', 'admin.reseller-product-logs.*', 'admin.reseller-requests.*']) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                        <i class="fas fa-tags"></i>
+                        <span>Resellers</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setActive(['admin.reseller-products.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.reseller-products.index') }}">Products</a>
+                        </li>
+                        <li class="{{ setActive(['admin.reseller-product-logs.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.reseller-product-logs.index') }}">Product Logs</a>
+                        </li>
+                        <li class="{{ setActive(['admin.reseller-requests.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.reseller-requests.index') }}">Access Requests</a>
+                        </li>
+                    </ul>
+                </li>
+
                 <!-- Order Management Section -->
                 <li class="menu-header">Order Management</li>
-                <li class="dropdown {{ setActive(['admin.sms-orders.*', 'admin.digital-product-orders.*', 'admin.gift-orders.*', 'admin.order.*', 'admin.gift-info', 'admin.pending-gift-orders']) }}">
+                <li class="dropdown {{ setActive(['admin.sms-orders.*', 'admin.daisy-orders.*', 'admin.digital-product-orders.*', 'admin.gift-orders.*', 'admin.social-media-orders.*', 'admin.reseller-orders.*', 'admin.order.*', 'admin.gift-info', 'admin.pending-gift-orders']) }}">
                     <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Orders</span>
@@ -108,9 +127,9 @@
                             <a class="nav-link" href="{{ route('admin.sms-orders.index') }}">SMS Orders</a>
                         </li>
                         <li class="{{ setActive(['admin.daisy-orders.*']) }}">
-                        <a href="{{ route('admin.daisy-orders.index') }}" class="nav-link">
-                            Daisy SMS Orders
-                        </a>
+                            <a href="{{ route('admin.daisy-orders.index') }}" class="nav-link">
+                                Daisy SMS Orders
+                            </a>
                         </li>
                         <li class="{{ setActive(['admin.digital-product-orders.*']) }}">
                             <a class="nav-link" href="{{ route('admin.digital-product-orders.index') }}">Digital Product Orders</a>
@@ -120,6 +139,9 @@
                         </li>
                         <li class="{{ setActive(['admin.social-media-orders.*']) }}">
                             <a class="nav-link" href="{{ route('admin.social-media-orders.index') }}">Social Media Orders</a>
+                        </li>
+                        <li class="{{ setActive(['admin.reseller-orders.*']) }}">
+                            <a class="nav-link" href="{{ route('admin.reseller-orders.index') }}">Reseller Orders</a>
                         </li>
                         {{-- Uncomment when routes are available
                         <li class="{{ setActive(['admin.order.*']) }}">
@@ -151,6 +173,9 @@
                         </li>
                         <li class="{{ setActive(['admin.admin-list.index']) }}">
                             <a class="nav-link" href="{{ route('admin.admin-list.index') }}">Administrators</a>
+                        </li>
+                        <li class="dropdown {{ setActive(['admin.resellers.index']) }}">
+                            <a href="{{ route('admin.resellers.index') }}" class="nav-link">Reseller Users</a>
                         </li>
                         <li class="{{ setActive(['admin.manage-user.index']) }}">
                             <a class="nav-link" href="{{ route('admin.manage-user.index') }}">Manage Users</a>

@@ -12,58 +12,50 @@
             <div class="row">
               <div class="col-12">
                 <div class="card">
-                  <div class="card-header">
+                  <div class="card-header d-flex justify-content-between align-items-center">
                     <h4>All Customers</h4>
                   </div>
                   <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="table-2_wrapper"
-                            class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-1">
+                            <input type="text" class="form-control" id="searchFilter" value="{{ request('search') }}" placeholder="Search name or email">
                         </div>
+                        <div class="col-md-3 mb-1">
+                            <select class="form-control select2" id="resellerFilter">
+                                <option value="">All Users</option>
+                                <option value="yes" {{ request('reseller') == 'yes' ? 'selected' : '' }}>Resellers</option>
+                                <option value="no" {{ request('reseller') == 'no' ? 'selected' : '' }}>Regular Users</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-1">
+                            <button type="button" class="btn btn-primary w-100" id="applyFiltersBtn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-secondary w-100" id="clearFilters">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
                         <div class="row">
                             <div class="col-sm-12">
-                                <table class="table table-striped dataTable no-footer" id="table-2" role="grid"
+                                <table class="table table-striped" role="grid"
                                     aria-describedby="table-2_info">
                                     <thead>
                                         {{-- column title --}}
                                         <tr role="row">
-                                            <th class="sorting" tabindex="0" aria-controls="table-2"
-                                                rowspan="1" colspan="1"
-                                                aria-label="Task Name: activate to sort column ascending">
-                                                Id
-                                              </th>
-                                            <th class="sorting" tabindex="0" aria-controls="table-2"
-                                                rowspan="1" colspan="1"
-                                                aria-label="Task Name: activate to sort column ascending">
-                                                Name
-                                              </th>
-                                            <th class="sorting_disabled" rowspan="1" colspan="1"
-                                                aria-label="Progress" >
-                                                Email
-                                            </th>
-                                            <th class="sorting_disabled text-center" rowspan="1" colspan="1"
-                                            aria-label="Orders" >
-                                            Orders
-                                          </th>
-
-                                        <th class="sorting_disabled  text-center " rowspan="1" colspan="1"
-                                          aria-label="Progress" >
-                                          Verified?
-                                        </th>  
-                                        <th class="sorting_disabled  text-center " rowspan="1" colspan="1"
-                                          aria-label="Progress" >
-                                          Balance
-                                        </th>  
-                                <th class="sorting_disabled" tabindex="0" aria-controls="table-2"
-                                                rowspan="1" colspan="1"
-                                                aria-label="Due Date: activate to sort column ascending">
-                                                Status
-                                            </th>
-                                            <th class="sorting_disabled" tabindex="0" aria-controls="table-2"
-                                                rowspan="1" colspan="1"
-                                                aria-label="Due Date: activate to sort column ascending">
-                                                Action
-                                            </th>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th class="text-center">Orders</th>
+                                            <th class="text-center">Verified?</th>
+                                            <th class="text-center">Reseller?</th>
+                                            <th class="text-center">Balance</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -94,6 +86,14 @@
                                                     <i class="fas fa-check-circle text-success" title="Email Verified"></i>
                                                 @else
                                                     <i class="fas fa-times-circle text-muted" title="Email Not Verified"></i>
+                                                @endif
+                                            </td>
+
+                                            <td class="text-center">
+                                                @if ($customer->is_reseller)
+                                                    <i class="fas fa-user-tag text-success" title="Reseller"></i>
+                                                @else
+                                                    <i class="fas fa-user text-muted" title="Regular User"></i>
                                                 @endif
                                             </td>
 
@@ -148,12 +148,24 @@
                                                                 Reset Password
                                                             </span>
                                                         </button>
-                                                        <a class="dropdown-item has-icon delete-item" href="{{ route('admin.customers.destroy', $customer->id) }}">
-                                                            <i class="fas fa-trash text-danger mr-2"></i> 
-                                                            <span>
-                                                                Delete User
-                                                            </span>
-                                                        </a>
+
+                                                        @if (!$customer->is_reseller)
+                                                          <form action="{{ route('admin.customers.make-reseller', $customer->id) }}" method="POST" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item has-icon">
+                                                              <i class="fas fa-user-plus text-success mr-2"></i> Make Reseller
+                                                            </button>
+                                                          </form>
+                                                        @else
+                                                          <form action="{{ route('admin.customers.remove-reseller', $customer->id) }}" method="POST" class="dropdown-item p-0">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item has-icon">
+                                                              <i class="fas fa-user-minus text-danger mr-2"></i> Remove Reseller
+                                                            </button>
+                                                          </form>
+                                                        @endif
+
+                                                      
                                                     </div>
                                                 </div>
                                             </td>
@@ -162,6 +174,9 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                <div>
+                                  {{ $customers->appends(request()->query())->links() }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -243,6 +258,36 @@
 
     <script>
         $(document).ready(function(){
+            // Initialize select2 for filters
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%' });
+            }
+
+            function applyFilters() {
+                const baseUrl = "{{ route('admin.customer.index') }}";
+                const params = new URLSearchParams();
+                const search = $('#searchFilter').val().trim();
+                const reseller = $('#resellerFilter').val();
+                if (search) params.set('search', search);
+                if (reseller) params.set('reseller', reseller);
+                const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+                window.location.href = url;
+            }
+
+            // Trigger on change/select
+            $('#resellerFilter').on('change', applyFilters);
+            $('#applyFiltersBtn').on('click', applyFilters);
+            $('#searchFilter').on('keypress', function(e){
+                if (e.which === 13) { // Enter
+                    applyFilters();
+                }
+            });
+
+            // Clear filters
+            $('#clearFilters').on('click', function(){
+                window.location.href = "{{ route('admin.customer.index') }}";
+            });
+
             $('body').on('click', '.change-status', function(){
                 let isChecked = $(this).is(':checked');
                 let id = $(this).data('id');

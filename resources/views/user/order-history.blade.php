@@ -106,6 +106,10 @@
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     <i class="fas fa-gift mr-2"></i>Gift Orders
                 </button>
+                <button onclick="switchTab('reseller')" id="reseller-tab"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    <i class="fas fa-tags mr-2"></i>Reseller Orders
+                </button>
             </nav>
             <style>
                 .scrollbar-hide::-webkit-scrollbar {
@@ -425,98 +429,17 @@
                             @endif
                         </div>
                     </div>
-                    @empty
-                    <div class="bg-gray-50 rounded-lg p-8 text-center">
-                        <i class="fas fa-box-open text-gray-300 text-4xl mb-4"></i>
-                        <p class="text-lg font-medium text-gray-400">No digital product orders found</p>
-                        <p class="text-sm text-gray-400 mt-1">Your digital product purchases will appear here</p>
-                    </div>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
             
-            <!-- Digital Products Pagination -->
-            @if($digitalProducts->hasPages())
-            <div class="mt-6">
-                <div class="flex items-center justify-between">
-                    <div class="hidden sm:block text-sm text-gray-700">
-                        Showing <span class="font-medium">{{ $digitalProducts->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $digitalProducts->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $digitalProducts->total() }}</span> results
-                    </div>
-                    <div class="flex flex-1 justify-between sm:justify-end space-x-2">
-                        {{-- Previous Page Link --}}
-                        @if ($digitalProducts->onFirstPage())
-                            <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
-                                Previous
-                            </span>
-                        @else
-                            <a href="{{ $digitalProducts->previousPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                                Previous
-                            </a>
-                        @endif
-
-                        {{-- Pagination Elements - Only visible on desktop --}}
-                        <div class="hidden sm:flex items-center space-x-2">
-                            @php
-                                $currentPage = $digitalProducts->currentPage();
-                                $lastPage = $digitalProducts->lastPage();
-                                $window = 2; // Number of pages to show on each side of current page
-                            @endphp
-
-                            {{-- First Page --}}
-                            @if($lastPage > 5)
-                                <a href="{{ $digitalProducts->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == 1 ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                                    1
-                                </a>
-                                
-                                {{-- Left Ellipsis --}}
-                                @if($currentPage > ($window + 2))
-                                    <span class="px-2 py-2 text-gray-500">...</span>
-                                @endif
-                            @endif
-
-                            {{-- Page Window --}}
-                            @foreach(range(max(2, $currentPage - $window), min($lastPage - 1, $currentPage + $window)) as $page)
-                                @if($page > 1 && $page < $lastPage)
-                                    <a href="{{ $digitalProducts->url($page) }}" class="px-3 py-2 text-sm font-medium {{ $page == $currentPage ? 'text-white bg-primary-600 border-transparent' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50' }} rounded-lg">
-                                        {{ $page }}
-                                    </a>
-                                @endif
-                            @endforeach
-
-                            {{-- Last Page --}}
-                            @if($lastPage > 5)
-                                {{-- Right Ellipsis --}}
-                                @if($currentPage < ($lastPage - $window - 1))
-                                    <span class="px-2 py-2 text-gray-500">...</span>
-                                @endif
-
-                                <a href="{{ $digitalProducts->url($lastPage) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == $lastPage ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                                    {{ $lastPage }}
-                                </a>
-                            @endif
-                        </div>
-
-                        {{-- Next Page Link --}}
-                        @if ($digitalProducts->hasMorePages())
-                            <a href="{{ $digitalProducts->nextPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                                Next
-                            </a>
-                        @else
-                            <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
-                                Next
-                            </span>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            @endif
+            {{-- Pagination removed per request: showing all available items without navigation --}}
         </div>
 
         <!-- Gift Orders Tab -->
         <div id="gifts-content" class="p-6" style="display: none;">
             <div class="space-y-4">
-                <!-- Filters -->
-                <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <div class="hidden flex flex-col sm:flex-row gap-4 mb-6" id="duplicateGiftFilters">
                     <div class="flex-1">
                         <input type="text" placeholder="Search gift orders..." 
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
@@ -630,6 +553,11 @@
                                     class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
+                            @if($product['status'] == 'completed' && $product['full_log_item'])
+                            <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-copy mr-1"></i>Copy
+                            </button>
+                            @endif
                         </div>
                     </div>
                     @endforeach
@@ -650,83 +578,34 @@
                 @endif
             </div>
         </div>
+
+        <!-- Reseller Orders Tab -->
+        <div id="reseller-content" class="p-6" style="display: none;">
+            <div class="space-y-4">
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Log Item</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="resellerOrdersTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="md:hidden space-y-4" id="resellerOrdersMobile"></div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Pagination -->
-    @if($smsOrders->hasPages())
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="flex items-center justify-between">
-            <div class="hidden sm:block text-sm text-gray-700">
-                Showing <span class="font-medium">{{ $smsOrders->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $smsOrders->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $smsOrders->total() }}</span> results
-            </div>
-            <div class="flex flex-1 justify-between sm:justify-end space-x-2">
-                {{-- Previous Page Link --}}
-                @if ($smsOrders->onFirstPage())
-                    <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
-                        Previous
-                    </span>
-                @else
-                    <a href="{{ $smsOrders->previousPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Previous
-                    </a>
-                @endif
-
-                {{-- Pagination Elements - Only visible on desktop --}}
-                <div class="hidden sm:flex items-center space-x-2">
-                    @php
-                        $currentPage = $smsOrders->currentPage();
-                        $lastPage = $smsOrders->lastPage();
-                        $window = 2; // Number of pages to show on each side of current page
-                    @endphp
-
-                    {{-- First Page --}}
-                    @if($lastPage > 5)
-                        <a href="{{ $smsOrders->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == 1 ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                            1
-                        </a>
-                        
-                        {{-- Left Ellipsis --}}
-                        @if($currentPage > ($window + 2))
-                            <span class="px-2 py-2 text-gray-500">...</span>
-                        @endif
-                    @endif
-
-                    {{-- Page Window --}}
-                    @foreach(range(max(2, $currentPage - $window), min($lastPage - 1, $currentPage + $window)) as $page)
-                        @if($page > 1 && $page < $lastPage)
-                            <a href="{{ $smsOrders->url($page) }}" class="px-3 py-2 text-sm font-medium {{ $page == $currentPage ? 'text-white bg-primary-600 border-transparent' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50' }} rounded-lg">
-                                {{ $page }}
-                            </a>
-                        @endif
-                    @endforeach
-
-                    {{-- Last Page --}}
-                    @if($lastPage > 5)
-                        {{-- Right Ellipsis --}}
-                        @if($currentPage < ($lastPage - $window - 1))
-                            <span class="px-2 py-2 text-gray-500">...</span>
-                        @endif
-
-                        <a href="{{ $smsOrders->url($lastPage) }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 {{ $currentPage == $lastPage ? 'bg-primary-600 text-white border-transparent' : '' }}">
-                            {{ $lastPage }}
-                        </a>
-                    @endif
-                </div>
-
-                {{-- Next Page Link --}}
-                @if ($smsOrders->hasMorePages())
-                    <a href="{{ $smsOrders->nextPageUrl() }}" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Next
-                    </a>
-                @else
-                    <span class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg opacity-50 cursor-not-allowed">
-                        Next
-                    </span>
-                @endif
-            </div>
-        </div>
-    </div>
-    @endif
+    {{-- Pagination removed per request: SMS orders pagination UI stripped --}}
 
     <!-- Log Modal -->
     <div id="logModal" style="display: none;" class="z-50">
@@ -867,15 +746,21 @@
         document.getElementById('sms-content').style.display = 'none';
         document.getElementById('logs-content').style.display = 'none';
         document.getElementById('gifts-content').style.display = 'none';
+        document.getElementById('reseller-content').style.display = 'none';
         
         // Remove active classes from all tabs
         document.getElementById('sms-tab').className = 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
         document.getElementById('logs-tab').className = 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
         document.getElementById('gifts-tab').className = 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+        document.getElementById('reseller-tab').className = 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
         
         // Show selected tab content and add active class
         document.getElementById(tabName + '-content').style.display = 'block';
         document.getElementById(tabName + '-tab').className = 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors border-primary-500 text-primary-600';
+        
+        if (tabName === 'reseller') {
+            loadResellerOrders();
+        }
     }
     
     // Log modal functions
@@ -1077,4 +962,376 @@
         });
     }
 </script>
+
+<!-- User Reseller Order Modal -->
+<div id="userResellerOrderModal" style="display: none;" class="z-50">
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 999;"></div>
+  <div class="fixed inset-0 flex items-center justify-center" style="z-index: 1000;" onclick="closeUserResellerOrderModal()">
+    <div class="relative mx-auto p-6 border w-11/12 max-w-3xl shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class="mt-3">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-medium text-gray-900">Reseller Order Details</h3>
+          <button onclick="closeUserResellerOrderModal()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Order #</label><p class="text-base text-gray-900 font-medium" id="userResellerOrderNumber"></p></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Product</label><p class="text-base text-gray-900 font-medium" id="userResellerOrderProduct"></p></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Status</label><p class="text-base text-gray-900 font-medium" id="userResellerOrderStatus"></p></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-sm font-medium text-gray-700">Logs</label>
+              <button onclick="copyAllResellerLogContents(event)" class="px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm">
+                <i class="fas fa-copy mr-1"></i>Copy All
+              </button>
+            </div>
+            <div id="userResellerOrderLogs" class="space-y-4 max-h-[75vh] overflow-y-auto"></div>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end">
+          <button onclick="closeUserResellerOrderModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+  // Reseller Orders Loader and Modal (User)
+  function loadResellerOrders() {
+    const desktopBody = document.getElementById('resellerOrdersTableBody');
+    const mobileContainer = document.getElementById('resellerOrdersMobile');
+    if (desktopBody) desktopBody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</td></tr>';
+    if (mobileContainer) mobileContainer.innerHTML = '<div class="text-center text-gray-500 py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
+    fetch('{{ route('api.user.reseller-orders') }}?per_page=1000', { credentials: 'same-origin' })
+      .then(r => { if (!r.ok) { throw new Error('HTTP '+ r.status); } return r.json(); })
+      .then(json => {
+        if (!json.success) {
+          if (desktopBody) desktopBody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-red-600">Failed to load orders</td></tr>';
+          if (mobileContainer) mobileContainer.innerHTML = '<div class="text-center text-red-600 py-4">Failed to load orders</div>';
+          return;
+        }
+        const orders = (json.data && json.data.data) ? json.data.data : [];
+        renderUserResellerOrdersDesktop(orders);
+        renderUserResellerOrdersMobile(orders);
+      })
+      .catch(err => {
+         console.error('Failed to load user reseller orders', err);
+         if (typeof notify === 'function') { notify('error', 'Failed to load reseller orders'); }
+         if (desktopBody) desktopBody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-red-600">Error loading orders</td></tr>';
+         if (mobileContainer) mobileContainer.innerHTML = '<div class="text-center text-red-600 py-4">Error loading orders</div>';
+       });
+  }
+
+  function renderUserResellerOrdersDesktop(orders) {
+    const body = document.getElementById('resellerOrdersTableBody');
+    if (!body) return;
+    if (!orders.length) {
+      body.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No reseller orders found.</td></tr>';
+      return;
+    }
+    const rows = orders.map(order => {
+      const statusColors = {
+        completed: 'bg-green-100 text-green-800',
+        pending: 'bg-yellow-100 text-yellow-800',
+        failed: 'bg-red-100 text-red-800',
+        cancelled: 'bg-gray-100 text-gray-800'
+      };
+      const statusClass = statusColors[order.status] || 'bg-gray-100 text-gray-800';
+      const amount = (order.total_amount ?? 0).toLocaleString();
+      const productName = order.product?.name || 'N/A';
+      const dateStr = new Date(order.created_at).toLocaleString();
+      const logsCount = (order.logs && order.logs.length) ? order.logs.length : (order.quantity || 0);
+      return `
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#RPO${order.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${productName}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${logsCount}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦${amount}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+              ${order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dateStr}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors" onclick="showUserResellerOrder(${order.id})">
+              <i class="fas fa-eye"></i> View
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    body.innerHTML = rows;
+  }
+
+  function renderUserResellerOrdersMobile(orders) {
+    const container = document.getElementById('resellerOrdersMobile');
+    if (!container) return;
+    if (!orders.length) {
+      container.innerHTML = '<div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500">No reseller orders found.</div>';
+      return;
+    }
+    container.innerHTML = orders.map(order => {
+      const productName = order.product?.name || 'N/A';
+      const amount = (order.total_amount ?? 0).toLocaleString();
+      const dateStr = new Date(order.created_at).toLocaleString();
+      const logsCount = (order.logs && order.logs.length) ? order.logs.length : (order.quantity || 0);
+      return `
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-tags text-blue-600 text-sm"></i>
+              </div>
+              <span class="font-medium text-gray-900">${productName}</span>
+            </div>
+            <span class="text-sm font-medium text-gray-500">#RPO${order.id}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+            <div><span class="text-gray-500">Logs:</span> <span class="ml-1 font-medium">${logsCount}</span></div>
+            <div><span class="text-gray-500">Amount:</span> <span class="ml-1 font-medium">₦${amount}</span></div>
+            <div class="flex justify-between items-center col-span-2">
+              <div><span class="text-gray-500">Date:</span> <span class="ml-1">${dateStr}</span></div>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <button class="flex-1 bg-blue-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors" onclick="showUserResellerOrder(${order.id})">
+              <i class="fas fa-eye mr-1"></i>View
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function showUserResellerOrder(orderId) {
+    const modal = document.getElementById('userResellerOrderModal');
+    const logsContainer = document.getElementById('userResellerOrderLogs');
+    document.getElementById('userResellerOrderNumber').textContent = '';
+    document.getElementById('userResellerOrderProduct').textContent = '';
+    document.getElementById('userResellerOrderStatus').textContent = '';
+    logsContainer.innerHTML = '<div class="text-center py-3"><i class="fas fa-spinner fa-spin"></i></div>';
+    modal.style.display = 'block';
+    fetch(`{{ url('/api/user/reseller-orders') }}/${orderId}`)
+      .then(r => r.json())
+      .then(json => {
+        if (!json.success) { logsContainer.innerHTML = '<div class="list-group-item text-danger">Failed to load order details.</div>'; return; }
+        const order = json.data;
+        document.getElementById('userResellerOrderNumber').textContent = `#RPO${order.id}`;
+        document.getElementById('userResellerOrderProduct').textContent = order.product?.name || '';
+        document.getElementById('userResellerOrderStatus').textContent = order.status;
+        if (!order.logs || order.logs.length === 0) {
+          logsContainer.className = 'space-y-4 max-h-[75vh] overflow-y-auto';
+          logsContainer.innerHTML = '<div class="text-gray-500 italic">No logs linked to this order.</div>';
+        } else {
+          window.currentResellerOrder = order;
+          logsContainer.className = 'space-y-4 max-h-[75vh] overflow-y-auto';
+          logsContainer.innerHTML = order.logs.map((log, idx) => {
+            const html = sanitizeResellerLogHtml(log.log_item || '');
+            const dateStr = log.sold_at ? new Date(log.sold_at).toLocaleString() : '';
+            const statusPill = log.status ? `<span class="ml-2 inline-block px-2 py-0.5 rounded bg-gray-200 text-gray-700 text-xs">${log.status}</span>` : '';
+            const details = log.details ? `<div class="mt-2 text-sm text-gray-700">${log.details}</div>` : '';
+            const contentHtml = html || '<p class="text-gray-500 italic">No content available</p>';
+            return `
+              <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm text-gray-600">Log ${idx + 1}${statusPill}</div>
+                  <div class="text-xs text-gray-500">${dateStr}</div>
+                </div>
+                ${details}
+                <div id="resellerLogContent-${log.id}" class="prose prose-sm max-w-none mt-3 reseller-log-content">${contentHtml}</div>
+                <div class="mt-3 flex gap-2 justify-end">
+                  <button class="px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm" onclick="copySpecificResellerLogContent(${log.id}, event)">
+                    <i class="fas fa-copy mr-1"></i>Copy
+                  </button>
+                  <button class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm" onclick="copyResellerLogId(${log.id})">
+                    <i class="fas fa-id-card mr-1"></i>ID
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load order details', err);
+        logsContainer.innerHTML = '<div class="list-group-item text-danger">Failed to load order details.</div>';
+      });
+  }
+
+  function copyResellerLogId(id) {
+    navigator.clipboard.writeText(String(id)).then(() => alert('Copied!')).catch(() => alert('Failed to copy'));
+  }
+
+  function closeUserResellerOrderModal() {
+    document.getElementById('userResellerOrderModal').style.display = 'none';
+  }
+
+  // Select a reseller log and render details + content in the same modal
+  function selectResellerLog(logId) {
+    try {
+      const order = window.currentResellerOrder;
+      if (!order) return;
+      const log = (order.logs || []).find(l => l.id === logId);
+      if (!log) return;
+
+      // Highlight selected chip
+      const chipsContainer = document.getElementById('userResellerOrderLogs');
+      if (chipsContainer) {
+        [...chipsContainer.querySelectorAll('[data-log-id]')].forEach(btn => {
+          btn.classList.remove('bg-primary-100','text-primary-700','border-primary-200');
+          btn.classList.add('bg-white','text-gray-700','border-gray-300');
+        });
+        const activeChip = chipsContainer.querySelector(`[data-log-id="${logId}"]`);
+        if (activeChip) {
+          activeChip.classList.remove('bg-white','text-gray-700','border-gray-300');
+          activeChip.classList.add('bg-primary-100','text-primary-700','border-primary-200');
+        }
+      }
+
+      document.getElementById('resellerLogProductName').textContent = order.product?.name || 'Reseller Product';
+      document.getElementById('resellerLogDetails').textContent = log.details || 'No additional details provided';
+
+      const html = sanitizeResellerLogHtml(log.log_item || '');
+      const contentEl = document.getElementById('resellerLogContent');
+      contentEl.innerHTML = html || '<p class="text-gray-500 italic">No content available</p>';
+    } catch (e) {
+      console.error('Failed to render reseller log content', e);
+      alert('Failed to display log content');
+    }
+  }
+
+  // Remove "Item #n" heading from reseller log HTML before display/copy
+  function sanitizeResellerLogHtml(html) {
+    if (!html) return '';
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Remove strong/p/h tags starting with 'Item #'
+    const selectors = ['strong','p','h1','h2','h3','h4','h5','h6'];
+    selectors.forEach(sel => {
+      temp.querySelectorAll(sel).forEach(el => {
+        const txt = (el.innerText || el.textContent || '').trim();
+        if (/^Item\s*#\d+/i.test(txt)) {
+          el.remove();
+        }
+      });
+    });
+
+    // Also remove leading text node 'Item #n' if present
+    if (temp.firstChild && temp.firstChild.nodeType === Node.TEXT_NODE) {
+      const t = temp.firstChild.textContent.trim();
+      if (/^Item\s*#\d+/i.test(t)) {
+        temp.firstChild.remove();
+      }
+    }
+
+    return temp.innerHTML;
+  }
+
+  // Copy sanitized reseller log content to clipboard (legacy single-content)
+  function copyResellerLogContentToClipboard(event) {
+    const contentEl = document.getElementById('resellerLogContent');
+    if (!contentEl) return;
+    const textContent = contentEl.innerText || contentEl.textContent || '';
+    if (textContent.trim() === '' || textContent.trim() === 'No content available') {
+      alert('No content to copy');
+      return;
+    }
+    navigator.clipboard.writeText(textContent).then(function() {
+      const button = event.target.closest('button');
+      if (!button) return;
+      const original = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+      button.classList.remove('bg-primary-600','hover:bg-primary-700');
+      button.classList.add('bg-green-600','hover:bg-green-700');
+      setTimeout(function() {
+        button.innerHTML = original;
+        button.classList.remove('bg-green-600','hover:bg-green-700');
+        button.classList.add('bg-primary-600','hover:bg-primary-700');
+      }, 2000);
+    }).catch(function(err) {
+      console.error('Could not copy content', err);
+      alert('Failed to copy content');
+    });
+  }
+
+  // Copy content for a specific reseller log block (new list rendering)
+  function copySpecificResellerLogContent(logId, event) {
+    const contentEl = document.getElementById(`resellerLogContent-${logId}`);
+    if (!contentEl) { alert('Content not found'); return; }
+    const textContent = contentEl.innerText || contentEl.textContent || '';
+    if (textContent.trim() === '') { alert('No content to copy'); return; }
+    navigator.clipboard.writeText(textContent).then(function() {
+      const button = event && event.target ? event.target.closest('button') : null;
+      if (button) {
+        const original = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+        button.classList.remove('bg-primary-600','hover:bg-primary-700');
+        button.classList.add('bg-green-600','hover:bg-green-700');
+        setTimeout(function() {
+          button.innerHTML = original;
+          button.classList.remove('bg-green-600','hover:bg-green-700');
+          button.classList.add('bg-primary-600','hover:bg-primary-700');
+        }, 2000);
+      } else {
+        alert('Copied!');
+      }
+    }).catch(function(err) {
+      console.error('Could not copy content', err);
+      alert('Failed to copy content');
+    });
+  }
+  // Ensure global access from inline handlers
+  window.copySpecificResellerLogContent = copySpecificResellerLogContent;
+
+  // Copy all reseller log contents in the current modal
+  function copyAllResellerLogContents(event) {
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    const container = document.getElementById('userResellerOrderLogs');
+    if (!container) { alert('Logs container not found'); return; }
+    const items = Array.from(container.querySelectorAll('.reseller-log-content'));
+    if (!items.length) { alert('No log content to copy'); return; }
+    const combined = items
+      .map(el => (el.innerText || el.textContent || '').trim())
+      .filter(txt => txt && txt !== 'No content available')
+      .join('\n\n');
+    if (!combined) { alert('No log content to copy'); return; }
+    navigator.clipboard.writeText(combined)
+      .then(() => {
+        const btn = event && event.target ? event.target.closest('button') : null;
+        if (btn) {
+          const original = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+          btn.classList.remove('bg-primary-600','hover:bg-primary-700');
+          btn.classList.add('bg-green-600','hover:bg-green-700');
+          setTimeout(function() {
+            btn.innerHTML = original;
+            btn.classList.remove('bg-green-600','hover:bg-green-700');
+            btn.classList.add('bg-primary-600','hover:bg-primary-700');
+          }, 2000);
+        } else {
+          alert('All content copied!');
+        }
+      })
+      .catch(err => {
+        console.error('Could not copy all content', err);
+        alert('Failed to copy all content');
+      });
+  }
+  window.copyAllResellerLogContents = copyAllResellerLogContents;
+
+  // Backward compatibility: scroll to matching log content if triggered
+  function openResellerLog(logId) {
+    const el = document.getElementById(`resellerLogContent-${logId}`);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  }
+</script>
+@endpush
+
 @endsection

@@ -322,6 +322,73 @@
             </div>
         </div>
 
+        <!-- Reseller Orders Statistics -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="mb-3"><i class="fas fa-store"></i> Reseller Orders</h5>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-primary">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Reseller Orders</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['reseller_total_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Completed</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['reseller_completed_orders']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-info">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Reseller Revenue</h4>
+                        </div>
+                        <div class="card-body">
+                            ₦{{ number_format($stats['reseller_total_revenue']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-dark">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Total Resellers</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ number_format($stats['total_resellers']) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Social Media Boosting Statistics -->
         <div class="row">
             <div class="col-12">
@@ -905,39 +972,72 @@
         </div>
         
         <!-- Second Row for Daisy Revenue -->
-        <div class="row mt-3">
-            <!-- Daisy Orders Revenue -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4><i class="fas fa-flower text-info"></i> Daisy Orders Revenue</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="text-muted">Today</div>
-                                <div class="font-weight-bold text-primary">₦{{ number_format($todaysDaisyRevenue) }}</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-muted">This Month</div>
-                                <div class="font-weight-bold text-info">₦{{ number_format($monthDaisyRevenue) }}</div>
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-6">
-                                <div class="text-muted">This Year</div>
-                                <div class="font-weight-bold text-success">₦{{ number_format($yearDaisyRevenue) }}</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-muted">All Time</div>
-                                <div class="font-weight-bold text-dark">₦{{ number_format($stats['daisy_total_revenue']) }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+         <div class="row mt-3">
+             <!-- Daisy Orders Revenue -->
+             <div class="col-lg-3 col-md-6">
+                 <div class="card">
+                     <div class="card-header">
+                         <h4><i class="fas fa-flower text-info"></i> Daisy Orders Revenue</h4>
+                     </div>
+                     <div class="card-body">
+                         <div class="row">
+                             <div class="col-6">
+                                 <div class="text-muted">Today</div>
+                                 <div class="font-weight-bold text-primary">₦{{ number_format($todaysDaisyRevenue) }}</div>
+                             </div>
+                             <div class="col-6">
+                                 <div class="text-muted">This Month</div>
+                                 <div class="font-weight-bold text-info">₦{{ number_format($monthDaisyRevenue) }}</div>
+                             </div>
+                         </div>
+                         <div class="row mt-2">
+                             <div class="col-6">
+                                 <div class="text-muted">This Year</div>
+                                 <div class="font-weight-bold text-success">₦{{ number_format($yearDaisyRevenue) }}</div>
+                             </div>
+                             <div class="col-6">
+                                 <div class="text-muted">All Time</div>
+                                 <div class="font-weight-bold text-dark">₦{{ number_format($stats['daisy_total_revenue']) }}</div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             <!-- Reseller Revenue -->
+             <div class="col-lg-3 col-md-6">
+                 <div class="card">
+                     <div class="card-header">
+                         <h4><i class="fas fa-store text-dark"></i> Reseller Revenue</h4>
+                     </div>
+                     <div class="card-body">
+                         <div class="row">
+                             <div class="col-6">
+                                 <div class="text-muted">Today</div>
+                                 <div class="font-weight-bold text-primary">₦{{ number_format($todaysResellerRevenue) }}</div>
+                             </div>
+                             <div class="col-6">
+                                 <div class="text-muted">This Month</div>
+                                 <div class="font-weight-bold text-info">₦{{ number_format($monthResellerRevenue) }}</div>
+                             </div>
+                         </div>
+                         <div class="row mt-2">
+                             <div class="col-6">
+                                 <div class="text-muted">This Year</div>
+                                 <div class="font-weight-bold text-success">₦{{ number_format($yearResellerRevenue) }}</div>
+                             </div>
+                             <div class="col-6">
+                                 <div class="text-muted">All Time</div>
+                                 <div class="font-weight-bold text-dark">₦{{ number_format($stats['reseller_total_revenue']) }}</div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
         
+
+
+
         {{-- <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <a href="{{ route('admin.order.index') }}">

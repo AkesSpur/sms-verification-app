@@ -14,6 +14,8 @@ use App\Models\DigitalProduct;
 use App\Models\SocialMediaOrder;
 use App\Models\DaisyOrder;
 use App\Models\DaisyService;
+use App\Models\ResellerOrder; // added
+use App\Models\ResellerRequest; // added
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -94,16 +96,31 @@ class AdminController extends Controller
             ->whereYear('created_at', Carbon::now()->year)
             ->sum('price');
 
-        // Combined Revenue Totals
-        $todaysRevenue = $todaysSmsRevenue + $todaysDigitalRevenue + $todaysGiftRevenue + $todaysSocialRevenue + $todaysDaisyRevenue;
-        $monthRevenue = $monthSmsRevenue + $monthDigitalRevenue + $monthGiftRevenue + $monthSocialRevenue + $monthDaisyRevenue;
-        $yearRevenue = $yearSmsRevenue + $yearDigitalRevenue + $yearGiftRevenue + $yearSocialRevenue + $yearDaisyRevenue;
+        // Reseller Orders Revenue (completed orders)
+        $todaysResellerRevenue = ResellerOrder::where('status', 'completed')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('total_amount');
+
+        $monthResellerRevenue = ResellerOrder::where('status', 'completed')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total_amount');
+
+        $yearResellerRevenue = ResellerOrder::where('status', 'completed')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_amount');
+
+        // Combined Revenue Totals (updated to include reseller revenue)
+        $todaysRevenue = $todaysSmsRevenue + $todaysDigitalRevenue + $todaysGiftRevenue + $todaysSocialRevenue + $todaysDaisyRevenue + $todaysResellerRevenue;
+        $monthRevenue = $monthSmsRevenue + $monthDigitalRevenue + $monthGiftRevenue + $monthSocialRevenue + $monthDaisyRevenue + $monthResellerRevenue;
+        $yearRevenue = $yearSmsRevenue + $yearDigitalRevenue + $yearGiftRevenue + $yearSocialRevenue + $yearDaisyRevenue + $yearResellerRevenue;
 
         $totalServices = Service::where('status', 'active')->count();
         $totalUsers = User::where('role', 'client')->count();
         $totalAdmins = User::where('role', 'admin')->count();
+        $totalResellers = User::where('is_reseller', true)->orWhere('role', 'reseller')->count(); // added
         
         $pendingReviews = ReviewQueue::count();
+        $pendingResellerRequests = ResellerRequest::pending()->count(); // added
         
         // Recent orders for SMS verification
         $recentOrders = Order::with(['user', 'service'])
@@ -177,6 +194,20 @@ class AdminController extends Controller
             'daisy_month_revenue' => $monthDaisyRevenue,
             'daisy_year_revenue' => $yearDaisyRevenue,
             'daisy_today_orders' => DaisyOrder::whereDate('created_at', Carbon::today())->count(),
+
+            // Reseller Orders (new)
+            'reseller_total_orders' => ResellerOrder::count(),
+            'reseller_completed_orders' => ResellerOrder::where('status', 'completed')->count(),
+            'reseller_pending_orders' => ResellerOrder::where('status', 'pending')->count(),
+            'reseller_failed_orders' => ResellerOrder::where('status', 'failed')->count(),
+            'reseller_total_revenue' => ResellerOrder::where('status', 'completed')->sum('total_amount'),
+            'reseller_today_revenue' => $todaysResellerRevenue,
+            'reseller_month_revenue' => $monthResellerRevenue,
+            'reseller_year_revenue' => $yearResellerRevenue,
+
+            // Users & Resellers
+            'total_resellers' => $totalResellers,
+            'pending_reseller_requests' => $pendingResellerRequests,
             
             // Combined Revenue Totals
             'total_revenue_today' => $todaysRevenue,
@@ -186,7 +217,8 @@ class AdminController extends Controller
                                       DigitalProductOrder::where('status', 'completed')->sum('total_amount') + 
                                       GiftOrder::where('payment_status', 'paid')->sum('total_amount') + 
                                       SocialMediaOrder::where('status', 'completed')->sum('total_amount') + 
-                                      DaisyOrder::where('status', 'completed')->sum('price'),
+                                      DaisyOrder::where('status', 'completed')->sum('price') +
+                                      ResellerOrder::where('status', 'completed')->sum('total_amount'),
             
             // Transactions
             'total_transactions' => Transaction::count(),
@@ -280,6 +312,9 @@ class AdminController extends Controller
             'todaysSocialRevenue',
             'monthSocialRevenue',
             'yearSocialRevenue',
+            'todaysResellerRevenue',
+            'monthResellerRevenue',
+            'yearResellerRevenue',
             'todaysDaisyRevenue',
             'monthDaisyRevenue',
             'yearDaisyRevenue',

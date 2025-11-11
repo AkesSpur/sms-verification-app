@@ -21,8 +21,10 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
         'is_admin',
+        'is_reseller',
         'balance',
         'role',
         'status'
@@ -49,8 +51,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_reseller' => 'boolean',
             'balance' => 'decimal:2',
         ];
+    }
+
+    public function isReseller()
+    {
+        return (bool) ($this->is_reseller ?? false);
     }
 
     /**
@@ -120,6 +128,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function adminTransactions()
     {
         return $this->hasMany(Transaction::class, 'admin_id');
+    }
+
+    /**
+     * Virtual account associated with the user (PaymentPoint).
+     */
+    public function virtualAccount()
+    {
+        return $this->hasOne(VirtualAccount::class);
     }
 
     /**

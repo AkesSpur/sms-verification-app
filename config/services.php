@@ -71,4 +71,13 @@ return [
         'timeout' => env('DAISYSMS_TIMEOUT', 30),
         'log_requests' => env('DAISYSMS_LOG_REQUESTS', true),
     ],
+
+    'paymentpoint' => [
+        'api_key' => env('PAYMENTPOINT_API_KEY'),
+        'api_secret' => env('PAYMENTPOINT_API_SECRET'),
+        'business_id' => env('PAYMENTPOINT_BUSINESS_ID'),
+        // Comma separated bank codes (e.g., "20946,20897")
+        'bank_codes' => explode(',', env('PAYMENTPOINT_BANK_CODES', '20946,20897')),
+        'webhook_secret' => env('PAYMENTPOINT_SECRET_KEY', env('PAYMENTPOINT_API_SECRET')),
+    ],
 ];

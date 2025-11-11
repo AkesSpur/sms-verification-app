@@ -12,6 +12,9 @@ use App\Http\Controllers\Gateways\PaystackController;
 use App\Http\Controllers\UsaNumberController;
 use App\Http\Controllers\InternationalNumberController;
 use App\Http\Controllers\SocialMediaBoostingController;
+use App\Http\Controllers\ResellerController;
+use App\Http\Controllers\ResellerOrderController;
+use App\Http\Controllers\Gateways\PaymentPointController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -34,7 +37,7 @@ Route::get('/gift/{slug}', [HomeController::class, 'showGift'])->name('gift.show
 // });
 
 
-Route::prefix('user')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('user')->middleware(['auth', 'verified', 'require.phone'])->group(function () {
     Route::get('/dashboard', [UsersController::class, 'dashboard'])->name('user.dashboard');
     Route::get('/usa-numbers', [UsersController::class, 'usaNumbers'])->name('user.usa-numbers');
     Route::get('/all-countries', [UsersController::class, 'allCountriesNumbers'])->name('user.all-countries');
@@ -98,6 +101,10 @@ Route::prefix('user')->middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders', [SocialMediaBoostingController::class, 'orders'])->name('user.social-media-orders.index');
         Route::get('/orders/{order}', [SocialMediaBoostingController::class, 'showOrder'])->name('user.social-media-orders.show');
     });
+    // Reseller store routes
+    Route::get('/reseller', [ResellerController::class, 'index'])->name('user.reseller');
+    Route::post('/reseller/request', [ResellerController::class, 'requestAccess'])->name('user.reseller.request');
+    Route::post('/reseller/purchase', [ResellerOrderController::class, 'store'])->name('reseller.purchase');
 });
 
 // API routes for AJAX calls
@@ -109,7 +116,13 @@ Route::prefix('api')->group(function () {
         Route::get('/digital-orders', [DigitalProductOrderController::class, 'getUserOrders'])->name('api.user.digital-orders');
         Route::get('/gift-orders', [GiftOrderController::class, 'getUserOrders'])->name('api.user.gift-orders');
         Route::get('/digital-orders/{id}', [DigitalProductOrderController::class, 'show'])->name('api.user.digital-orders.show');
+        Route::get('/reseller-orders', [ResellerOrderController::class, 'getUserOrders'])->name('api.user.reseller-orders');
+        Route::get('/reseller-orders/{order}', [ResellerOrderController::class, 'show'])->name('api.user.reseller-orders.show');
         Route::post('/set-deposit-amount', [UsersController::class, 'setDepositAmount'])->name('user.set-deposit-amount');
+
+        // PaymentPoint Virtual Account API
+        Route::get('/virtual-account', [PaymentPointController::class, 'getVirtualAccount'])->name('api.user.virtual-account.get');
+        Route::post('/virtual-account/create', [PaymentPointController::class, 'createVirtualAccount'])->name('api.user.virtual-account.create');
     });
 });
 
@@ -129,4 +142,9 @@ Route::prefix('user')->middleware('auth')->group(function () {
 Route::prefix('digital-products')->middleware('auth')->group(function () {
     Route::post('/purchase', [DigitalProductOrderController::class, 'store'])->name('digital-products.purchase');
 });
+
+// PaymentPoint webhook (no auth, exclude CSRF)
+Route::post('/webhook/paymentpoint', [PaymentPointController::class, 'webhook'])
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
+    ->name('webhook.paymentpoint');
 require __DIR__.'/auth.php';

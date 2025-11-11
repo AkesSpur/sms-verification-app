@@ -4,6 +4,37 @@
 
 @section('content')
 <div class="space-y-6">
+    <!-- Virtual Account (PaymentPoint) -->
+    <div id="virtualAccountWidget" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Virtual Account</h3>
+                <p class="text-sm text-gray-500">Create a PaymentPoint virtual bank account to fund your wallet</p>
+            </div>
+            <div id="vaActionArea" class="mt-3 md:mt-0">
+                <button id="createVaBtn" class="w-full md:w-auto inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-university mr-2"></i>
+                    Create Virtual Account
+                </button>
+            </div>
+        </div>
+        <div id="vaDetails" class="mt-4 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p class="text-xs text-gray-500">Account Number</p>
+                    <p class="text-lg font-semibold text-gray-900" id="vaAccountNumber">-</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p class="text-xs text-gray-500">Account Name</p>
+                    <p class="text-lg font-semibold text-gray-900" id="vaAccountName">-</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p class="text-xs text-gray-500">Bank</p>
+                    <p class="text-lg font-semibold text-gray-900" id="vaBankName">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <!-- Balance Card -->
@@ -240,6 +271,110 @@
                         Browse All Countries
                     </a>
                 </div>
+
+                <!-- Reseller Store CTA -->
+                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
+                    <div class="absolute top-4 right-4">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-tags text-yellow-600 text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <div class="w-14 h-14 bg-yellow-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-yellow-200">
+                            <i class="fas fa-tags text-yellow-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Reseller Store</h4>
+                            <p class="text-sm text-gray-600 mb-3">Exclusive products for verified resellers</p>
+                            <div class="flex items-center text-xs text-gray-500">
+                                <i class="fas fa-user-tag mr-1"></i>
+                                <span>Request access if not a reseller</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ route('user.reseller') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
+                        <i class="fas fa-tags w-4 h-4 mr-2"></i>
+                        Go to Reseller Store
+                    </a>
+                </div>
+
+                <!-- Logs Store CTA -->
+                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
+                    <div class="absolute top-4 right-4">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-store text-blue-600 text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-blue-200">
+                            <i class="fas fa-store text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Logs Store</h4>
+                            <p class="text-sm text-gray-600 mb-3">Browse categories of logs and services</p>
+                            <div class="flex items-center text-xs text-gray-500">
+                                <i class="fas fa-list mr-1"></i>
+                                <span>Organized by categories</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ route('all-categories') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
+                        <i class="fas fa-store w-4 h-4 mr-2"></i>
+                        Browse Logs Store
+                    </a>
+                </div>
+
+                <!-- Gift Store CTA -->
+                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
+                    <div class="absolute top-4 right-4">
+                        <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-gift text-pink-600 text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <div class="w-14 h-14 bg-pink-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-pink-200">
+                            <i class="fas fa-gift text-pink-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Gift Store</h4>
+                            <p class="text-sm text-gray-600 mb-3">Curated gifts and customizations</p>
+                            <div class="flex items-center text-xs text-gray-500">
+                                <i class="fas fa-gem mr-1"></i>
+                                <span>Unique items and bundles</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ route('all-gifts') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
+                        <i class="fas fa-gift w-4 h-4 mr-2"></i>
+                        Browse Gift Store
+                    </a>
+                </div>
+
+                <!-- Social Media Boosting CTA -->
+                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
+                    <div class="absolute top-4 right-4">
+                        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-rocket text-indigo-600 text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-indigo-200">
+                            <i class="fas fa-rocket text-indigo-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Boosting Of Accounts</h4>
+                            <p class="text-sm text-gray-600 mb-3">Social media boosting and growth services</p>
+                            <div class="flex items-center text-xs text-gray-500">
+                                <i class="fas fa-shield-alt mr-1"></i>
+                                <span>High success rate</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ route('user.social-media-boosting.index') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
+                        <i class="fas fa-rocket w-4 h-4 mr-2"></i>
+                        Go to Boosting
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -257,6 +392,69 @@
         <i class="fas fa-code text-blue-600 animate-bounce"></i>
     </div>
 </div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const widget = document.getElementById('virtualAccountWidget');
+    const actionArea = document.getElementById('vaActionArea');
+    const details = document.getElementById('vaDetails');
+    const createBtn = document.getElementById('createVaBtn');
+
+    function showCard(account) {
+        document.getElementById('vaAccountNumber').textContent = account.account_number;
+        document.getElementById('vaAccountName').textContent = account.account_name;
+        document.getElementById('vaBankName').textContent = account.bank_name;
+        details.classList.remove('hidden');
+        actionArea.innerHTML = '<span class="inline-flex items-center px-3 py-1 text-xs rounded-full bg-green-100 text-green-700"><i class="fas fa-check mr-1"></i> Active</span>';
+    }
+
+    function loadVA() {
+        fetch('{{ route('api.user.virtual-account.get') }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.has_account) {
+                showCard(data.account);
+            }
+        })
+        .catch(() => {/* ignore */});
+    }
+
+    createBtn && createBtn.addEventListener('click', function() {
+        createBtn.disabled = true;
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+        fetch('{{ route('api.user.virtual-account.create') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showCard(data.account);
+            } else {
+                notify('error', data.message || 'Failed to create virtual account');
+                createBtn.disabled = false;
+                createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            notify('error', 'An error occurred');
+            createBtn.disabled = false;
+            createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+        });
+    });
+
+    loadVA();
+});
+</script>
+@endpush
 </div>
 
 

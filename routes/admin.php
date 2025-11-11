@@ -26,6 +26,10 @@ use App\Http\Controllers\Backend\SocialMediaProductController;
 use App\Http\Controllers\Backend\SocialMediaOrderController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Backend\ResellerProductController;
+use App\Http\Controllers\Backend\ResellerProductLogController;
+use App\Http\Controllers\Backend\ResellerRequestController;
+use App\Http\Controllers\Backend\ResellerOrderAdminController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -45,14 +49,19 @@ Route::get('customer', [CustomerListController::class, 'index'])->name('customer
 Route::post('customers/{id}/verify-email', [CustomerListController::class, 'verifyEmail'])->name('customers.verify-email');
 Route::post('customers/{id}/send-reset-link', [CustomerListController::class, 'sendResetLink'])->name('customers.send-reset-link');
 Route::delete('customers/{id}', [CustomerListController::class, 'destroy'])->name('customers.destroy');
-
-/** admin list routes */
+// Customer reseller management
+Route::post('customers/{user}/make-reseller', [CustomerListController::class, 'makeReseller'])->name('customers.make-reseller');
+Route::post('customers/{user}/remove-reseller', [CustomerListController::class, 'removeReseller'])->name('customers.remove-reseller');
+Route::get('resellers', [CustomerListController::class, 'resellers'])->name('resellers.index');
 Route::get('admin-list', [AdminListController::class, 'index'])->name('admin-list.index');
 Route::put('admin-list/status-change', [AdminListController::class, 'changeStatus'])->name('admin-list.status-change');
 Route::put('admin-list/{id}/update-email', [AdminListController::class, 'updateEmail'])->name('admin-list.update-email');
 Route::delete('admin-list/{id}', [AdminListController::class, 'destroy'])->name('admin-list.destroy');
 Route::post('admins/{id}/verify-email', [AdminListController::class, 'verifyEmail'])->name('admins.verify-email');
 Route::post('admins/{id}/send-reset-link', [AdminListController::class, 'sendResetLink'])->name('admins.send-reset-link');
+// Admin reseller management
+Route::post('admins/{user}/make-reseller', [AdminListController::class, 'makeReseller'])->name('admins.make-reseller');
+Route::post('admins/{user}/remove-reseller', [AdminListController::class, 'removeReseller'])->name('admins.remove-reseller');
 
 
 /** Add and withdraw funds routes */
@@ -192,3 +201,22 @@ Route::resource('social-media-orders', SocialMediaOrderController::class)->only(
 Route::get('payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');
 Route::put('paystack-setting/{id}', [PaystackSettingController::class, 'update'])->name('paystack-setting.update');
 Route::put('localbank-setting/{id}', [LocalBankSettingController::class, 'update'])->name('localbank-setting.update');
+
+/* Reseller Products Management Routes */
+Route::resource('reseller-products', ResellerProductController::class);
+
+/* Reseller Product Log Management Routes */
+Route::get('reseller-product-logs/by-product/{product}', [ResellerProductLogController::class, 'getByProduct'])->name('reseller-product-logs.by-product');
+Route::get('reseller-product-logs/add-logs', [ResellerProductLogController::class, 'showAddLogsForm'])->name('reseller-product-logs.add-logs');
+Route::post('reseller-product-logs/add-logs', [ResellerProductLogController::class, 'addLogs'])->name('reseller-product-logs.store-multiple');
+Route::resource('reseller-product-logs', ResellerProductLogController::class);
+
+/* Reseller Requests Management Routes */
+Route::get('reseller-requests', [ResellerRequestController::class, 'index'])->name('reseller-requests.index');
+Route::post('reseller-requests/{resellerRequest}/approve', [ResellerRequestController::class, 'approve'])->name('reseller-requests.approve');
+Route::post('reseller-requests/{resellerRequest}/reject', [ResellerRequestController::class, 'reject'])->name('reseller-requests.reject');
+
+Route::get('reseller-orders', [ResellerOrderAdminController::class, 'index'])->name('reseller-orders.index');
+Route::get('reseller-orders/{order}', [ResellerOrderAdminController::class, 'show'])->name('reseller-orders.show');
+Route::post('reseller-requests/{resellerRequest}/approve', [ResellerRequestController::class, 'approve'])->name('reseller-requests.approve');
+Route::post('reseller-requests/{resellerRequest}/reject', [ResellerRequestController::class, 'reject'])->name('reseller-requests.reject');

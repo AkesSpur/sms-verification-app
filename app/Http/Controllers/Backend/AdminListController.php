@@ -10,9 +10,27 @@ use Illuminate\Support\Facades\Password;
 class AdminListController extends Controller
 {
     //return adminlist view page
-    public function index(){
+    public function index(Request $request){
 
-        $admins = User::where('role','=','admin')->get();
+        $query = User::where('role','=','admin');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%");
+            });
+        }
+
+        if ($request->filled('reseller')) {
+            if ($request->reseller === 'yes') {
+                $query->where('is_reseller', true);
+            } elseif ($request->reseller === 'no') {
+                $query->where('is_reseller', false);
+            }
+        }
+
+        $admins = $query->paginate(100);
 
         return view('admin.admin-list.index',compact('admins'));
 
@@ -74,5 +92,21 @@ class AdminListController extends Controller
         } else {
             return response(['status' => 'error', 'message' => __($status)], 422);
         }
+    }
+
+    public function makeReseller(User $user)
+    {
+        $user->is_reseller = true;
+        $user->save();
+        toastr( 'Admin has been granted reseller access.', 'success');
+        return back();
+    }
+
+    public function removeReseller(User $user)
+    {
+        $user->is_reseller = false;
+        $user->save();
+        toastr( 'Admin reseller access has been removed.', 'success');
+        return back();
     }
 }

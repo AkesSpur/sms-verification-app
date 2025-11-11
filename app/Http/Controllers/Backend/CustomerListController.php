@@ -10,10 +10,28 @@ use Illuminate\Support\Facades\Password;
 class CustomerListController extends Controller
 {
     // return customer list view page
-    public function index(){
+    public function index(Request $request){
 
-        $customers = User::where('role','=','client')->with('orders')->get();
-        
+        $query = User::where('role','=','client')->with('orders');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%");
+            });
+        }
+
+        if ($request->filled('reseller')) {
+            if ($request->reseller === 'yes') {
+                $query->where('is_reseller', true);
+            } elseif ($request->reseller === 'no') {
+                $query->where('is_reseller', false);
+            }
+        }
+
+        $customers = $query->paginate(100);
+
         return view('admin.customer-list.index',compact('customers'));
         
     }
@@ -79,4 +97,29 @@ class CustomerListController extends Controller
         return response(['status' => 'success', 'message' => 'User successfully deleted']);
     }
 
+    public function makeReseller(User $user)
+    {
+        $user->is_reseller = true;
+        $user->save();
+        toastr( 'User has been granted reseller access.', 'success');
+        return back();
+    }
+
+    public function removeReseller(User $user)
+    {
+        $user->is_reseller = false;
+        $user->save();
+        toastr( 'User reseller access has been removed.', 'success');
+        return back();
+    }
+
+    public function resellers(Request $request)
+    {
+        $query = User::query()->where('is_reseller', true);
+        $customers = $query->paginate(20);
+        return view('admin.customer-list.index', [
+            'customers' => $customers,
+            'isResellerList' => true,
+        ]);
+    }
 }
