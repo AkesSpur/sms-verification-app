@@ -19,18 +19,27 @@
             </div>
         </div>
         <div id="vaDetails" class="mt-4 hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <p class="text-xs text-gray-500">Account Number</p>
-                    <p class="text-lg font-semibold text-gray-900" id="vaAccountNumber">-</p>
-                </div>
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <p class="text-xs text-gray-500">Account Name</p>
-                    <p class="text-lg font-semibold text-gray-900" id="vaAccountName">-</p>
-                </div>
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <p class="text-xs text-gray-500">Bank</p>
-                    <p class="text-lg font-semibold text-gray-900" id="vaBankName">-</p>
+            <div class="w-full max-w-9xl">
+                <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg shadow-md p-6 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-semibold" id="vaBankName">-</h2>
+                            <p class="text-sm opacity-80">Virtual Account</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm opacity-80 mb-1">Account Number</p>
+                        <div class="flex items-center space-x-3">
+                            <p class="text-2xl font-mono" id="vaAccountNumber">-</p>
+                            <button onclick="copyToClipboard(document.getElementById('vaAccountNumber').textContent)" class="opacity-70 hover:opacity-100 transition-opacity">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm opacity-80">Account Name</p>
+                        <p class="text-lg font-medium" id="vaAccountName">-</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -394,6 +403,13 @@
 </div>
 @push('scripts')
 <script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        notify('success', 'Account number copied to clipboard!');
+    }, function() {
+        notify('error', 'Could not copy text');
+    });
+}
 document.addEventListener('DOMContentLoaded', function() {
     const widget = document.getElementById('virtualAccountWidget');
     const actionArea = document.getElementById('vaActionArea');

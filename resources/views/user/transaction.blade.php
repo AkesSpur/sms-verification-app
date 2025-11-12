@@ -191,25 +191,25 @@
                             <div id="vaCardModal" class="hidden">
                                 <!-- Professional and Minimalistic Virtual Account Card -->
                                 <div class="w-full max-w-md mx-auto">
-                                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-6">
+                                    <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg shadow-md p-6 space-y-6">
                                         <div class="flex justify-between items-center">
                                             <div>
-                                                <h2 class="text-xl font-semibold text-gray-800" id="vaBankNameModal">-</h2>
-                                                <p class="text-sm text-gray-500">Virtual Account</p>
+                                                <h2 class="text-xl font-semibold" id="vaBankNameModal">-</h2>
+                                                <p class="text-sm opacity-80">Virtual Account</p>
                                             </div>
                                         </div>
                                         <div>
-                                            <p class="text-sm text-gray-500 mb-1">Account Number</p>
+                                            <p class="text-sm opacity-80 mb-1">Account Number</p>
                                             <div class="flex items-center space-x-3">
-                                                <p class="text-2xl font-mono text-gray-900" id="vaAccountNumberModal">-</p>
-                                                <button onclick="copyToClipboard(document.getElementById('vaAccountNumberModal').textContent)" class="text-gray-500 hover:text-gray-700 transition-colors">
+                                                <p class="text-2xl font-mono" id="vaAccountNumberModal">-</p>
+                                                <button onclick="copyToClipboard(document.getElementById('vaAccountNumberModal').textContent)" class="opacity-70 hover:opacity-100 transition-opacity">
                                                     <i class="fas fa-copy"></i>
                                                 </button>
                                             </div>
                                         </div>
                                         <div>
-                                            <p class="text-sm text-gray-500">Account Name</p>
-                                            <p class="text-lg font-medium text-gray-900" id="vaAccountNameModal">-</p>
+                                            <p class="text-sm opacity-80">Account Name</p>
+                                            <p class="text-lg font-medium" id="vaAccountNameModal">-</p>
                                         </div>
                                     </div>
                                 </div>
