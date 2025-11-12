@@ -160,6 +160,13 @@
                     </a>
                 </li>
 
+                <li class="{{ setActive(['admin.virtual-accounts.*']) }}">
+                    <a href="{{ route('admin.virtual-accounts.index') }}" class="nav-link">
+                        <i class="fas fa-university"></i>
+                        <span>Virtual Accounts</span>
+                    </a>
+                </li>
+
                 <!-- User Management Section -->
                 <li class="menu-header">User Management</li>
                 <li class="dropdown {{ setActive(['admin.customer.index', 'admin.manage-user.index', 'admin.admin-list.index']) }}">

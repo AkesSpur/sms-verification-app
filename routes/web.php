@@ -144,7 +144,4 @@ Route::prefix('digital-products')->middleware('auth')->group(function () {
 });
 
 // PaymentPoint webhook (no auth, exclude CSRF)
-Route::post('/webhook/paymentpoint', [PaymentPointController::class, 'webhook'])
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
-    ->name('webhook.paymentpoint');
 require __DIR__.'/auth.php';

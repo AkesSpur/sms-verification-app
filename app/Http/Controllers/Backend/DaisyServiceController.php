@@ -777,12 +777,12 @@ class DaisyServiceController extends Controller
                             'message' => "Synced {$syncedPriceCount} price(s)"
                         ];
                         
-                        Log::info('Successfully synced prices from bulk API response', [
-                            'service_id' => $daisyService->id,
-                            'service_code' => $serviceCode,
-                            'synced_count' => $syncedPriceCount,
-                            'us_prices' => $usPrices
-                        ]);
+                        // Log::info('Successfully synced prices from bulk API response', [
+                        //     'service_id' => $daisyService->id,
+                        //     'service_code' => $serviceCode,
+                        //     'synced_count' => $syncedPriceCount,
+                        //     'us_prices' => $usPrices
+                        // ]);
                     } else {
                         $errorCount++;
                         $syncResults[] = [

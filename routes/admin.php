@@ -30,6 +30,7 @@ use App\Http\Controllers\Backend\ResellerProductController;
 use App\Http\Controllers\Backend\ResellerProductLogController;
 use App\Http\Controllers\Backend\ResellerRequestController;
 use App\Http\Controllers\Backend\ResellerOrderAdminController;
+use App\Http\Controllers\Backend\VirtualAccountController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -75,6 +76,9 @@ Route::get('transactions', [TransactionController::class, 'index'])->name('trans
 Route::get('transactions/data', [TransactionController::class, 'getData'])->name('transactions.data');
 Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
 Route::get('transactions/export/csv', [TransactionController::class, 'export'])->name('transactions.export');
+
+/** Virtual Accounts listing */
+Route::get('virtual-accounts', [VirtualAccountController::class, 'index'])->name('virtual-accounts.index');
 
 /** manage user routes */
 Route::get('manage-user', [ManageUserController::class, 'index'])->name('manage-user.index');
