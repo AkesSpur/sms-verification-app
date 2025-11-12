@@ -12,7 +12,10 @@ class VerifyCsrfToken extends Middleware
      * PaymentPoint webhook is an external POST and must bypass CSRF.
      */
     protected $except = [
-        '/webhook/paymentpoint',
-        '/api/webhook/paymentpoint', // in case provider is pointed to /api
+        // Use patterns without leading slash; add wildcards to catch variations
+        'webhook/paymentpoint',
+        'webhook/paymentpoint/*',
+        'api/webhook/paymentpoint',
+        'api/webhook/paymentpoint/*',
     ];
 }
