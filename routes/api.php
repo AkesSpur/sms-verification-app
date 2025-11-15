@@ -19,4 +19,3 @@ Route::post('/webhook/paymentpoint', [PaymentPointController::class, 'webhook'])
 // GET /api/products/images
 Route::get('/products/images', [ProductImageController::class, 'index'])
     ->name('api.products.images');
-    ->name('api.webhook.paymentpoint');
