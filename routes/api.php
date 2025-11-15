@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Gateways\PaymentPointController;
+use App\Http\Controllers\Api\ProductImageController;
 
 // Authenticated user endpoint (default example)
 Route::middleware('auth')->get('/user', function (Request $request) {
@@ -12,4 +13,10 @@ Route::middleware('auth')->get('/user', function (Request $request) {
 // PaymentPoint webhook endpoint (auto-prefixed with /api)
 // Final URL: /api/webhook/paymentpoint
 Route::post('/webhook/paymentpoint', [PaymentPointController::class, 'webhook'])
+    ->name('api.webhook.paymentpoint');
+
+// Public: list digital product images
+// GET /api/products/images
+Route::get('/products/images', [ProductImageController::class, 'index'])
+    ->name('api.products.images');
     ->name('api.webhook.paymentpoint');
