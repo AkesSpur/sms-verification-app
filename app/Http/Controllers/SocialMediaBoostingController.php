@@ -149,8 +149,13 @@ class SocialMediaBoostingController extends Controller
                 $order->updateFromExternalApi($apiResponse);
                 $order->update(['status' => 'processing']);
                 
-                // Deduct amount from user's wallet
-                $user->decrement('balance', $totalAmount);
+                // Deduct amount from user's wallet with transaction logging
+                $user->deductBalance(
+                    $totalAmount,
+                    'social_media_purchase',
+                    "Social Media Boosting Purchase - {$product->name}",
+                    $order
+                );
                 
                 $successMessage = 'Order placed successfully! Your order is now being processed.';
             } else {
@@ -176,16 +181,7 @@ class SocialMediaBoostingController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Create transaction record
-            Transaction::createTransaction(
-                $user,
-                'debit',
-                'social_media_purchase',
-                $totalAmount,
-                "Social Media Boosting Purchase - {$product->name}",
-                ['order_id' => $order->id, 'product_id' => $product->id],
-                $order
-            );
+            
 
             // Send email notification to admin
             $settings = GeneralSetting::first();

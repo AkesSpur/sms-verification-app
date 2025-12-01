@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class DigitalProductOrderController extends Controller
@@ -39,6 +40,14 @@ class DigitalProductOrderController extends Controller
             ]);
 
             $user = Auth::user();
+            $key = 'digital_purchase:' . $user->id;
+            if (RateLimiter::tooManyAttempts($key, 1)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please wait a moment before submitting another purchase.'
+                ], 429);
+            }
+            RateLimiter::hit($key, 3);
             $product = DigitalProduct::with('availableLogs')->findOrFail($validated['product_id']);
             $quantity = $validated['quantity'];
 

@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class SmsRentalController extends Controller
@@ -119,6 +120,18 @@ class SmsRentalController extends Controller
             ]);
 
             $user = auth()->user();
+            $rateKey = 'sms_rent:' . $user->id;
+            if (RateLimiter::tooManyAttempts($rateKey, 1)) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Please wait a moment before submitting another rental request.'
+                    ], 429);
+                }
+                $notify[] = ['error', 'Please wait a moment before submitting another rental request.'];
+                return back()->withNotify($notify);
+            }
+            RateLimiter::hit($rateKey, 3);
             $service = DaisyService::where('code', $request->service)->where('status', true)->first();
             
             if (!$service) {

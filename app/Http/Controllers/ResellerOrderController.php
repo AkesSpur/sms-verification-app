@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class ResellerOrderController extends Controller
@@ -37,6 +38,14 @@ class ResellerOrderController extends Controller
             ]);
 
             $user = Auth::user();
+            $key = 'reseller_purchase:' . $user->id;
+            if (RateLimiter::tooManyAttempts($key, 1)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please wait a moment before submitting another purchase.'
+                ], 429);
+            }
+            RateLimiter::hit($key, 3);
             if (!$user->isReseller()) {
                 return response()->json([
                     'success' => false,

@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -151,29 +152,44 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function deductBalance($amount, $category = null, $description = null, $reference = null, $admin = null)
     {
-        if (!$this->hasSufficientBalance($amount)) {
+        $amount = (float) $amount;
+
+        $updated = static::where('id', $this->id)
+            ->where('balance', '>=', $amount)
+            ->update(['balance' => DB::raw('balance - ' . $amount)]);
+
+        if (!$updated) {
             throw new \Exception('Insufficient balance');
         }
-        
-        $balanceBefore = $this->balance;
-        $this->decrement('balance', $amount);
+
         $this->refresh();
-        
-        // Create transaction record if category and description are provided
+        $balanceAfter = (float) $this->balance;
+        $balanceBefore = $balanceAfter + $amount;
+
+        $txn = null;
         if ($category && $description) {
-            Transaction::createTransaction(
-                $this,
-                'debit',
-                $category,
-                $amount,
-                $description,
-                [],
-                $reference,
-                $admin
-            );
+            $data = [
+                'user_id' => $this->id,
+                'type' => 'debit',
+                'category' => $category,
+                'amount' => $amount,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'description' => $description,
+                'metadata' => [],
+                'admin_id' => $admin?->id,
+                'status' => 'completed'
+            ];
+
+            if ($reference) {
+                $data['reference_type'] = get_class($reference);
+                $data['reference_id'] = $reference->id;
+            }
+
+            $txn = Transaction::create($data);
         }
-        
-        return $this;
+
+        return $txn ?? $this;
     }
 
     /**
@@ -181,24 +197,38 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function addBalance($amount, $category = null, $description = null, $reference = null, $admin = null)
     {
-        $balanceBefore = $this->balance;
-        $this->increment('balance', $amount);
+        $amount = (float) $amount;
+
+        static::where('id', $this->id)
+            ->update(['balance' => DB::raw('balance + ' . $amount)]);
+
         $this->refresh();
-        
-        // Create transaction record if category and description are provided
+        $balanceAfter = (float) $this->balance;
+        $balanceBefore = $balanceAfter - $amount;
+
+        $txn = null;
         if ($category && $description) {
-            Transaction::createTransaction(
-                $this,
-                'credit',
-                $category,
-                $amount,
-                $description,
-                [],
-                $reference,
-                $admin
-            );
+            $data = [
+                'user_id' => $this->id,
+                'type' => 'credit',
+                'category' => $category,
+                'amount' => $amount,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'description' => $description,
+                'metadata' => [],
+                'admin_id' => $admin?->id,
+                'status' => 'completed'
+            ];
+
+            if ($reference) {
+                $data['reference_type'] = get_class($reference);
+                $data['reference_id'] = $reference->id;
+            }
+
+            $txn = Transaction::create($data);
         }
-        
-        return $this;
+
+        return $txn ?? $this;
     }
 }

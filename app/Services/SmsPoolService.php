@@ -483,19 +483,12 @@ class SmsPoolService
                 'api_response' => json_encode($apiResponse)
             ]);
             
-            // Create transaction record and deduct balance
-            \App\Models\Transaction::createTransaction(
-                $user,
-                'debit',
-                'sms_purchase',
+            $user->deductBalance(
                 $priceInNaira,
+                'sms_purchase',
                 "SMS number purchase for {$service->name} ({$country->name})",
-                ['service_code' => $serviceCode, 'country_code' => $countryCode],
                 $order
             );
-            
-            // Update user balance
-            $user->decrement('balance', $priceInNaira);
             
             Log::info('SMSPool number purchased successfully', [
                 'user_id' => $userId,

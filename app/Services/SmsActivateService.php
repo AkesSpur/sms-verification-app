@@ -405,19 +405,12 @@ class SmsActivateService
                      'sms_window_expires_at' => now()->addMinutes(20)
                  ]);
                  
-                 // Log transaction and deduct balance
-                 Transaction::createTransaction(
-                     $user,
-                     'debit',
-                     'sms_purchase',
-                     $finalPriceInNaira,
-                     "SMS verification for {$serviceCode} ({$country->name})",
-                     ['service_code' => $serviceCode, 'country_code' => $countryCode],
-                     $order
-                 );
-                 
-                 // Update user balance
-                 $user->decrement('balance', $finalPriceInNaira);
+                $user->deductBalance(
+                    $finalPriceInNaira,
+                    'sms_purchase',
+                    "SMS verification for {$serviceCode} ({$country->name})",
+                    $order
+                );
                  
                  return [
                      'success' => true,
