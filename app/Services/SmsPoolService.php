@@ -470,7 +470,7 @@ class SmsPoolService
                 'user_id' => $userId,
                 'service_id' => $service->id,
                 'country_id' => $country->id,
-                'phone_number' => $apiResponse['number'],
+                'phone_number' => (string) $apiResponse['number'],
                 'activation_id' => $apiResponse['order_id'],
                 'price' => $priceInNaira,
                 'api_price' => $apiResponse['cost'] ?? null,
@@ -495,14 +495,14 @@ class SmsPoolService
                 'order_id' => $order->id,
                 'service' => $serviceCode,
                 'country' => $countryCode,
-                'phone_number' => $apiResponse['number'],
+                'phone_number' => (string) $apiResponse['number'],
                 'price' => $priceInNaira
             ]);
             
             return [
                 'success' => true,
                 'order' => $order,
-                'phone_number' => $apiResponse['number'],
+                'phone_number' => (string) $apiResponse['number'],
                 'activation_id' => $apiResponse['order_id'],
                 'country' => $country
             ];
