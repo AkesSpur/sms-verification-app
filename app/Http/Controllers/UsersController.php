@@ -45,14 +45,16 @@ class UsersController extends Controller
 
     public function allCountriesNumbers()
     {
-        $usaId = SmsPoolService::getUsaCountryCode() ?? 187;
+        $usaId = Country::where('code', 'US')->value('id');
         $services = Service::all();
-        $countries = Country::where('code', '!=', $usaId)->get();
+        $countries = $usaId
+            ? Country::where('id', '!=', $usaId)->get()
+            : Country::where('code', '!=', 'US')->get();
 
         // Get active international orders (excluding USA orders)
         $activeOrders = Order::where('user_id', Auth::user()->id)
             ->whereNotIn('status', ['completed', 'cancelled', 'expired'])
-            ->where('country_id', '!=', $usaId) // Exclude USA orders
+            ->where('country_id', '!=', $usaId)
             ->with('service')
             ->latest()
             ->get();
