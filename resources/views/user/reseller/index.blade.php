@@ -31,7 +31,7 @@
                     </form>
                     <div class="mt-3 text-sm text-yellow-700">
                         Or contact us on WhatsApp to speed up the process:
-                        <a href="https://wa.me/2348164622735?text={{ urlencode('Hello, I want to become a reseller. My account email is ' . (auth()->user()->email ?? '')) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors ml-2">
+                        <a href="https://wa.me/2347011780974?text={{ urlencode('Hello, I want to become a reseller. My account email is ' . (auth()->user()->email ?? '')) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors ml-2">
                             <i class="fab fa-whatsapp mr-2"></i>
                             Chat on WhatsApp
                         </a>
