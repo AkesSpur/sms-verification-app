@@ -32,3 +32,9 @@ Schedule::command('daisy:sync-prices')
     ->withoutOverlapping()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/daisy-sync-prices.log'));
+
+Schedule::command('orders:auto-cancel')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/auto-cancel-orders.log'));
