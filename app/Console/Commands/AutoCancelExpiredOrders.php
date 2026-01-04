@@ -80,15 +80,16 @@ class AutoCancelExpiredOrders extends Command
             try {
                 $minutesPastExpiry = Carbon::now()->diffInMinutes($order->expires_at);
                 
-                Log::info('Auto-Cancel Command - Processing Expired DaisyOrder', [
-                    'request_id' => $requestId,
-                    'order_id' => $order->id,
-                    'expired_at' => $order->expires_at,
-                    'current_time' => Carbon::now(),
-                    'minutes_past_expiry' => $minutesPastExpiry,
-                    'user_id' => $order->user_id,
-                    'dry_run' => $dryRun
-                ]);
+                // Log::info('Auto-Cancel Command - Processing Expired DaisyOrder', [
+                //     'request_id' => $requestId,
+                //     'order_id' => $order->id,
+                //     'rental_id' => $order->rental_id,
+                //     'expired_at' => $order->expires_at,
+                //     'current_time' => Carbon::now(),
+                //     'minutes_past_expiry' => $minutesPastExpiry,
+                //     'user_id' => $order->user_id,
+                //     'dry_run' => $dryRun
+                // ]);
                 
                 if (!$dryRun) {
                     DB::beginTransaction();
@@ -112,22 +113,22 @@ class AutoCancelExpiredOrders extends Command
                             $refundAmount,
                             'sms_rental_expired_refund',
                             'Auto-cancel refund for expired SMS rental - ' . $order->service_name,
-                            'AUTO_CANCEL_' . strtoupper(\Illuminate\Support\Str::random(10)) . '_' . time()
+                            $order
                         );
                         
                         $results['refunded']++;
                         $results['total_refund_amount'] += $refundAmount;
                         
-                        Log::info('Auto-Cancel Command - DaisyOrder Refund Processed', [
-                            'request_id' => $requestId,
-                            'order_id' => $order->id,
-                            'original_price' => $order->price,
-                            'refund_amount' => $refundAmount,
-                            'original_balance' => $originalBalance,
-                            'new_balance' => $user->fresh()->balance,
-                            'user_id' => $user->id,
-                            'transaction_id' => $transaction->id
-                        ]);
+                        // Log::info('Auto-Cancel Command - DaisyOrder Refund Processed', [
+                        //     'request_id' => $requestId,
+                        //     'order_id' => $order->id,
+                        //     'original_price' => $order->price,
+                        //     'refund_amount' => $refundAmount,
+                        //     'original_balance' => $originalBalance,
+                        //     'new_balance' => $user->fresh()->balance,
+                        //     'user_id' => $user->id,
+                        //     'transaction_id' => $transaction->id
+                        // ]);
                         
                         DB::commit();
                         
@@ -137,13 +138,13 @@ class AutoCancelExpiredOrders extends Command
                         DB::rollback();
                         $results['errors']++;
                         
-                        Log::error('Auto-Cancel Command - DaisyOrder Database Error', [
-                            'request_id' => $requestId,
-                            'order_id' => $order->id,
-                            'db_exception' => $dbException->getMessage(),
-                            'user_id' => $order->user_id,
-                            'stack_trace' => $dbException->getTraceAsString()
-                        ]);
+                        // Log::error('Auto-Cancel Command - DaisyOrder Database Error', [
+                        //     'request_id' => $requestId,
+                        //     'order_id' => $order->id,
+                        //     'db_exception' => $dbException->getMessage(),
+                        //     'user_id' => $order->user_id,
+                        //     'stack_trace' => $dbException->getTraceAsString()
+                        // ]);
                         
                         // Fallback to just marking as expired
                         $order->status = DaisyOrder::STATUS_EXPIRED;
@@ -158,13 +159,13 @@ class AutoCancelExpiredOrders extends Command
             } catch (Exception $e) {
                 $results['errors']++;
                 
-                Log::error('Auto-Cancel Command - DaisyOrder Processing Error', [
-                    'request_id' => $requestId,
-                    'order_id' => $order->id,
-                    'exception' => $e->getMessage(),
-                    'user_id' => $order->user_id,
-                    'stack_trace' => $e->getTraceAsString()
-                ]);
+                // Log::error('Auto-Cancel Command - DaisyOrder Processing Error', [
+                //     'request_id' => $requestId,
+                //     'order_id' => $order->id,
+                //     'exception' => $e->getMessage(),
+                //     'user_id' => $order->user_id,
+                //     'stack_trace' => $e->getTraceAsString()
+                // ]);
                 
                 $this->error("✗ Error processing DaisyOrder #{$order->id}: {$e->getMessage()}");
             }
@@ -200,14 +201,15 @@ class AutoCancelExpiredOrders extends Command
             $requestId = 'AUTO_CANCEL_POOL_' . time() . '_' . $order->id;
             
             try {
-                Log::info('Auto-Cancel Command - Processing Expired PoolOrder', [
-                    'request_id' => $requestId,
-                    'order_id' => $order->id,
-                    'sms_window_expires_at' => $order->sms_window_expires_at,
-                    'current_time' => Carbon::now(),
-                    'user_id' => $order->user_id,
-                    'dry_run' => $dryRun
-                ]);
+                // Log::info('Auto-Cancel Command - Processing Expired PoolOrder', [
+                //     'request_id' => $requestId,
+                //     'order_id' => $order->id,
+                //     'activation_id' => $order->activation_id,
+                //     'sms_window_expires_at' => $order->sms_window_expires_at,
+                //     'current_time' => Carbon::now(),
+                //     'user_id' => $order->user_id,
+                //     'dry_run' => $dryRun
+                // ]);
                 
                 if (!$dryRun) {
                     DB::beginTransaction();
@@ -234,12 +236,12 @@ class AutoCancelExpiredOrders extends Command
                         
                         DB::commit();
                         
-                        Log::info('Auto-Cancel Command - PoolOrder Cancelled Successfully', [
-                            'request_id' => $requestId,
-                            'order_id' => $order->id,
-                            'refund_amount' => $order->final_price,
-                            'user_id' => $order->user_id
-                        ]);
+                        // Log::info('Auto-Cancel Command - PoolOrder Cancelled Successfully', [
+                        //     'request_id' => $requestId,
+                        //     'order_id' => $order->id,
+                        //     'refund_amount' => $order->final_price,
+                        //     'user_id' => $order->user_id
+                        // ]);
                         
                         $this->line("✓ Cancelled PoolOrder #{$order->id} - Refunded ₦" . number_format($order->final_price, 2));
                         
@@ -247,13 +249,13 @@ class AutoCancelExpiredOrders extends Command
                         DB::rollback();
                         $results['errors']++;
                         
-                        Log::error('Auto-Cancel Command - PoolOrder Database Error', [
-                            'request_id' => $requestId,
-                            'order_id' => $order->id,
-                            'db_exception' => $dbException->getMessage(),
-                            'user_id' => $order->user_id,
-                            'stack_trace' => $dbException->getTraceAsString()
-                        ]);
+                        // Log::error('Auto-Cancel Command - PoolOrder Database Error', [
+                        //     'request_id' => $requestId,
+                        //     'order_id' => $order->id,
+                        //     'db_exception' => $dbException->getMessage(),
+                        //     'user_id' => $order->user_id,
+                        //     'stack_trace' => $dbException->getTraceAsString()
+                        // ]);
                         
                         $this->error("✗ Failed to process PoolOrder #{$order->id}: {$dbException->getMessage()}");
                     }
@@ -264,13 +266,13 @@ class AutoCancelExpiredOrders extends Command
             } catch (Exception $e) {
                 $results['errors']++;
                 
-                Log::error('Auto-Cancel Command - PoolOrder Processing Error', [
-                    'request_id' => $requestId,
-                    'order_id' => $order->id,
-                    'exception' => $e->getMessage(),
-                    'user_id' => $order->user_id,
-                    'stack_trace' => $e->getTraceAsString()
-                ]);
+                // Log::error('Auto-Cancel Command - PoolOrder Processing Error', [
+                //     'request_id' => $requestId,
+                //     'order_id' => $order->id,
+                //     'exception' => $e->getMessage(),
+                //     'user_id' => $order->user_id,
+                //     'stack_trace' => $e->getTraceAsString()
+                // ]);
                 
                 $this->error("✗ Error processing PoolOrder #{$order->id}: {$e->getMessage()}");
             }
