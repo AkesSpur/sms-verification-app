@@ -236,21 +236,21 @@ class SmsActivateService
                         elseif (isset($data[$countryCode][$serviceCode])) {
                             $count = (int) $data[$countryCode][$serviceCode];
                             
-                            Log::info('SMS Activate availability check (legacy nested)', [
-                                'service_code' => $serviceCode,
-                                'country_code' => $countryCode,
-                                'numbers_available' => $count,
-                                'is_available' => $count > 0
-                            ]);
+                            // Log::info('SMS Activate availability check (legacy nested)', [
+                            //     'service_code' => $serviceCode,
+                            //     'country_code' => $countryCode,
+                            //     'numbers_available' => $count,
+                            //     'is_available' => $count > 0
+                            // ]);
                             
                             try {
                                 $price = $this->getServicePrice($serviceCode, $countryCode);
                             } catch (Exception $e) {
-                                Log::warning('Price unavailable for availability check (legacy nested)', [
-                                    'service_code' => $serviceCode,
-                                    'country_code' => $countryCode,
-                                    'error' => $e->getMessage()
-                                ]);
+                                // Log::warning('Price unavailable for availability check (legacy nested)', [
+                                //     'service_code' => $serviceCode,
+                                //     'country_code' => $countryCode,
+                                //     'error' => $e->getMessage()
+                                // ]);
                                 $price = null;
                             }
                             
@@ -266,11 +266,11 @@ class SmsActivateService
                 return ['available' => false, 'count' => 0, 'price' => 0];
             });
         } catch (Exception $e) {
-            Log::error('SMS Activate availability check failed', [
-                'service' => $serviceCode,
-                'country_code' => $countryCode,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMS Activate availability check failed', [
+            //     'service' => $serviceCode,
+            //     'country_code' => $countryCode,
+            //     'error' => $e->getMessage()
+            // ]);
             return ['available' => false, 'count' => 0, 'price' => 0];
         }
     }

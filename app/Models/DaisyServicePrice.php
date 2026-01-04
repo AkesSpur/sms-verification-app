@@ -248,21 +248,21 @@ class DaisyServicePrice extends Model
         $markup = $generalSettings->api_price_markup_percentage ?? 0;
         $dbRate = $generalSettings->usd_to_ngn_rate;
         
-            Log::info('db Rate: ' . $dbRate);
-            Log::info('mark up: ' . $markup. ':' . 'Rate: ' . $usdToNairaRate);
+        // Log::info('db Rate: ' . $dbRate);
+        // Log::info('mark up: ' . $markup. ':' . 'Rate: ' . $usdToNairaRate);
 
         foreach ($apiData as $countryCode => $priceInfo) {
             $usdPrice = is_array($priceInfo) ? ($priceInfo['price_usd'] ?? 0) : $priceInfo;
-            Log::info('USD Price: ' . $usdPrice);
+            // Log::info('USD Price: ' . $usdPrice);
             
             // Convert USD to Naira first, then apply markup percentage
             $baseNairaPrice = $usdPrice * $usdToNairaRate;
 
-            Log::info('Base Naira Price: ' . $baseNairaPrice);
+            // Log::info('Base Naira Price: ' . $baseNairaPrice);
 
             $finalPrice = $baseNairaPrice * (1 + ($markup / 100));
 
-            Log::info('Final Naira Price: ' . $finalPrice);
+            // Log::info('Final Naira Price: ' . $finalPrice);
             // Round to nearest tenth (134 -> 140, 1227 -> 1230)
             $nairaPrice = ceil($finalPrice / 10) * 10;
             

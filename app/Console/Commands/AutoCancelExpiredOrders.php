@@ -6,8 +6,10 @@ use Illuminate\Console\Command;
 use App\Models\DaisyOrder;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\DaisySmsService;
+use App\Services\SmsPoolService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Exception;
 
@@ -43,8 +45,11 @@ class AutoCancelExpiredOrders extends Command
             $this->warn('DRY RUN MODE - No actual changes will be made');
         }
         
-        $daisyResults = $this->processDaisyOrders($dryRun, $limit);
-        $poolResults = $this->processPoolOrders($dryRun, $limit);
+        $daisyService = app(DaisySmsService::class);
+        $poolService = app(SmsPoolService::class);
+
+        $daisyResults = $this->processDaisyOrders($daisyService, $dryRun, $limit);
+        $poolResults = $this->processPoolOrders($poolService, $dryRun, $limit);
         
         $this->displayResults($daisyResults, $poolResults, $dryRun);
         
@@ -54,7 +59,7 @@ class AutoCancelExpiredOrders extends Command
     /**
      * Process expired DaisyOrder records
      */
-    private function processDaisyOrders($dryRun = false, $limit = 100)
+    private function processDaisyOrders(DaisySmsService $daisyService, $dryRun = false, $limit = 100)
     {
         $results = [
             'processed' => 0,
@@ -92,6 +97,14 @@ class AutoCancelExpiredOrders extends Command
                 // ]);
                 
                 if (!$dryRun) {
+                    // Try to cancel on API first
+                    // $apiResult = $daisyService->cancelRental($order->rental_id);
+                    
+                    // if (!$apiResult['success']) {
+                    //     // Log::warning("Failed to cancel Daisy rental on API: {$apiResult['error']}", ['order_id' => $order->id]);
+                    //     // We proceed to cancel locally anyway as the order is expired
+                    // }
+
                     DB::beginTransaction();
                     
                     try {
@@ -146,8 +159,8 @@ class AutoCancelExpiredOrders extends Command
                         //     'stack_trace' => $dbException->getTraceAsString()
                         // ]);
                         
-                        // Fallback to just marking as expired
-                        $order->status = DaisyOrder::STATUS_EXPIRED;
+                        // Fallback to just marking as cancelled (expired caused truncation)
+                        $order->status = DaisyOrder::STATUS_CANCELLED;
                         $order->save();
                         
                         $this->error("✗ Failed to process DaisyOrder #{$order->id}: {$dbException->getMessage()}");
@@ -177,7 +190,7 @@ class AutoCancelExpiredOrders extends Command
     /**
      * Process expired PoolOrder records
      */
-    private function processPoolOrders($dryRun = false, $limit = 100)
+    private function processPoolOrders(SmsPoolService $poolService, $dryRun = false, $limit = 100)
     {
         $results = [
             'processed' => 0,
@@ -212,6 +225,14 @@ class AutoCancelExpiredOrders extends Command
                 // ]);
                 
                 if (!$dryRun) {
+                    // Try to cancel on API first
+                    // try {
+                    //     $poolService->cancelNumber($order->activation_id);
+                    // } catch (Exception $e) {
+                    //     // Log::warning("Failed to cancel Pool order on API: {$e->getMessage()}", ['order_id' => $order->id]);
+                    //     // Proceed to local cancel
+                    // }
+
                     DB::beginTransaction();
                     
                     try {

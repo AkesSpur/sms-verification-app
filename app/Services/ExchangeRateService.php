@@ -108,7 +108,7 @@ class ExchangeRateService
             $generalSetting = GeneralSetting::first();
             
             if (!$generalSetting) {
-                Log::error('GeneralSetting record not found');
+                // Log::error('GeneralSetting record not found');
                 return false;
             }
 
@@ -118,20 +118,20 @@ class ExchangeRateService
             $saved = $generalSetting->save();
 
             if ($saved) {
-                Log::info('Exchange rate updated successfully', [
-                    'rate' => $rate,
-                    'markup_percentage' => $this->markupPercentage,
-                    'updated_at' => now()
-                ]);
+                // Log::info('Exchange rate updated successfully', [
+                //     'rate' => $rate,
+                //     'markup_percentage' => $this->markupPercentage,
+                //     'updated_at' => now()
+                // ]);
             }
 
             return $saved;
         } catch (Exception $e) {
-            Log::error('Failed to update exchange rate in database', [
-                'rate' => $rate,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Log::error('Failed to update exchange rate in database', [
+            //     'rate' => $rate,
+            //     'message' => $e->getMessage(),
+            //     'trace' => $e->getTraceAsString()
+            // ]);
             
             return false;
         }

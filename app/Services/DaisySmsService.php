@@ -76,24 +76,24 @@ class DaisySmsService
         $requestId = uniqid('rent_');
         
         // Enhanced logging for rent request
-        Log::info('SMS Rental Request Started', [
-            'request_id' => $requestId,
-            'service_code' => $serviceCode,
-            'max_price' => $maxPrice,
-            'area_codes' => $areaCodes,
-            'carriers' => $carriers,
-            'specific_number' => $specificNumber ? '[MASKED]' : null,
-            'timestamp' => now()->toISOString(),
-            'user_id' => auth()->id() ?? 'system'
-        ]);
+        // Log::info('SMS Rental Request Started', [
+        //     'request_id' => $requestId,
+        //     'service_code' => $serviceCode,
+        //     'max_price' => $maxPrice,
+        //     'area_codes' => $areaCodes,
+        //     'carriers' => $carriers,
+        //     'specific_number' => $specificNumber ? '[MASKED]' : null,
+        //     'timestamp' => now()->toISOString(),
+        //     'user_id' => auth()->id() ?? 'system'
+        // ]);
         
         // Check if API key is configured
         if (!$this->isApiKeyConfigured()) {
-            Log::error('SMS Rental Failed - API Key Not Configured', [
-                'request_id' => $requestId,
-                'service_code' => $serviceCode,
-                'user_id' => auth()->id() ?? 'system'
-            ]);
+            // Log::error('SMS Rental Failed - API Key Not Configured', [
+            //     'request_id' => $requestId,
+            //     'service_code' => $serviceCode,
+            //     'user_id' => auth()->id() ?? 'system'
+            // ]);
             
             return [
                 'success' => false,
@@ -124,39 +124,39 @@ class DaisySmsService
                 $params['number'] = $specificNumber;
             }
 
-            Log::info('Making API Request for Number Rental', [
-                'request_id' => $requestId,
-                'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::info('Making API Request for Number Rental', [
+            //     'request_id' => $requestId,
+            //     'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
+            //     'timestamp' => now()->toISOString()
+            // ]);
 
             $response = $this->makeRequest($params);
 
             // Log the complete raw API response for observation
-            Log::info('SMS Rental - RAW API RESPONSE', [
-                'request_id' => $requestId,
-                'service_code' => $serviceCode,
-                'raw_response' => $response,
-                'response_length' => strlen($response),
-                'response_starts_with' => substr($response, 0, 50),
-                'response_ends_with' => strlen($response) > 50 ? substr($response, -50) : '',
-                'contains_access_number' => strpos($response, 'ACCESS_NUMBER:') !== false,
-                'contains_error' => strpos($response, 'ERROR_') !== false || strpos($response, 'BAD_') !== false,
-                'user_id' => auth()->id() ?? 'system',
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::info('SMS Rental - RAW API RESPONSE', [
+            //     'request_id' => $requestId,
+            //     'service_code' => $serviceCode,
+            //     'raw_response' => $response,
+            //     'response_length' => strlen($response),
+            //     'response_starts_with' => substr($response, 0, 50),
+            //     'response_ends_with' => strlen($response) > 50 ? substr($response, -50) : '',
+            //     'contains_access_number' => strpos($response, 'ACCESS_NUMBER:') !== false,
+            //     'contains_error' => strpos($response, 'ERROR_') !== false || strpos($response, 'BAD_') !== false,
+            //     'user_id' => auth()->id() ?? 'system',
+            //     'timestamp' => now()->toISOString()
+            // ]);
 
             if (strpos($response, 'ACCESS_NUMBER:') === 0) {
                 $parts = explode(':', $response);
                 
                 // Validate response format
                 if (count($parts) < 3) {
-                    Log::error('Invalid API Response Format for Number Rental', [
-                        'request_id' => $requestId,
-                        'response' => $response,
-                        'parts_count' => count($parts),
-                        'service_code' => $serviceCode
-                    ]);
+                    // Log::error('Invalid API Response Format for Number Rental', [
+                    //     'request_id' => $requestId,
+                    //     'response' => $response,
+                    //     'parts_count' => count($parts),
+                    //     'service_code' => $serviceCode
+                    // ]);
                     
                     return [
                         'success' => false,
@@ -173,14 +173,14 @@ class DaisySmsService
                     'request_id' => $requestId
                 ];
                 
-                Log::info('SMS Rental Successful', [
-                    'request_id' => $requestId,
-                    'rental_id' => $parts[1],
-                    'phone_number' => $parts[2],
-                    'service_code' => $serviceCode,
-                    'user_id' => auth()->id() ?? 'system',
-                    'timestamp' => now()->toISOString()
-                ]);
+                // Log::info('SMS Rental Successful', [
+                //     'request_id' => $requestId,
+                //     'rental_id' => $parts[1],
+                //     'phone_number' => $parts[2],
+                //     'service_code' => $serviceCode,
+                //     'user_id' => auth()->id() ?? 'system',
+                //     'timestamp' => now()->toISOString()
+                // ]);
                 
                 return $result;
             }
@@ -199,14 +199,14 @@ class DaisySmsService
 
             $errorMessage = $errorMessages[$response] ?? 'Unknown error: ' . $response;
             
-            Log::warning('SMS Rental Failed - API Error', [
-                'request_id' => $requestId,
-                'service_code' => $serviceCode,
-                'api_response' => $response,
-                'error_message' => $errorMessage,
-                'user_id' => auth()->id() ?? 'system',
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::warning('SMS Rental Failed - API Error', [
+            //     'request_id' => $requestId,
+            //     'service_code' => $serviceCode,
+            //     'api_response' => $response,
+            //     'error_message' => $errorMessage,
+            //     'user_id' => auth()->id() ?? 'system',
+            //     'timestamp' => now()->toISOString()
+            // ]);
             
             return [
                 'success' => false,
@@ -214,15 +214,15 @@ class DaisySmsService
                 'request_id' => $requestId
             ];
         } catch (Exception $e) {
-            Log::error('SMS Rental Failed - Exception', [
-                'request_id' => $requestId,
-                'service_code' => $serviceCode,
-                'exception_message' => $e->getMessage(),
-                'exception_type' => get_class($e),
-                'stack_trace' => $e->getTraceAsString(),
-                'user_id' => auth()->id() ?? 'system',
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::error('SMS Rental Failed - Exception', [
+            //     'request_id' => $requestId,
+            //     'service_code' => $serviceCode,
+            //     'exception_message' => $e->getMessage(),
+            //     'exception_type' => get_class($e),
+            //     'stack_trace' => $e->getTraceAsString(),
+            //     'user_id' => auth()->id() ?? 'system',
+            //     'timestamp' => now()->toISOString()
+            // ]);
             
             return [
                 'success' => false,
@@ -239,21 +239,21 @@ class DaisySmsService
     {
         $requestId = uniqid('code_');
         
-        Log::info('SMS Code Request Started', [
-            'request_id' => $requestId,
-            'rental_id' => $rentalId,
-            'include_text' => $includeText,
-            'timestamp' => now()->toISOString(),
-            'user_id' => auth()->id() ?? 'system'
-        ]);
+        // Log::info('SMS Code Request Started', [
+        //     'request_id' => $requestId,
+        //     'rental_id' => $rentalId,
+        //     'include_text' => $includeText,
+        //     'timestamp' => now()->toISOString(),
+        //     'user_id' => auth()->id() ?? 'system'
+        // ]);
         
         // Check if API key is configured
         if (!$this->isApiKeyConfigured()) {
-            Log::error('SMS Code Request Failed - API Key Not Configured', [
-                'request_id' => $requestId,
-                'rental_id' => $rentalId,
-                'user_id' => auth()->id() ?? 'system'
-            ]);
+            // Log::error('SMS Code Request Failed - API Key Not Configured', [
+            //     'request_id' => $requestId,
+            //     'rental_id' => $rentalId,
+            //     'user_id' => auth()->id() ?? 'system'
+            // ]);
             
             return [
                 'success' => false,
@@ -272,12 +272,12 @@ class DaisySmsService
                 $params['text'] = 1;
             }
 
-            Log::info('Making API Request for SMS Code', [
-                'request_id' => $requestId,
-                'rental_id' => $rentalId,
-                'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::info('Making API Request for SMS Code', [
+            //     'request_id' => $requestId,
+            //     'rental_id' => $rentalId,
+            //     'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
+            //     'timestamp' => now()->toISOString()
+            // ]);
 
             $response = $this->makeRequest($params);
 
@@ -286,22 +286,22 @@ class DaisySmsService
                 
                 // Validate code format
                 if (empty($code) || !preg_match('/^[0-9]{4,8}$/', $code)) {
-                    Log::warning('SMS Code Retrieved but Format Invalid', [
-                        'request_id' => $requestId,
-                        'rental_id' => $rentalId,
-                        'code_length' => strlen($code),
-                        'code_pattern' => preg_match('/^[0-9]+$/', $code) ? 'numeric' : 'non-numeric',
-                        'user_id' => auth()->id() ?? 'system'
-                    ]);
+                    // Log::warning('SMS Code Retrieved but Format Invalid', [
+                    //     'request_id' => $requestId,
+                    //     'rental_id' => $rentalId,
+                    //     'code_length' => strlen($code),
+                    //     'code_pattern' => preg_match('/^[0-9]+$/', $code) ? 'numeric' : 'non-numeric',
+                    //     'user_id' => auth()->id() ?? 'system'
+                    // ]);
                 }
                 
-                Log::info('SMS Code Retrieved Successfully', [
-                    'request_id' => $requestId,
-                    'rental_id' => $rentalId,
-                    'code_length' => strlen($code),
-                    'user_id' => auth()->id() ?? 'system',
-                    'timestamp' => now()->toISOString()
-                ]);
+                // Log::info('SMS Code Retrieved Successfully', [
+                //     'request_id' => $requestId,
+                //     'rental_id' => $rentalId,
+                //     'code_length' => strlen($code),
+                //     'user_id' => auth()->id() ?? 'system',
+                //     'timestamp' => now()->toISOString()
+                // ]);
                 
                 return [
                     'success' => true,
@@ -322,14 +322,14 @@ class DaisySmsService
 
             $status = $statusMessages[$response] ?? 'unknown';
             
-            Log::info('SMS Code Request - Status Response', [
-                'request_id' => $requestId,
-                'rental_id' => $rentalId,
-                'api_response' => $response,
-                'status_message' => $status,
-                'user_id' => auth()->id() ?? 'system',
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::info('SMS Code Request - Status Response', [
+            //     'request_id' => $requestId,
+            //     'rental_id' => $rentalId,
+            //     'api_response' => $response,
+            //     'status_message' => $status,
+            //     'user_id' => auth()->id() ?? 'system',
+            //     'timestamp' => now()->toISOString()
+            // ]);
             
             return [
                 'success' => true,
@@ -339,15 +339,15 @@ class DaisySmsService
                 'request_id' => $requestId
             ];
         } catch (Exception $e) {
-            Log::error('SMS Code Request Failed - Exception', [
-                'request_id' => $requestId,
-                'rental_id' => $rentalId,
-                'exception_message' => $e->getMessage(),
-                'exception_type' => get_class($e),
-                'stack_trace' => $e->getTraceAsString(),
-                'user_id' => auth()->id() ?? 'system',
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::error('SMS Code Request Failed - Exception', [
+            //     'request_id' => $requestId,
+            //     'rental_id' => $rentalId,
+            //     'exception_message' => $e->getMessage(),
+            //     'exception_type' => get_class($e),
+            //     'stack_trace' => $e->getTraceAsString(),
+            //     'user_id' => auth()->id() ?? 'system',
+            //     'timestamp' => now()->toISOString()
+            // ]);
             
             return [
                 'success' => false,
@@ -455,7 +455,7 @@ class DaisySmsService
             
             // Fallback to hardcoded services if database is empty
             if (empty($servicesList)) {
-                Log::warning('No services found in database, using fallback services');
+                // Log::warning('No services found in database, using fallback services');
                 return $this->getFallbackServices();
             }
             
@@ -477,14 +477,14 @@ class DaisySmsService
             $services = $this->parseServicesResponse($response);
             
             if (empty($services)) {
-                Log::warning('No services returned from API, using fallback');
+                // Log::warning('No services returned from API, using fallback');
                 return $this->getFallbackServices();
             }
             
             return $services;
             
         } catch (Exception $e) {
-            Log::error('Failed to fetch services from API: ' . $e->getMessage());
+            // Log::error('Failed to fetch services from API: ' . $e->getMessage());
             return $this->getFallbackServices();
         }
     }
@@ -555,7 +555,7 @@ class DaisySmsService
             try {
                 return $this->fetchCountriesFromApi();
             } catch (Exception $e) {
-                Log::warning('Failed to fetch countries from API, using fallback: ' . $e->getMessage());
+                // Log::warning('Failed to fetch countries from API, using fallback: ' . $e->getMessage());
                 return $this->getFallbackCountries();
             }
         });
@@ -574,14 +574,14 @@ class DaisySmsService
             $countries = $this->parseCountriesResponse($response);
             
             if (empty($countries)) {
-                Log::warning('No countries returned from API, using fallback');
+                // Log::warning('No countries returned from API, using fallback');
                 return $this->getFallbackCountries();
             }
             
             return $countries;
             
         } catch (Exception $e) {
-            Log::error('Failed to fetch countries from API: ' . $e->getMessage());
+            // Log::error('Failed to fetch countries from API: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -655,15 +655,15 @@ class DaisySmsService
         
         // Enhanced request logging
         if ($this->logRequests) {
-            Log::info('DaisySMS API Request Started', [
-                'request_id' => $requestId,
-                'action' => $params['action'] ?? 'unknown',
-                'url' => $this->baseUrl,
-                'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
-                'full_url_length' => strlen($url),
-                'timestamp' => now()->toISOString(),
-                'memory_usage' => memory_get_usage(true)
-            ]);
+            // Log::info('DaisySMS API Request Started', [
+            //     'request_id' => $requestId,
+            //     'action' => $params['action'] ?? 'unknown',
+            //     'url' => $this->baseUrl,
+            //     'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
+            //     'full_url_length' => strlen($url),
+            //     'timestamp' => now()->toISOString(),
+            //     'memory_usage' => memory_get_usage(true)
+            // ]);
         }
         
         $startTime = microtime(true);
@@ -711,7 +711,7 @@ class DaisySmsService
                     $logData['response_type'] = 'text';
                 }
                 
-                Log::info('DaisySMS API Response Received', $logData);
+                // Log::info('DaisySMS API Response Received', $logData);
             }
             
             return $trimmedResponse;
@@ -720,17 +720,17 @@ class DaisySmsService
             $responseTime = round((microtime(true) - $startTime) * 1000, 2);
             
             // Enhanced error logging
-            Log::error('DaisySMS API Request Failed', [
-                'request_id' => $requestId,
-                'action' => $params['action'] ?? 'unknown',
-                'error_message' => $e->getMessage(),
-                'error_type' => get_class($e),
-                'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
-                'response_time_ms' => $responseTime,
-                'timestamp' => now()->toISOString(),
-                'memory_usage' => memory_get_usage(true),
-                'stack_trace' => $e->getTraceAsString()
-            ]);
+            // Log::error('DaisySMS API Request Failed', [
+            //     'request_id' => $requestId,
+            //     'action' => $params['action'] ?? 'unknown',
+            //     'error_message' => $e->getMessage(),
+            //     'error_type' => get_class($e),
+            //     'params' => array_merge($params, ['api_key' => '[HIDDEN]']),
+            //     'response_time_ms' => $responseTime,
+            //     'timestamp' => now()->toISOString(),
+            //     'memory_usage' => memory_get_usage(true),
+            //     'stack_trace' => $e->getTraceAsString()
+            // ]);
             
             throw $e;
         }
@@ -771,7 +771,7 @@ class DaisySmsService
             ];
             
         } catch (Exception $e) {
-            Log::error('Failed to fetch prices from DaisySMS API: ' . $e->getMessage());
+            // Log::error('Failed to fetch prices from DaisySMS API: ' . $e->getMessage());
             return [
                 'success' => false,
                 'error' => 'API Error: ' . $e->getMessage()
@@ -876,7 +876,7 @@ class DaisySmsService
             ];
             
         } catch (Exception $e) {
-            Log::error('Failed to fetch all prices from DaisySMS API: ' . $e->getMessage());
+            // Log::error('Failed to fetch all prices from DaisySMS API: ' . $e->getMessage());
             return [
                 'success' => false,
                 'error' => 'API Error: ' . $e->getMessage()

@@ -72,20 +72,20 @@ class SyncOwletOrders extends Command
                     $syncedCount++;
                 } else {
                     $this->warn("  Failed to get status for order #{$order->id}");
-                    Log::warning('Owlet API response missing status', [
-                        'order_id' => $order->id,
-                        'external_order_id' => $order->external_order_id,
-                        'response' => $statusResponse
-                    ]);
+                    // Log::warning('Owlet API response missing status', [
+                    //     'order_id' => $order->id,
+                    //     'external_order_id' => $order->external_order_id,
+                    //     'response' => $statusResponse
+                    // ]);
                     $errorCount++;
                 }
                 
             } catch (\Exception $e) {
                 $this->error("  Error syncing order #{$order->id}: {$e->getMessage()}");
-                Log::error('Owlet sync error for order ' . $order->id, [
-                    'error' => $e->getMessage(),
-                    'external_order_id' => $order->external_order_id
-                ]);
+                // Log::error('Owlet sync error for order ' . $order->id, [
+                //     'error' => $e->getMessage(),
+                //     'external_order_id' => $order->external_order_id
+                // ]);
                 $errorCount++;
             }
         }

@@ -284,13 +284,13 @@ class InternationalNumberController extends Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            Log::error('International number purchase failed', [
-                'user_id' => $user->id,
-                'country' => $countryCode,
-                'service' => $serviceCode,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Log::error('International number purchase failed', [
+            //     'user_id' => $user->id,
+            //     'country' => $countryCode,
+            //     'service' => $serviceCode,
+            //     'error' => $e->getMessage(),
+            //     'trace' => $e->getTraceAsString()
+            // ]);
 
             return response()->json([
                 'success' => false,

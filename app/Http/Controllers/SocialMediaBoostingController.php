@@ -222,7 +222,7 @@ class SocialMediaBoostingController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            Log::error('Social Media Order Creation Failed: ' . $e->getMessage());
+            // Log::error('Social Media Order Creation Failed: ' . $e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([

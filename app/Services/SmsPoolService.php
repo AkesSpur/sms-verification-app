@@ -63,9 +63,9 @@ class SmsPoolService
             throw new RequestError('Invalid balance response');
             
         } catch (Exception $e) {
-            Log::error('SMSPool balance check failed', [
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool balance check failed', [
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -113,9 +113,9 @@ class SmsPoolService
             });
             
         } catch (Exception $e) {
-            Log::error('SMSPool countries fetch failed', [
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool countries fetch failed', [
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -142,10 +142,10 @@ class SmsPoolService
             });
             
         } catch (Exception $e) {
-            Log::error('SMSPool services fetch failed', [
-                'country_id' => $countryId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool services fetch failed', [
+            //     'country_id' => $countryId,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -172,11 +172,11 @@ class SmsPoolService
             
         } catch (Exception $e) {
             // If price check fails, assume service is not purchasable
-            Log::warning('Service purchasability check failed', [
-                'service_id' => $serviceId,
-                'country_id' => $countryId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::warning('Service purchasability check failed', [
+            //     'service_id' => $serviceId,
+            //     'country_id' => $countryId,
+            //     'error' => $e->getMessage()
+            // ]);
             return false;
         }
     }
@@ -201,20 +201,20 @@ class SmsPoolService
                     }
                 }
                 
-                Log::info('Filtered purchasable services', [
-                    'country_id' => $countryId,
-                    'total_services' => count($allServices),
-                    'purchasable_services' => count($purchasableServices)
-                ]);
+                // Log::info('Filtered purchasable services', [
+                //     'country_id' => $countryId,
+                //     'total_services' => count($allServices),
+                //     'purchasable_services' => count($purchasableServices)
+                // ]);
                 
                 return $purchasableServices;
             });
             
         } catch (Exception $e) {
-            Log::error('SMSPool purchasable services fetch failed', [
-                'country_id' => $countryId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool purchasable services fetch failed', [
+            //     'country_id' => $countryId,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -237,11 +237,11 @@ class SmsPoolService
             throw new RequestError('Invalid price response');
             
         } catch (Exception $e) {
-            Log::error('SMSPool price check failed', [
-                'service_id' => $serviceId,
-                'country_id' => $countryId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool price check failed', [
+            //     'service_id' => $serviceId,
+            //     'country_id' => $countryId,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -258,13 +258,13 @@ class SmsPoolService
         
         foreach ($poolsToTry as $pool) {
             try {
-                Log::info('Attempting SMS purchase with pool fallback', [
-                    'service_id' => $serviceId,
-                    'country_id' => $countryId,
-                    'pool' => $pool,
-                    'attempt' => array_search($pool, $poolsToTry) + 1,
-                    'total_pools' => count($poolsToTry)
-                ]);
+                // Log::info('Attempting SMS purchase with pool fallback', [
+                //     'service_id' => $serviceId,
+                //     'country_id' => $countryId,
+                //     'pool' => $pool,
+                //     'attempt' => array_search($pool, $poolsToTry) + 1,
+                //     'total_pools' => count($poolsToTry)
+                // ]);
                 
                 $response = $this->purchaseNumberFromApi(
                     $serviceId, 
@@ -276,34 +276,34 @@ class SmsPoolService
                 );
                 
                 if ($response['success']) {
-                    Log::info('SMS purchase successful with pool', [
-                        'service_id' => $serviceId,
-                        'country_id' => $countryId,
-                        'successful_pool' => $pool,
-                        'order_id' => $response['order_id']
-                    ]);
+                    // Log::info('SMS purchase successful with pool', [
+                    //     'service_id' => $serviceId,
+                    //     'country_id' => $countryId,
+                    //     'successful_pool' => $pool,
+                    //     'order_id' => $response['order_id']
+                    // ]);
                     return $response;
                 }
                 
             } catch (Exception $e) {
                 $lastException = $e;
-                Log::warning('SMS purchase failed with pool, trying next', [
-                    'service_id' => $serviceId,
-                    'country_id' => $countryId,
-                    'failed_pool' => $pool,
-                    'error' => $e->getMessage()
-                ]);
+                // Log::warning('SMS purchase failed with pool, trying next', [
+                //     'service_id' => $serviceId,
+                //     'country_id' => $countryId,
+                //     'failed_pool' => $pool,
+                //     'error' => $e->getMessage()
+                // ]);
                 continue;
             }
         }
         
         // If all pools failed, throw the last exception
-        Log::error('SMS purchase failed with all pools', [
-            'service_id' => $serviceId,
-            'country_id' => $countryId,
-            'pools_tried' => $poolsToTry,
-            'final_error' => $lastException ? $lastException->getMessage() : 'Unknown error'
-        ]);
+        // Log::error('SMS purchase failed with all pools', [
+        //     'service_id' => $serviceId,
+        //     'country_id' => $countryId,
+        //     'pools_tried' => $poolsToTry,
+        //     'final_error' => $lastException ? $lastException->getMessage() : 'Unknown error'
+        // ]);
         
         throw $lastException ?: new \Exception('All pool attempts failed');
     }
@@ -349,20 +349,20 @@ class SmsPoolService
             }
             
             // Log the request parameters for debugging
-            Log::info('SMSPool purchase request', [
-                'endpoint' => 'purchase/sms',
-                'params' => $params
-            ]);
+            // Log::info('SMSPool purchase request', [
+            //     'endpoint' => 'purchase/sms',
+            //     'params' => $params
+            // ]);
             
             // For purchase requests, use the special method that returns response even on HTTP errors
             $response = $this->executeRequestForPurchase('purchase/sms', $params, 'POST');
             
             // Log the raw API response for debugging
-            Log::info('SMSPool purchase raw response', [
-                'service_id' => $serviceId,
-                'country_id' => $countryId,
-                'raw_response' => $response
-            ]);
+            // Log::info('SMSPool purchase raw response', [
+            //     'service_id' => $serviceId,
+            //     'country_id' => $countryId,
+            //     'raw_response' => $response
+            // ]);
             
             if (isset($response['success']) && $response['success'] == 1) {
                 return [
@@ -382,13 +382,13 @@ class SmsPoolService
             $errorType = $response['type'] ?? null;
             
             // Log the error details for debugging
-            Log::error('SMSPool purchase API error', [
-                'service_id' => $serviceId,
-                'country_id' => $countryId,
-                'error_type' => $errorType,
-                'error_message' => $errorMessage,
-                'full_response' => $response
-            ]);
+            // Log::error('SMSPool purchase API error', [
+            //     'service_id' => $serviceId,
+            //     'country_id' => $countryId,
+            //     'error_type' => $errorType,
+            //     'error_message' => $errorMessage,
+            //     'full_response' => $response
+            // ]);
             
             // Provide user-friendly error messages for common issues
             switch ($errorType) {
@@ -415,11 +415,11 @@ class SmsPoolService
             throw new RequestError($errorMessage);
             
         } catch (Exception $e) {
-            Log::error('SMSPool number purchase failed', [
-                'service_id' => $serviceId,
-                'country_id' => $countryId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool number purchase failed', [
+            //     'service_id' => $serviceId,
+            //     'country_id' => $countryId,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -490,14 +490,14 @@ class SmsPoolService
                 $order
             );
             
-            Log::info('SMSPool number purchased successfully', [
-                'user_id' => $userId,
-                'order_id' => $order->id,
-                'service' => $serviceCode,
-                'country' => $countryCode,
-                'phone_number' => (string) $apiResponse['number'],
-                'price' => $priceInNaira
-            ]);
+            // Log::info('SMSPool number purchased successfully', [
+            //     'user_id' => $userId,
+            //     'order_id' => $order->id,
+            //     'service' => $serviceCode,
+            //     'country' => $countryCode,
+            //     'phone_number' => (string) $apiResponse['number'],
+            //     'price' => $priceInNaira
+            // ]);
             
             return [
                 'success' => true,
@@ -508,12 +508,12 @@ class SmsPoolService
             ];
             
         } catch (Exception $e) {
-            Log::error('SMSPool number purchase failed', [
-                'service_code' => $serviceCode,
-                'user_id' => $userId,
-                'country_code' => $countryCode,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool number purchase failed', [
+            //     'service_code' => $serviceCode,
+            //     'user_id' => $userId,
+            //     'country_code' => $countryCode,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -550,10 +550,10 @@ class SmsPoolService
             throw new RequestError('Invalid status response');
             
         } catch (Exception $e) {
-            Log::error('SMSPool SMS status check failed', [
-                'order_id' => $orderId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool SMS status check failed', [
+            //     'order_id' => $orderId,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -578,10 +578,10 @@ class SmsPoolService
             throw new RequestError($response['message'] ?? 'Cancellation failed');
             
         } catch (Exception $e) {
-            Log::error('SMSPool number cancellation failed', [
-                'order_id' => $orderId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool number cancellation failed', [
+            //     'order_id' => $orderId,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -606,10 +606,10 @@ class SmsPoolService
             throw new RequestError($response['message'] ?? 'Resend failed');
             
         } catch (Exception $e) {
-            Log::error('SMSPool SMS resend failed', [
-                'order_id' => $orderId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool SMS resend failed', [
+            //     'order_id' => $orderId,
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -629,9 +629,9 @@ class SmsPoolService
             throw new RequestError('Invalid active orders response');
             
         } catch (Exception $e) {
-            Log::error('SMSPool active orders fetch failed', [
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool active orders fetch failed', [
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -651,9 +651,9 @@ class SmsPoolService
             throw new RequestError('Invalid order history response');
             
         } catch (Exception $e) {
-            Log::error('SMSPool order history fetch failed', [
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool order history fetch failed', [
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -684,11 +684,11 @@ class SmsPoolService
             return $this->isServicePurchasable($serviceId, $countryId);
             
         } catch (Exception $e) {
-            Log::error('SMSPool availability check failed', [
-                'service_id' => $serviceId,
-                'country_id' => $countryId,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool availability check failed', [
+            //     'service_id' => $serviceId,
+            //     'country_id' => $countryId,
+            //     'error' => $e->getMessage()
+            // ]);
             return false;
         }
     }
@@ -711,11 +711,11 @@ class SmsPoolService
                 // Wait before retry
                 usleep($this->retryDelay * 1000 * ($i + 1));
                 
-                Log::warning('SMSPool request retry', [
-                    'endpoint' => $endpoint,
-                    'attempt' => $i + 1,
-                    'error' => $e->getMessage()
-                ]);
+                // Log::warning('SMSPool request retry', [
+                //     'endpoint' => $endpoint,
+                //     'attempt' => $i + 1,
+                //     'error' => $e->getMessage()
+                // ]);
             }
         }
     }
@@ -744,13 +744,13 @@ class SmsPoolService
             $result = $response->json();
             
             // Log the request for debugging (without API key)
-            Log::info('SMSPool API request', [
-                'endpoint' => $endpoint,
-                'method' => $method,
-                'params' => array_diff_key($params, ['key' => '']),
-                'status_code' => $response->status(),
-                'response' => is_array($result) ? array_slice($result, 0, 5, true) : substr(json_encode($result), 0, 400)
-            ]);
+            // Log::info('SMSPool API request', [
+            //     'endpoint' => $endpoint,
+            //     'method' => $method,
+            //     'params' => array_diff_key($params, ['key' => '']),
+            //     'status_code' => $response->status(),
+            //     'response' => is_array($result) ? array_slice($result, 0, 5, true) : substr(json_encode($result), 0, 400)
+            // ]);
             
             if (!$response->successful()) {
                 // For failed requests, try to get error details from response body
@@ -760,12 +760,12 @@ class SmsPoolService
                 }
                 
                 // Log the full error response for debugging
-                Log::error('SMSPool API error response', [
-                    'endpoint' => $endpoint,
-                    'status_code' => $response->status(),
-                    'error_response' => $result,
-                    'params' => array_diff_key($params, ['key' => ''])
-                ]);
+                // Log::error('SMSPool API error response', [
+                //     'endpoint' => $endpoint,
+                //     'status_code' => $response->status(),
+                //     'error_response' => $result,
+                //     'params' => array_diff_key($params, ['key' => ''])
+                // ]);
                 
                 throw new RequestError($errorMessage);
             }
@@ -782,12 +782,12 @@ class SmsPoolService
             return $result;
             
         } catch (Exception $e) {
-            Log::error('SMSPool API request failed', [
-                'endpoint' => $endpoint,
-                'method' => $method,
-                'params' => array_diff_key($params, ['key' => '']),
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool API request failed', [
+            //     'endpoint' => $endpoint,
+            //     'method' => $method,
+            //     'params' => array_diff_key($params, ['key' => '']),
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -825,22 +825,22 @@ class SmsPoolService
             $result = $response->json();
             
             // Log the request for debugging (without API key)
-            Log::info('SMSPool API request', [
-                'endpoint' => $endpoint,
-                'method' => $method,
-                'params' => array_diff_key($params, ['key' => '']),
-                'status_code' => $response->status(),
-                'response' => $result
-            ]);
+            // Log::info('SMSPool API request', [
+            //     'endpoint' => $endpoint,
+            //     'method' => $method,
+            //     'params' => array_diff_key($params, ['key' => '']),
+            //     'status_code' => $response->status(),
+            //     'response' => $result
+            // ]);
             
             if (!$response->successful()) {
                 // Log the full error response for debugging
-                Log::error('SMSPool API error response', [
-                    'endpoint' => $endpoint,
-                    'status_code' => $response->status(),
-                    'error_response' => $result,
-                    'params' => array_diff_key($params, ['key' => ''])
-                ]);
+                // Log::error('SMSPool API error response', [
+                //     'endpoint' => $endpoint,
+                //     'status_code' => $response->status(),
+                //     'error_response' => $result,
+                //     'params' => array_diff_key($params, ['key' => ''])
+                // ]);
             }
             
             // For purchase endpoint, return the result even if HTTP status indicates error
@@ -848,12 +848,12 @@ class SmsPoolService
             return $result ?: [];
             
         } catch (Exception $e) {
-            Log::error('SMSPool API request failed', [
-                'endpoint' => $endpoint,
-                'method' => $method,
-                'params' => array_diff_key($params, ['key' => '']),
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool API request failed', [
+            //     'endpoint' => $endpoint,
+            //     'method' => $method,
+            //     'params' => array_diff_key($params, ['key' => '']),
+            //     'error' => $e->getMessage()
+            // ]);
             throw $e;
         }
     }
@@ -914,10 +914,10 @@ class SmsPoolService
             
             return false;
         } catch (Exception $e) {
-            Log::error('SMSPool service validation failed', [
-                'service_code' => $serviceCode,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('SMSPool service validation failed', [
+            //     'service_code' => $serviceCode,
+            //     'error' => $e->getMessage()
+            // ]);
             return false;
         }
     }
@@ -944,11 +944,11 @@ class SmsPoolService
                 'markup_percentage' => $markupPercentage
             ];
         } catch (Exception $e) {
-            Log::error('Failed to get SMSPool pricing details', [
-                'service_id' => $service->id,
-                'country_id' => $country->id,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('Failed to get SMSPool pricing details', [
+            //     'service_id' => $service->id,
+            //     'country_id' => $country->id,
+            //     'error' => $e->getMessage()
+            // ]);
             
             return [
                 'final_price' => null,

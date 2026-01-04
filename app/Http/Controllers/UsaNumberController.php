@@ -200,11 +200,11 @@ class UsaNumberController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('USA availability check failed', [
-                'user_id' => $user->id,
-                'service' => $serviceCode,
-                'error' => $e->getMessage()
-            ]);
+            // Log::error('USA availability check failed', [
+            //     'user_id' => $user->id,
+            //     'service' => $serviceCode,
+            //     'error' => $e->getMessage()
+            // ]);
 
             return response()->json([
                 'available' => false,

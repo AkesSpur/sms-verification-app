@@ -100,15 +100,15 @@ class SmsRentalController extends Controller
         $requestId = uniqid('controller_rent_');
         $startTime = microtime(true);
         
-        Log::info('SMS Rental Controller Request Started', [
-            'request_id' => $requestId,
-            'user_id' => auth()->user()->id,
-            'request_data' => $request->only(['service', 'country', 'max_price', 'area_codes', 'carrier', 'specific_number']),
-            'user_balance' => auth()->user()->balance ?? 0,
-            'timestamp' => now()->toISOString(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent()
-        ]);
+        // Log::info('SMS Rental Controller Request Started', [
+        //     'request_id' => $requestId,
+        //     'user_id' => auth()->user()->id,
+        //     'request_data' => $request->only(['service', 'country', 'max_price', 'area_codes', 'carrier', 'specific_number']),
+        //     'user_balance' => auth()->user()->balance ?? 0,
+        //     'timestamp' => now()->toISOString(),
+        //     'ip_address' => $request->ip(),
+        //     'user_agent' => $request->userAgent()
+        // ]);
         
         try {
             $request->validate([
@@ -135,11 +135,11 @@ class SmsRentalController extends Controller
             $service = DaisyService::where('code', $request->service)->where('status', true)->first();
             
             if (!$service) {
-                Log::warning('SMS Rental Failed - Invalid Service', [
-                    'request_id' => $requestId,
-                    'service_code' => $request->service,
-                    'user_id' => $user->id
-                ]);
+                // Log::warning('SMS Rental Failed - Invalid Service', [
+                //     'request_id' => $requestId,
+                //     'service_code' => $request->service,
+                //     'user_id' => $user->id
+                // ]);
                 
                 if ($request->ajax()) {
                     return response()->json([
@@ -151,22 +151,22 @@ class SmsRentalController extends Controller
                 return back()->withNotify($notify);
             }
             
-            Log::info('SMS Rental - Service Validated', [
-                'request_id' => $requestId,
-                'service_code' => $service->code,
-                'service_name' => $service->name,
-                'user_id' => $user->id
-            ]);
+            // Log::info('SMS Rental - Service Validated', [
+            //     'request_id' => $requestId,
+            //     'service_code' => $service->code,
+            //     'service_name' => $service->name,
+            //     'user_id' => $user->id
+            // ]);
             
             // Get price for the service and country
             $servicePrice = $service->getPriceForCountry($request->country ?? 'us');
             if (!$servicePrice) {
-                Log::warning('SMS Rental Failed - Service Not Available for Country', [
-                    'request_id' => $requestId,
-                    'service_code' => $service->code,
-                    'country_code' => $request->country ?? 'us',
-                    'user_id' => $user->id
-                ]);
+                // Log::warning('SMS Rental Failed - Service Not Available for Country', [
+                //     'request_id' => $requestId,
+                //     'service_code' => $service->code,
+                //     'country_code' => $request->country ?? 'us',
+                //     'user_id' => $user->id
+                // ]);
                 
                 if ($request->ajax()) {
                     return response()->json([
@@ -245,16 +245,16 @@ class SmsRentalController extends Controller
                 return back()->withNotify($notify);
             }
 
-            Log::info('SMS Rental - Calling DaisySMS API', [
-                'request_id' => $requestId,
-                'service_code' => $request->service,
-                'max_price' => $request->max_price,
-                'area_codes' => $request->area_codes,
-                'carrier' => $request->carrier,
-                'specific_number' => $request->specific_number,
-                'user_id' => $user->id,
-                'original_balance' => $originalBalance
-            ]);
+            // Log::info('SMS Rental - Calling DaisySMS API', [
+            //     'request_id' => $requestId,
+            //     'service_code' => $request->service,
+            //     'max_price' => $request->max_price,
+            //     'area_codes' => $request->area_codes,
+            //     'carrier' => $request->carrier,
+            //     'specific_number' => $request->specific_number,
+            //     'user_id' => $user->id,
+            //     'original_balance' => $originalBalance
+            // ]);
 
             $result = $this->daisySmsService->rentNumber(
                 $request->service,
@@ -265,31 +265,31 @@ class SmsRentalController extends Controller
             );
 
             // Log the complete API response for observation
-            Log::info('SMS Rental - FULL API RESPONSE', [
-                'request_id' => $requestId,
-                'complete_api_response' => $result,
-                'response_keys' => array_keys($result),
-                'response_structure' => [
-                    'success' => $result['success'] ?? 'not_set',
-                    'rental_id' => $result['rental_id'] ?? 'not_set',
-                    'phone_number' => $result['phone_number'] ?? 'not_set',
-                    'price' => $result['price'] ?? 'not_set',
-                    'error' => $result['error'] ?? 'not_set',
-                    'request_id' => $result['request_id'] ?? 'not_set'
-                ],
-                'service_code' => $request->service,
-                'user_id' => $user->id,
-                'timestamp' => now()->toISOString()
-            ]);
+            // Log::info('SMS Rental - FULL API RESPONSE', [
+            //     'request_id' => $requestId,
+            //     'complete_api_response' => $result,
+            //     'response_keys' => array_keys($result),
+            //     'response_structure' => [
+            //         'success' => $result['success'] ?? 'not_set',
+            //         'rental_id' => $result['rental_id'] ?? 'not_set',
+            //         'phone_number' => $result['phone_number'] ?? 'not_set',
+            //         'price' => $result['price'] ?? 'not_set',
+            //         'error' => $result['error'] ?? 'not_set',
+            //         'request_id' => $result['request_id'] ?? 'not_set'
+            //     ],
+            //     'service_code' => $request->service,
+            //     'user_id' => $user->id,
+            //     'timestamp' => now()->toISOString()
+            // ]);
 
             if (!$result['success']) {
-                Log::error('SMS Rental Failed - DaisySMS API Error', [
-                    'request_id' => $requestId,
-                    'api_error' => $result['error'],
-                    'api_request_id' => $result['request_id'] ?? null,
-                    'service_code' => $request->service,
-                    'user_id' => $user->id
-                ]);
+                // Log::error('SMS Rental Failed - DaisySMS API Error', [
+                //     'request_id' => $requestId,
+                //     'api_error' => $result['error'],
+                //     'api_request_id' => $result['request_id'] ?? null,
+                //     'service_code' => $request->service,
+                //     'user_id' => $user->id
+                // ]);
                 
                 if ($request->ajax()) {
                     return response()->json([

@@ -172,10 +172,10 @@ class OwletApiService
                 throw new Exception('API request failed with status: ' . $response->status());
             }
         } catch (Exception $e) {
-            Log::error('Owlet API Exception', [
-                'message' => $e->getMessage(),
-                'data' => $data
-            ]);
+            // Log::error('Owlet API Exception', [
+            //     'message' => $e->getMessage(),
+            //     'data' => $data
+            // ]);
             
             throw $e;
         }
