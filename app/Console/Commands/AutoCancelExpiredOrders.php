@@ -124,7 +124,7 @@ class AutoCancelExpiredOrders extends Command
                         // Refund using User model method
                         $transaction = $user->addBalance(
                             $refundAmount,
-                            'sms_rental_expired_refund',
+                            'sms_refund',
                             'Auto-cancel refund for expired SMS rental - ' . $order->service_name,
                             $order
                         );
