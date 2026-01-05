@@ -354,12 +354,12 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product['created_at']->format('Y-m-d H:i:s') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
+                                    <button onclick="openLogModal({{ json_encode($product['id']) }}, {{ json_encode($product['name']) }}, {{ json_encode($product['details']) }}, {{ json_encode($product['full_log_item'] ?? '') }})" 
                                             class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors mr-3">
                                         <i class="fas fa-eye"></i> View
                                     </button>
                                     @if($product['status'] == 'completed' && $product['full_log_item'])
-                                    <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="text-blue-600 hover:text-blue-900">
+                                    <button onclick="copyToClipboard({{ json_encode($product['full_log_item']) }})" class="text-blue-600 hover:text-blue-900">
                                         <i class="fas fa-copy"></i>
                                     </button>
                                     @endif
@@ -418,12 +418,12 @@
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="openLogModal('{{ $product['id'] }}', '{{ addslashes($product['name']) }}', '{{ addslashes($product['details']) }}', '{{ addslashes($product['full_log_item'] ?? '') }}')" 
+                            <button onclick="openLogModal({{ json_encode($product['id']) }}, {{ json_encode($product['name']) }}, {{ json_encode($product['details']) }}, {{ json_encode($product['full_log_item'] ?? '') }})" 
                                     class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
                             @if($product['status'] == 'completed' && $product['full_log_item'])
-                            <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                            <button onclick="copyToClipboard({{ json_encode($product['full_log_item']) }})" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
                                 <i class="fas fa-copy mr-1"></i>Copy
                             </button>
                             @endif
@@ -502,7 +502,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $gift['created_at']->format('M d, Y H:i') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}', '{{ addslashes($gift['notes'] ?? '') }}')" 
+                                    <button onclick="openGiftModal({{ json_encode($gift['id']) }}, {{ json_encode($gift['item_name']) }}, {{ json_encode($gift['item_description']) }}, {{ json_encode($gift['recipient']) }}, {{ json_encode($gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon')) }}, {{ json_encode($gift['status']) }}, {{ json_encode(number_format($gift['amount'])) }}, {{ json_encode($gift['created_at']->format('M d, Y H:i')) }}, {{ json_encode($gift['notes'] ?? '') }})" 
                                             class="text-primary-600 hover:text-primary-900 bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-md transition-colors">
                                         View
                                     </button>
@@ -549,12 +549,12 @@
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="openGiftModal('{{ $gift['id'] }}', '{{ addslashes($gift['item_name']) }}', '{{ addslashes($gift['item_description']) }}', '{{ addslashes($gift['recipient']) }}', '{{ $gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon') }}', '{{ $gift['status'] }}', '{{ number_format($gift['amount']) }}', '{{ $gift['created_at']->format('M d, Y H:i') }}', '{{ addslashes($gift['notes'] ?? '') }}')"
+                            <button onclick="openGiftModal({{ json_encode($gift['id']) }}, {{ json_encode($gift['item_name']) }}, {{ json_encode($gift['item_description']) }}, {{ json_encode($gift['recipient']) }}, {{ json_encode($gift['tracking_code'] ?? ($gift['status'] == 'cancelled' ? 'Order has been cancelled - no tracking available' : 'Order is still pending - tracking info will be available soon')) }}, {{ json_encode($gift['status']) }}, {{ json_encode(number_format($gift['amount'])) }}, {{ json_encode($gift['created_at']->format('M d, Y H:i')) }}, {{ json_encode($gift['notes'] ?? '') }})"
                                     class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
                                 <i class="fas fa-eye mr-1"></i>View
                             </button>
                             @if($product['status'] == 'completed' && $product['full_log_item'])
-                            <button onclick="copyToClipboard('{{ addslashes($product['full_log_item']) }}')" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                            <button onclick="copyToClipboard({{ json_encode($product['full_log_item']) }})" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
                                 <i class="fas fa-copy mr-1"></i>Copy
                             </button>
                             @endif
