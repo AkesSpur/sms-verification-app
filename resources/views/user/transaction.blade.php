@@ -37,25 +37,25 @@
                     <!-- Payment Method Tabs -->
                     <div class="mb-6">
                         <div class="flex border-b border-gray-200">
-                            <button type="button" onclick="switchPaymentTab('paystack')" id="paystackTab" 
-                                    class="px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-white">
+                            {{-- <button type="button" onclick="switchPaymentTab('paystack')" id="paystackTab" 
+                                    class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
                                 <i class="fas fa-credit-card mr-2"></i>Online Payment
-                            </button>
+                            </button> --}}
                             @if($localbankSetting && $localbankSetting->status)
-                            <button type="button" onclick="switchPaymentTab('localbank')" id="localbankTab" 
+                            {{-- <button type="button" onclick="switchPaymentTab('localbank')" id="localbankTab" 
                                     class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
                                 <i class="fas fa-university mr-2"></i>Bank Transfer
-                            </button>
+                            </button> --}}
                             @endif
                             <button type="button" onclick="switchPaymentTab('virtualAccount')" id="virtualAccountTab" 
-                                    class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
+                                    class="px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-white">
                                 <i class="fas fa-building mr-2"></i>Virtual Account
                             </button>
                         </div>
                     </div>
 
                     <!-- Paystack Payment Section -->
-                    <div id="paystackSection" class="payment-section">
+                    <div id="paystackSection" class="payment-section" style="display: none;">
                         <form id="depositForm" action="{{ route('user.paystack.redirect') }}" method="GET" class="space-y-6">
                             <div>
                                 <label for="depositAmount" class="block text-sm font-medium text-gray-700 mb-2">Amount (₦)</label>
@@ -170,7 +170,7 @@
                     @endif
 
                     <!-- Virtual Account Section -->
-                    <div id="virtualAccountSection" class="payment-section" style="display: none;">
+                    <div id="virtualAccountSection" class="payment-section">
                         <div class="space-y-4">
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 <div class="flex items-start">
@@ -627,6 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modal functionality
     document.getElementById('addFundsBtn').addEventListener('click', function() {
         document.getElementById('addFundsModal').style.display = 'block';
+        initVirtualAccountModal();
     });
 
     function closeAddFundsModal() {
