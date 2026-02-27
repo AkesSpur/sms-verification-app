@@ -5,6 +5,29 @@
         <div class="section-header">
             <h1>Dashboard</h1>
         </div>
+
+                        <!-- API Balances -->
+        <div class="row mb-4">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="card card-statistic-2">
+                    <div class="card-stats">
+                        <div class="card-stats-title">API Balances (Cached: 10m)</div>
+                    </div>
+                    <div class="card-icon shadow-primary bg-primary">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>DaisySMS Balance</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ $apiBalances['daisy'] ?? 'N/A' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         
         <!-- Pending Orders Section -->
         <div class="row">

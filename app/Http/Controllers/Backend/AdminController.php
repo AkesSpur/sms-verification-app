@@ -10,17 +10,25 @@ use App\Models\Service;
 use App\Models\ReviewQueue;
 use App\Models\GiftOrder;
 use App\Models\Transaction;
-use App\Models\DigitalProduct;
 use App\Models\SocialMediaOrder;
 use App\Models\DaisyOrder;
-use App\Models\DaisyService;
 use App\Models\ResellerOrder; // added
 use App\Models\ResellerRequest; // added
+use App\Services\DaisySmsService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
+    protected $daisySmsService;
+    
+    public function __construct(DaisySmsService $daisySmsService)
+    {
+        $this->daisySmsService = $daisySmsService;
+    }
+
+
+
     public function index(){
         // SMS Verification Orders Statistics
         $todaysOrders = Order::whereDate('created_at', Carbon::today())->count();
@@ -127,6 +135,24 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
+
+        $apiBalances = Cache::remember('admin_api_balances', 600, function () {
+            // Fetch Daisy Balance
+            $daisyBalance = 'N/A';
+            try {
+                $daisyResponse = $this->daisySmsService->getBalance();
+                if ($daisyResponse['success']) {
+                    $daisyBalance = '$' . number_format($daisyResponse['balance'], 2);
+                }
+            } catch (\Exception $e) {
+                // Log error silently
+            }
+
+            return [
+                'daisy' => $daisyBalance,
+            ];
+        });
+
 
         // Most used services in last 24 hours
         $twentyFourHoursAgo = Carbon::now()->subDay();
@@ -333,7 +359,8 @@ class AdminController extends Controller
             'processingSocialOrders',
             'recentDaisyOrders',
             'pendingDaisyOrders',
-            'processingDaisyOrders'
+            'processingDaisyOrders',
+            'apiBalances'
         ));
     }
 
