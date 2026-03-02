@@ -168,7 +168,7 @@ class DigitalProductOrderController extends Controller
 
                         $amount = collect($orders)->sum('total_amount');
 
-                        Mail::to($recipient)->sendNow(
+                        Mail::to($recipient)->queue(
                             new SaleNotificationMail('digital_product', $saleData, $amount, $settings->site_name ?? 'Admin')
                         );
                     } else {

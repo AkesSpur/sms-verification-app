@@ -166,7 +166,7 @@ class GiftOrderController extends Controller
                             'price'          => $giftOrder->total_amount
                         ];
 
-                        Mail::to($recipient)->sendNow(
+                        Mail::to($recipient)->queue(
                             new SaleNotificationMail('gift', $saleData, $saleData['price'], $settings->site_name ?? 'Admin')
                         );
                     } else {
