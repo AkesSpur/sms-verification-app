@@ -151,30 +151,36 @@ class DigitalProductOrderController extends Controller
                 // Send sales notification email
                 try {
                     $emailConfig = EmailConfiguration::first();
-                    if ($emailConfig && $emailConfig->email) {
+                    $settings    = GeneralSetting::first();
+                    $recipient   = $settings->contact_email ?? null;
+
+                    if ($emailConfig && $emailConfig->email && $recipient) {
                         $saleData = collect($orders)->map(function ($order) use ($user, $product) {
                             return [
-                                'order_id' => $order->id,
-                                'category' => $product->subcategory->category->name ?? 'N/A',
-                                'name' => $product->name,
-                                'quantity' => $order->quantity,
+                                'order_id'      => $order->id,
+                                'category'      => $product->subcategory->category->name ?? 'N/A',
+                                'name'          => $product->name,
+                                'quantity'      => $order->quantity,
                                 'customer_name' => $user->name,
-                                'price' => $order->total_amount
+                                'price'         => $order->total_amount
                             ];
                         })->toArray();
 
-                        // Calculate total amount from all orders
                         $amount = collect($orders)->sum('total_amount');
 
-                        $settings = GeneralSetting::first();
-
-                        Mail::to($settings->contact_email)->queue(
+                        Mail::to($recipient)->sendNow(
                             new SaleNotificationMail('digital_product', $saleData, $amount, $settings->site_name ?? 'Admin')
                         );
+                    } else {
+                        Log::warning('Digital product sale notification skipped: missing SMTP config or contact email', [
+                            'order_ids'        => collect($orders)->pluck('id')->toArray(),
+                            'has_email_config' => (bool) ($emailConfig && $emailConfig->email),
+                            'has_recipient'    => (bool) $recipient,
+                        ]);
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
-                        'error' => $e->getMessage(),
+                        'error'     => $e->getMessage(),
                         'order_ids' => collect($orders)->pluck('id')->toArray()
                     ]);
                 }
