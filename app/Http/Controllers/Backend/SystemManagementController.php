@@ -10,20 +10,9 @@ class SystemManagementController extends Controller
 {
     public function index()
     {
-        $info = [
-            'php_version'     => PHP_VERSION,
-            'laravel_version' => app()->version(),
-            'environment'     => app()->environment(),
-            'debug_mode'      => config('app.debug'),
-            'timezone'        => config('app.timezone'),
-            'cache_driver'    => config('cache.default'),
-            'queue_driver'    => config('queue.default'),
-            'db_connection'   => config('database.default'),
-        ];
-
         $logFiles = $this->getLogFiles();
 
-        return view('admin.system-management.index', compact('info', 'logFiles'));
+        return view('admin.system-management.index', compact('logFiles'));
     }
 
     public function clearCache()
@@ -166,7 +155,7 @@ class SystemManagementController extends Controller
 
         $all = explode("\n", $buffer);
 
-        return implode("\n", array_slice($all, max(0, count($all) - $lines)));
+        return implode("\n", \array_slice($all, max(0, \count($all) - $lines)));
     }
 
     private function getLogFiles(): array

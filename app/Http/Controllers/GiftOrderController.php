@@ -152,26 +152,33 @@ class GiftOrderController extends Controller
                 // Send sales notification email
                 try {
                     $emailConfig = EmailConfiguration::first();
-                    if ($emailConfig && $emailConfig->email) {
-                        $saleData = [
-                            'order_id' => $giftOrder->id,
-                            'order_number' => $giftOrder->order_number,
-                            'gift_name' => $gift->name,
-                            'recipient_name' => $giftOrder->recipient_name,
-                            'sender_name' => $giftOrder->sender_name,
-                            'customer_name' => $user->name,
-                            'price' => $giftOrder->total_amount
-                        ];
-                        
-                        $settings = GeneralSetting::first();
+                    $settings    = GeneralSetting::first();
+                    $recipient   = $settings->contact_email ?? null;
 
-                        Mail::to($settings->contact_email)->queue(
+                    if ($emailConfig && $emailConfig->email && $recipient) {
+                        $saleData = [
+                            'order_id'       => $giftOrder->id,
+                            'order_number'   => $giftOrder->order_number,
+                            'gift_name'      => $gift->name,
+                            'recipient_name' => $giftOrder->recipient_name,
+                            'sender_name'    => $giftOrder->sender_name,
+                            'customer_name'  => $user->name,
+                            'price'          => $giftOrder->total_amount
+                        ];
+
+                        Mail::to($recipient)->queue(
                             new SaleNotificationMail('gift', $saleData, $saleData['price'], $settings->site_name ?? 'Admin')
                         );
+                    } else {
+                        Log::warning('Gift order sale notification skipped: missing SMTP config or contact email', [
+                            'gift_order_id'  => $giftOrder->id,
+                            'has_email_config' => (bool) ($emailConfig && $emailConfig->email),
+                            'has_recipient'    => (bool) $recipient,
+                        ]);
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
-                        'error' => $e->getMessage(),
+                        'error'         => $e->getMessage(),
                         'gift_order_id' => $giftOrder->id
                     ]);
                 }

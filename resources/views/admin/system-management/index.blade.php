@@ -8,69 +8,6 @@
 
         <div class="section-body">
 
-            {{-- System Information --}}
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4><i class="fas fa-info-circle mr-2"></i>System Information</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td class="font-weight-bold text-muted" style="width:45%">PHP Version</td>
-                                            <td><span class="badge badge-info">{{ $info['php_version'] }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-weight-bold text-muted">Laravel Version</td>
-                                            <td><span class="badge badge-primary">{{ $info['laravel_version'] }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-weight-bold text-muted">Environment</td>
-                                            <td>
-                                                <span class="badge {{ $info['environment'] === 'production' ? 'badge-success' : 'badge-warning' }}">
-                                                    {{ ucfirst($info['environment']) }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-weight-bold text-muted">Debug Mode</td>
-                                            <td>
-                                                <span class="badge {{ $info['debug_mode'] ? 'badge-danger' : 'badge-success' }}">
-                                                    {{ $info['debug_mode'] ? 'ON' : 'OFF' }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="col-md-6">
-                                    <table class="table table-sm table-borderless">
-                                        <tr>
-                                            <td class="font-weight-bold text-muted" style="width:45%">Timezone</td>
-                                            <td>{{ $info['timezone'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-weight-bold text-muted">Cache Driver</td>
-                                            <td><span class="badge badge-secondary">{{ strtoupper($info['cache_driver']) }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-weight-bold text-muted">Queue Driver</td>
-                                            <td><span class="badge badge-secondary">{{ strtoupper($info['queue_driver']) }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-weight-bold text-muted">DB Connection</td>
-                                            <td><span class="badge badge-secondary">{{ strtoupper($info['db_connection']) }}</span></td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {{-- Cache Management --}}
             <div class="row">
                 <div class="col-12">
