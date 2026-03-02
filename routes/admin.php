@@ -31,6 +31,7 @@ use App\Http\Controllers\Backend\ResellerProductLogController;
 use App\Http\Controllers\Backend\ResellerRequestController;
 use App\Http\Controllers\Backend\ResellerOrderAdminController;
 use App\Http\Controllers\Backend\VirtualAccountController;
+use App\Http\Controllers\Backend\SystemManagementController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -200,6 +201,19 @@ Route::put('social-media-orders/{socialMediaOrder}/status', [SocialMediaOrderCon
 Route::post('social-media-orders/bulk-update-status', [SocialMediaOrderController::class, 'bulkUpdateStatus'])->name('social-media-orders.bulk-update-status');
 Route::put('social-media-orders/{socialMediaOrder}/update-status', [SocialMediaOrderController::class, 'updateStatus'])->name('social-media-orders.update-status');
 Route::resource('social-media-orders', SocialMediaOrderController::class)->only(['index', 'show']);
+
+/* System Management Routes */
+Route::prefix('system-management')->name('system-management.')->group(function () {
+    Route::get('/', [SystemManagementController::class, 'index'])->name('index');
+    Route::post('/clear-cache', [SystemManagementController::class, 'clearCache'])->name('clear-cache');
+    Route::post('/clear-config', [SystemManagementController::class, 'clearConfig'])->name('clear-config');
+    Route::post('/clear-view', [SystemManagementController::class, 'clearView'])->name('clear-view');
+    Route::post('/clear-route', [SystemManagementController::class, 'clearRoute'])->name('clear-route');
+    Route::post('/clear-all', [SystemManagementController::class, 'clearAll'])->name('clear-all');
+    Route::post('/optimize', [SystemManagementController::class, 'optimize'])->name('optimize');
+    Route::post('/read-log', [SystemManagementController::class, 'readLog'])->name('read-log');
+    Route::post('/clear-log', [SystemManagementController::class, 'clearLog'])->name('clear-log');
+});
 
 /** Payment settings routes */
 Route::get('payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');

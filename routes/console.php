@@ -38,3 +38,8 @@ Schedule::command('orders:auto-cancel')
     ->withoutOverlapping()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/auto-cancel-orders.log'));
+
+Schedule::command('logs:clear')
+    ->dailyAt('00:00')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/logs-clear.log'));

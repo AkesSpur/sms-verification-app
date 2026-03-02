@@ -213,6 +213,12 @@
                         <span>General Settings</span>
                     </a>
                 </li>
+                <li class="{{ setActive(['admin.system-management.*']) }}">
+                    <a href="{{ route('admin.system-management.index') }}" class="nav-link">
+                        <i class="fas fa-tools"></i>
+                        <span>System Management</span>
+                    </a>
+                </li>
 
             </ul>
 
