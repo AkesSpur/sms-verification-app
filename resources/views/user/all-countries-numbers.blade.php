@@ -199,10 +199,6 @@
                         <i class="ri-close-line"></i> Cancel
                     </button>
                     @endif
-                    <a href="{{ route('international.order.show', $order->id) }}"
-                       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 text-xs font-medium transition-colors">
-                        <i class="ri-information-line"></i> Details
-                    </a>
                 </div>
             </div>
             @empty
