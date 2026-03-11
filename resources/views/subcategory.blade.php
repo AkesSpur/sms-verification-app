@@ -14,10 +14,10 @@
     </div>
 @endif
 
-<div class="max-w-5xl mx-auto py-6 px-4 sm:px-6">
+<div class="max-w-4xl mx-auto py-6 px-4 sm:px-6">
 
     {{-- Section header --}}
-    <div class="flex items-center gap-4 mb-8 pl-4 border-l-4 border-indigo-500">
+    <div class="flex flex-wrap items-center gap-4 mb-8 pl-4 border-l-4 border-indigo-500">
         @if($subcategory->image)
             <img src="{{ asset($subcategory->image) }}"
                  alt="{{ $subcategory->name }}"
@@ -27,8 +27,8 @@
                 <i class="ri-box-3-line text-indigo-500 text-lg"></i>
             </div>
         @endif
-        <div>
-            <h1 class="text-lg font-bold text-gray-900 uppercase tracking-wide">{{ $subcategory->name }}</h1>
+        <div class="min-w-0 flex-1">
+            <h1 class="text-lg font-bold text-gray-900 uppercase tracking-wide break-words">{{ $subcategory->name }}</h1>
             <p class="text-xs text-gray-400 mt-0.5">{{ $subcategory->activeProducts->count() }} product{{ $subcategory->activeProducts->count() !== 1 ? 's' : '' }} available</p>
         </div>
     </div>

@@ -35,21 +35,21 @@
             @if($subcategory->activeProducts->isNotEmpty())
             <div class="mb-10">
                 {{-- Section header --}}
-                <div class="flex items-center justify-between mb-4 pl-4 border-l-4 border-indigo-500">
-                    <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pl-4 border-l-4 border-indigo-500">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
                         @if($subcategory->image)
                             <img src="{{ asset($subcategory->image) }}"
                                  alt="{{ $subcategory->name }}"
-                                 class="w-8 h-8 rounded-lg object-cover border border-gray-200">
+                                 class="w-8 h-8 rounded-lg object-cover border border-gray-200 flex-shrink-0">
                         @else
-                            <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
+                            <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <i class="ri-box-3-line text-indigo-400 text-sm"></i>
                             </div>
                         @endif
-                        <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $subcategory->name }}</h2>
+                        <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider truncate">{{ $subcategory->name }}</h2>
                     </div>
                     <a href="{{ route('subcategory.show', $subcategory->slug) }}"
-                       class="text-xs font-semibold text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-1.5">
+                       class="text-xs font-semibold text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors flex-shrink-0 flex items-center gap-1.5 whitespace-nowrap">
                         View All <i class="ri-arrow-right-line text-xs"></i>
                     </a>
                 </div>
