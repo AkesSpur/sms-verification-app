@@ -58,7 +58,7 @@
 
     @yield('styles')
 </head>
-<body class="bg-white font-sans antialiased"
+<body class="bg-white font-sans antialiased overflow-x-hidden"
       @auth x-data="{ sidebarOpen: false, orderHistoryOpen: {{ request()->routeIs('user.orders.*') ? 'true' : 'false' }} }" @endauth>
 
 <!-- ============================================================
@@ -209,7 +209,7 @@
                          x-transition:leave="transition ease-in duration-100"
                          x-transition:leave-start="opacity-100 translate-y-0"
                          x-transition:leave-end="opacity-0 translate-y-1"
-                         class="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden max-h-80 overflow-y-auto">
+                         class="fixed inset-x-0 top-[115px] mx-4 sm:absolute sm:inset-auto sm:top-full sm:left-0 sm:right-0 sm:mx-0 mt-1.5 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden max-h-[60vh] sm:max-h-80 overflow-y-auto">
 
                         <template x-if="results.length === 0 && !loading">
                             <div class="px-4 py-6 text-center text-sm text-gray-400">
@@ -277,7 +277,7 @@
                          x-transition:leave-start="opacity-100 translate-y-0"
                          x-transition:leave-end="opacity-0 translate-y-1"
                          x-cloak
-                         class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+                         class="fixed inset-x-0 top-[115px] mx-4 sm:absolute sm:inset-auto sm:right-0 sm:mx-0 mt-2 sm:w-64 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden max-h-[60vh] overflow-y-auto">
                         <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
                             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Browse Categories</p>
                             <button @click="catOpen = false" class="text-gray-400 hover:text-gray-600 transition-colors">
