@@ -69,68 +69,55 @@
                             </div>
                         @endif
 
-                        {{-- Product info --}}
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-gray-800 text-sm truncate">{{ $product->name }}</p>
-                            <div class="flex flex-wrap items-center gap-3 mt-1">
-                                <span class="text-xs text-gray-500">
-                                    In Stock:&nbsp;
-                                    @if($product->available_stock > 0)
-                                        <span class="text-emerald-600 font-semibold">{{ $product->available_stock }} qty.</span>
-                                    @else
-                                        <span class="text-red-500 font-semibold">0 qty.</span>
-                                    @endif
-                                </span>
-                                <span class="text-xs font-bold text-gray-800">
-                                    Price: &#8358;{{ number_format($product->price) }}
-                                </span>
-                                <div class="sm:hidden">
+                        {{-- Product Details & Footer --}}
+                        <div class="flex-grow min-w-0 flex flex-col justify-between">
+                            <h3 class="font-bold text-slate-800 text-sm mb-2 truncate" title="{{ $product->name }}">
+                                {{ $product->name }}
+                            </h3>
+                            
+                            {{-- Footer: Stock/Price and Action Button --}}
+                            <div class="flex items-end justify-between gap-2 mt-auto">
+                                <div class="space-y-1 text-xs text-slate-500">
+                                    <div class="flex items-center gap-2">
+                                        <span>In Stock:</span>
+                                        @if($product->available_stock > 0)
+                                            <span class="font-medium text-emerald-600">{{ $product->available_stock }} qty.</span>
+                                        @else
+                                            <span class="font-medium text-red-500">0 qty.</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span>Price:</span>
+                                        <span class="font-bold text-slate-900">
+                                            &#8358;{{ number_format($product->price) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="flex-shrink-0">
                                     @if($product->available_stock > 0)
                                         @auth
-                                            <a href="{{ route('product.show', $product->slug) }}"
-                                               class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200">
-                                                <i class="ri-shopping-cart-2-line"></i>
+                                            <a href="{{ route('product.show', $product->slug) }}" 
+                                               class="inline-flex items-center justify-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg text-xs transition-colors duration-300 gap-1.5 shadow-sm whitespace-nowrap">
+                                                <i class="ri-shopping-cart-2-line text-sm hidden sm:block"></i>
                                                 Buy Now
                                             </a>
                                         @else
-                                            <a href="{{ route('login') }}"
-                                               class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200">
-                                                <i class="ri-shopping-cart-2-line"></i>
+                                            <a href="{{ route('login') }}" 
+                                               class="inline-flex items-center justify-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg text-xs transition-colors duration-300 gap-1.5 shadow-sm whitespace-nowrap">
+                                                <i class="ri-shopping-cart-2-line text-sm hidden sm:block"></i>
                                                 Buy Now
                                             </a>
                                         @endauth
                                     @else
                                         <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
-                                           class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200">
-                                            <i class="ri-whatsapp-line"></i> Request
+                                           class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-xs transition-colors duration-300 gap-1.5 shadow-sm whitespace-nowrap">
+                                            <i class="ri-whatsapp-line text-sm hidden sm:block"></i>
+                                            Request
                                         </a>
                                     @endif
                                 </div>
                             </div>
-                        </div>
-
-                        {{-- Action button (Desktop) --}}
-                        <div class="flex-shrink-0 hidden sm:block">
-                            @if($product->available_stock > 0)
-                                @auth
-                                    <a href="{{ route('product.show', $product->slug) }}"
-                                       class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-all duration-200 hover:shadow-[0_4px_16px_rgba(99,102,241,0.3)]">
-                                        <i class="ri-shopping-cart-2-line"></i>
-                                        Buy Now
-                                    </a>
-                                @else
-                                    <a href="{{ route('login') }}"
-                                       class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-all duration-200 hover:shadow-[0_4px_16px_rgba(99,102,241,0.3)]">
-                                        <i class="ri-shopping-cart-2-line"></i>
-                                        Buy Now
-                                    </a>
-                                @endauth
-                            @else
-                                <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-all duration-200">
-                                    <i class="ri-whatsapp-line"></i> Request
-                                </a>
-                            @endif
                         </div>
                     </div>
                     @endforeach
