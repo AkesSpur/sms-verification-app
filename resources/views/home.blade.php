@@ -84,11 +84,33 @@
                                 <span class="text-xs font-bold text-gray-800">
                                     Price: &#8358;{{ number_format($product->price) }}
                                 </span>
+                                <div class="sm:hidden">
+                                    @if($product->available_stock > 0)
+                                        @auth
+                                            <a href="{{ route('product.show', $product->slug) }}"
+                                               class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200">
+                                                <i class="ri-shopping-cart-2-line"></i>
+                                                Buy Now
+                                            </a>
+                                        @else
+                                            <a href="{{ route('login') }}"
+                                               class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200">
+                                                <i class="ri-shopping-cart-2-line"></i>
+                                                Buy Now
+                                            </a>
+                                        @endauth
+                                    @else
+                                        <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
+                                           class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200">
+                                            <i class="ri-whatsapp-line"></i> Request
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Action button --}}
-                        <div class="flex-shrink-0">
+                        {{-- Action button (Desktop) --}}
+                        <div class="flex-shrink-0 hidden sm:block">
                             @if($product->available_stock > 0)
                                 @auth
                                     <a href="{{ route('product.show', $product->slug) }}"

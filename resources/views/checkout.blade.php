@@ -19,11 +19,11 @@
                     </div>
                 @endif
             </div>
-            <div>
+            <div class="min-w-0 flex-1">
                 <p class="text-[10px] font-medium text-indigo-600 uppercase tracking-widest mb-1">
                     {{ $product->subcategory ? $product->subcategory->category->name : 'Digital Product' }}
                 </p>
-                <h2 class="text-lg font-bold leading-tight text-slate-900 mb-1">{{ $product->name }}</h2>
+                <h2 class="text-lg font-bold leading-tight text-slate-900 mb-1 break-words">{{ $product->name }}</h2>
                 <div class="flex items-center gap-2">
                     <span class="text-base font-medium text-slate-700">₦{{ number_format($product->price) }}</span>
                 </div>
