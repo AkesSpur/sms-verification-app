@@ -14,7 +14,7 @@
     </div>
 @endif
 
-<div class="max-w-4xl mx-auto py-6 px-4 sm:px-6">
+<div class="max-w-5xl mx-auto py-6 px-4 sm:px-6">
 
     {{-- Section header --}}
     <div class="flex flex-wrap items-center gap-4 mb-8 pl-4 border-l-4 border-indigo-500">
