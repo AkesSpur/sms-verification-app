@@ -9,12 +9,12 @@
 @endphp
 
 @if(isset($banners) && $banners->count() > 0)
-    <div class="max-w-5xl mx-auto px-2 sm:px-4">
+    <div class="max-w-4xl mx-auto px-2 sm:px-4">
         <x-banner-carousel :banners="$banners" />
     </div>
 @endif
 
-<div class="max-w-5xl mx-auto py-4 px-2 sm:px-4">
+<div class="max-w-4xl mx-auto py-4 px-2 sm:px-4">
 
     {{-- Session flash messages --}}
     @if(session('success'))
