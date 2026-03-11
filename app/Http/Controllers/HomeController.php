@@ -59,7 +59,14 @@ class HomeController extends Controller
                                                         })
                                                         ->with(['activeProducts', 'category'])
                                                         ->ordered()
-                                                        ->get();
+                                                        ->get()
+                                                        ->sortBy(function($subcategory) {
+                                                            // Sort by category sort_order first, then subcategory sort_order
+                                                            return sprintf('%08d-%08d', 
+                                                                $subcategory->category->sort_order, 
+                                                                $subcategory->sort_order
+                                                            );
+                                                        });
         
         // Transform data for JavaScript consumption
         $digitalProductsData = $activeSubcategories->map(function($subcategory) {
