@@ -352,9 +352,7 @@
         </div>
     </footer>
 
-</div>{{-- /content wrapper --}}
-
-<!-- Floating support buttons -->
+    <!-- Floating support buttons -->
 @if($settings && $settings->telegram_support_link)
     <a href="{{ $settings->telegram_support_link }}" target="_blank"
        class="fixed bottom-6 right-4 z-50 bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110">
@@ -367,6 +365,9 @@
         <i class="ri-whatsapp-fill text-2xl"></i>
     </a>
 @endif
+</div>{{-- /content wrapper --}}
+
+
 
 <!-- Toast container -->
 <div id="toast-container" class="fixed top-20 right-4 z-50 space-y-2"></div>
