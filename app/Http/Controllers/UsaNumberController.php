@@ -586,8 +586,9 @@ class UsaNumberController extends Controller
     /**
      * Cancel USA number order
      */
-    public function cancel($orderId)
+    public function cancel(Request $request, $orderId = null)
     {
+        $orderId = $orderId ?? $request->route('order');
         $user = Auth::user();
         
         $order = Order::where('id', $orderId)

@@ -50,7 +50,7 @@ class HomeController extends Controller
                                                   ->take(8)
                                                   ->get();
         
-        // Get all active subcategories with products (limit to 8 for home page)
+        // Get all active subcategories with products
         // Only include subcategories whose parent category is also active
         $activeSubcategories = DigitalProductSubcategory::active()
                                                         ->whereHas('activeProducts')
@@ -59,7 +59,6 @@ class HomeController extends Controller
                                                         })
                                                         ->with(['activeProducts', 'category'])
                                                         ->ordered()
-                                                        ->take(8)
                                                         ->get();
         
         // Transform data for JavaScript consumption
@@ -174,6 +173,50 @@ class HomeController extends Controller
                                 ->firstOrFail();
         
         return view('checkout', compact('product'));
+    }
+
+    /**
+     * AJAX product search
+     */
+    public function search(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+
+        if (strlen($q) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $products = DigitalProduct::where('status', true)
+            ->where('name', 'like', "%{$q}%")
+            ->with('subcategory')
+            ->take(8)
+            ->get()
+            ->map(fn($p) => [
+                'name'        => $p->name,
+                'price'       => number_format($p->price),
+                'stock'       => $p->available_stock,
+                'image'       => $p->image ? asset($p->image) : null,
+                'subcategory' => $p->subcategory->name ?? '',
+                'url'         => route('product.show', $p->slug),
+            ]);
+
+        return response()->json(['results' => $products]);
+    }
+
+    /**
+     * Display individual subcategory page with its products
+     */
+    public function subcategoryShow($slug)
+    {
+        $subcategory = DigitalProductSubcategory::active()
+            ->where('slug', $slug)
+            ->whereHas('category', fn($q) => $q->where('status', 1))
+            ->with(['activeProducts', 'category'])
+            ->firstOrFail();
+
+        $banners = Banner::active()->ordered()->get();
+
+        return view('subcategory', compact('subcategory', 'banners'));
     }
 
     /**

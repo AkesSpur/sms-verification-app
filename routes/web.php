@@ -21,7 +21,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/account-boosting', [SocialMediaBoostingController::class, 'services'])->name('services');
 Route::get('/checkout', [HomeController::class, 'checkout'])->name('checkout');
 Route::get('/product/{slug}', [HomeController::class, 'showProduct'])->name('product.show');
-Route::get('/all-categories', [HomeController::class, 'allCategories'])->name('all-categories');
+// Route::get('/all-categories', [HomeController::class, 'allCategories'])->name('all-categories');
+Route::get('/logs/{slug}', [HomeController::class, 'subcategoryShow'])->name('subcategory.show');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/all-gifts', [HomeController::class, 'allGifts'])->name('all-gifts');
 Route::get('/gift/{slug}', [HomeController::class, 'showGift'])->name('gift.show');
 
@@ -43,6 +45,10 @@ Route::prefix('user')->middleware(['auth', 'verified', 'require.phone'])->group(
     Route::get('/all-countries', [UsersController::class, 'allCountriesNumbers'])->name('user.all-countries');
     Route::get('/transaction', [UsersController::class, 'transaction'])->name('user.transaction');
     Route::get('/order-history', [UsersController::class, 'orderHistory'])->name('user.order-history');
+    Route::get('/orders/sms', [UsersController::class, 'smsOrders'])->name('user.orders.sms');
+    Route::get('/orders/logs', [UsersController::class, 'logOrders'])->name('user.orders.logs');
+    Route::get('/orders/gifts', [UsersController::class, 'giftOrders'])->name('user.orders.gifts');
+    Route::get('/orders/reseller', [UsersController::class, 'resellerOrders'])->name('user.orders.reseller');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

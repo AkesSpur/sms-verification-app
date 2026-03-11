@@ -1,188 +1,116 @@
-@extends('layouts.user')
+@extends('layouts.app')
 
 @section('title', $product->name . ' - Social Media Boosting')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
-    <!-- Breadcrumb -->
-    <nav class="flex mb-6" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3">
-            <li class="inline-flex items-center">
-                <a href="{{ route('user.social-media-boosting.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
-                    <i class="fas fa-home mr-2"></i>
-                    Social Media Boosting
-                </a>
-            </li>
-            <li>
-                <div class="flex items-center">
-                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                    <a href="{{ route('user.social-media-boosting.category', $category->slug) }}" class="text-sm font-medium text-gray-700 hover:text-blue-600">
-                        {{ $category->name }}
-                    </a>
-                </div>
-            </li>
-            <li>
-                <div class="flex items-center">
-                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                    <span class="text-sm font-medium text-gray-500">{{ $product->name }}</span>
-                </div>
-            </li>
-        </ol>
-    </nav>
+<div class="space-y-5 max-w-4xl mx-auto">
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Product Info -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="mb-6">
-                <div class="flex items-center mb-2">
-                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">{{ $category->name }}</span>
+    {{-- ── Back / Header ── --}}
+    <div>
+        <a href="{{ route('user.social-media-boosting.category', $category->slug) }}"
+           class="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-600 transition-colors mb-1">
+            <i class="ri-arrow-left-line"></i> Back to {{ $category->name }}
+        </a>
+        <h1 class="text-sm font-bold text-gray-900">{{ $product->name }}</h1>
+        <span class="px-2 py-0.5 text-xs rounded-md bg-indigo-50 text-indigo-700 font-medium">{{ $category->name }}</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {{-- ── Product info ── --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-4">Product Details</p>
+
+            @if($product->description)
+            <p class="text-xs text-gray-500 mb-4 leading-relaxed">{{ $product->description }}</p>
+            @endif
+
+            <div class="bg-gray-50 rounded-xl p-3 space-y-2.5 text-xs mb-4">
+                <div class="flex justify-between text-gray-500">
+                    <span>Price per 1,000</span>
+                    <span class="font-bold text-indigo-600 text-sm">₦{{ number_format($product->price_per_1000, 0) }}</span>
                 </div>
-                <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ $product->name }}</h1>
-                
-                @if($product->description)
-                    <div class="prose prose-sm text-gray-600 mb-6">
-                        <p>{{ $product->description }}</p>
-                    </div>
-                @endif
+                <div class="flex justify-between text-gray-500">
+                    <span>Min Quantity</span>
+                    <span class="font-semibold text-gray-700">{{ number_format($product->min_quantity) }}</span>
+                </div>
+                <div class="flex justify-between text-gray-500">
+                    <span>Max Quantity</span>
+                    <span class="font-semibold text-gray-700">{{ number_format($product->max_quantity) }}</span>
+                </div>
+                <div class="flex justify-between text-gray-500">
+                    <span>Status</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium">Active</span>
+                </div>
             </div>
 
-            <!-- Product Details -->
-            <div class="space-y-4">
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Product Details</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <span class="text-sm text-gray-500">Price per 1,000</span>
-                            <div class="text-xl font-bold text-blue-600">₦{{ number_format($product->price_per_1000, 0) }}</div>
-                        </div>
-                        <div>
-                            <span class="text-sm text-gray-500">Status</span>
-                            <div class="flex items-center mt-1">
-                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
-                                <span class="text-sm font-medium text-green-600">Active</span>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-sm text-gray-500">Min Quantity</span>
-                            <div class="text-lg font-semibold text-gray-900">{{ number_format($product->min_quantity) }}</div>
-                        </div>
-                        <div>
-                            <span class="text-sm text-gray-500">Max Quantity</span>
-                            <div class="text-lg font-semibold text-gray-900">{{ number_format($product->max_quantity) }}</div>
-                        </div>
-                    </div>
+            <div class="space-y-1.5 text-xs text-gray-500">
+                @foreach(['High-quality engagement', 'Fast delivery', '24/7 customer support', 'Safe and secure'] as $feat)
+                <div class="flex items-center gap-2">
+                    <i class="ri-check-line text-emerald-500 flex-shrink-0"></i>
+                    <span>{{ $feat }}</span>
                 </div>
-
-                <!-- Features -->
-                <div class="bg-blue-50 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Features</h3>
-                    <ul class="space-y-2">
-                        <li class="flex items-center text-sm text-gray-600">
-                            <i class="fas fa-check text-green-500 mr-2"></i>
-                            High-quality engagement
-                        </li>
-                        <li class="flex items-center text-sm text-gray-600">
-                            <i class="fas fa-check text-green-500 mr-2"></i>
-                            Fast delivery
-                        </li>
-                        <li class="flex items-center text-sm text-gray-600">
-                            <i class="fas fa-check text-green-500 mr-2"></i>
-                            24/7 customer support
-                        </li>
-                        <li class="flex items-center text-sm text-gray-600">
-                            <i class="fas fa-check text-green-500 mr-2"></i>
-                            Safe and secure
-                        </li>
-                    </ul>
-                </div>
+                @endforeach
             </div>
         </div>
 
-        <!-- Order Form -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-6">Place Your Order</h2>
-            
-            <form id="orderForm" action="{{ route('user.social-media-boosting.purchase', $product) }}" method="POST">
+        {{-- ── Order form ── --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-4">Place Order</p>
+
+            <form id="orderForm" action="{{ route('user.social-media-boosting.purchase', $product) }}" method="POST" class="space-y-4">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
-                
-                <!-- Social Media Link -->
-                <div class="mb-6">
-                    <label for="social_media_link" class="block text-sm font-medium text-gray-700 mb-2">
-                        Social Media Account Link <span class="text-red-500">*</span>
-                    </label>
-                    <input type="url" 
-                           id="social_media_link" 
-                           name="social_media_link" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           placeholder="https://instagram.com/username" 
-                           required>
-                    <p class="text-xs text-gray-500 mt-1">Enter the full URL of your social media account</p>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">Social Media Link <span class="text-red-500">*</span></label>
+                    <input type="url" id="social_media_link" name="social_media_link" required
+                           placeholder="https://instagram.com/username"
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all">
+                    <p class="text-[11px] text-gray-400 mt-1">Enter the full URL of your account</p>
                 </div>
 
-                <!-- Quantity -->
-                <div class="mb-6">
-                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
-                        Quantity <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" 
-                           id="quantity" 
-                           name="quantity" 
-                           min="{{ $product->min_quantity }}" 
-                           max="{{ $product->max_quantity }}" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           placeholder="Enter quantity" 
-                           required>
-                    <p class="text-xs text-gray-500 mt-1">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">Quantity <span class="text-red-500">*</span></label>
+                    <input type="number" id="quantity" name="quantity"
+                           min="{{ $product->min_quantity }}" max="{{ $product->max_quantity }}" required
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all">
+                    <p class="text-[11px] text-gray-400 mt-1">
                         Min: {{ number_format($product->min_quantity) }} | Max: {{ number_format($product->max_quantity) }}
                     </p>
                 </div>
 
-                <!-- Price Calculator -->
-                <div class="mb-6 bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Order Summary</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Price per 1,000:</span>
-                            <span class="font-medium">₦{{ number_format($product->price_per_1000, 0) }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Quantity:</span>
-                            <span class="font-medium" id="displayQuantity">0</span>
-                        </div>
-                        <hr class="my-2">
-                        <div class="flex justify-between text-lg font-bold">
-                            <span class="text-gray-900">Total Amount:</span>
-                            <span class="text-blue-600" id="totalAmount">₦0</span>
-                        </div>
+                {{-- Summary --}}
+                <div class="bg-gray-50 rounded-xl p-3 space-y-2 text-xs">
+                    <div class="flex justify-between text-gray-500">
+                        <span>Price per 1,000</span>
+                        <span class="font-semibold text-gray-700">₦{{ number_format($product->price_per_1000, 0) }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500">
+                        <span>Quantity</span>
+                        <span class="font-semibold text-gray-700" id="displayQuantity">0</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-200 pt-2 font-bold text-sm">
+                        <span class="text-gray-700">Total</span>
+                        <span class="text-indigo-600" id="totalAmount">₦0</span>
                     </div>
                 </div>
 
-                <!-- Wallet Balance -->
-                <div class="mb-6 bg-green-50 rounded-lg p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-wallet text-green-600 mr-2"></i>
-                            <span class="text-sm font-medium text-gray-700">Wallet Balance:</span>
-                        </div>
-                        <span class="text-lg font-bold text-green-600">₦{{ number_format(auth()->user()->balance, 0) }}</span>
-                    </div>
+                {{-- Balance --}}
+                <div class="flex items-center justify-between bg-emerald-50 rounded-xl px-3 py-2.5 text-xs">
+                    <span class="text-gray-500 flex items-center gap-1.5"><i class="ri-wallet-3-line text-emerald-500"></i> Wallet Balance</span>
+                    <span class="font-bold text-emerald-600">₦{{ number_format(auth()->user()->balance, 0) }}</span>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" 
-                        id="submitBtn"
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                    <i class="fas fa-shopping-cart mr-2"></i>
-                    Place Order
+                <button type="submit" id="submitBtn"
+                        class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white transition-all btn-glow disabled:opacity-50 disabled:cursor-not-allowed"
+                        style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+                    <i class="ri-shopping-bag-2-line"></i> Place Order
                 </button>
-                
-                <p class="text-xs text-gray-500 mt-3 text-center">
-                    By placing this order, you agree to our terms and conditions
-                </p>
             </form>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -199,29 +127,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function calculatePrice() {
         const quantity = parseInt(quantityInput.value) || 0;
         const total = Math.round((quantity / 1000) * pricePerThousand);
-        
         displayQuantity.textContent = quantity.toLocaleString();
         totalAmount.textContent = '₦' + total.toLocaleString();
-        
-        // Check if user has sufficient balance and quantity is valid
         const isValidQuantity = quantity >= minQuantity && quantity <= maxQuantity;
         const hasSufficientBalance = total <= userBalance;
-        
         if (!isValidQuantity) {
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Invalid Quantity';
+            submitBtn.innerHTML = '<i class="ri-close-line mr-1"></i>Invalid Quantity';
         } else if (!hasSufficientBalance) {
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Insufficient Balance';
+            submitBtn.innerHTML = '<i class="ri-wallet-3-line mr-1"></i>Insufficient Balance';
         } else {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i>Place Order';
+            submitBtn.innerHTML = '<i class="ri-shopping-bag-2-line mr-1"></i>Place Order';
         }
     }
 
     quantityInput.addEventListener('input', calculatePrice);
-    
-    // Initial calculation
     calculatePrice();
 });
 </script>

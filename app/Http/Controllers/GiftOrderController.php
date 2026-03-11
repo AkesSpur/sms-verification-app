@@ -175,7 +175,7 @@ class GiftOrderController extends Controller
                             'has_email_config' => (bool) ($emailConfig && $emailConfig->email),
                             'has_recipient'    => (bool) $recipient,
                         ]);
-                    }
+                    }   
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
                         'error'         => $e->getMessage(),
@@ -302,29 +302,19 @@ class GiftOrderController extends Controller
      */
     public function show($id)
     {
-        try {
-            if (!Auth::check()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You must be logged in to view order details.'
-                ], 401);
-            }
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
 
-            $user = Auth::user();
+        $user = Auth::user();
+        try {
             $order = $user->giftOrders()
                           ->with(['gift'])
                           ->findOrFail($id);
 
-            return response()->json([
-                'success' => true,
-                'data' => $order
-            ]);
-
+            return view('user.orders.gift-details', compact('order'));
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Order not found.'
-            ], 404);
+            return redirect()->route('user.orders.gifts')->with('error', 'Order not found.');
         }
     }
 

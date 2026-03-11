@@ -1,427 +1,201 @@
-@extends('layouts.user')
+@extends('layouts.app')
 
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Virtual Account (PaymentPoint) -->
-    <div id="virtualAccountWidget" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900">Virtual Account</h3>
-                <p class="text-sm text-gray-500">Create a PaymentPoint virtual bank account to fund your wallet</p>
-            </div>
-            <div id="vaActionArea" class="mt-3 md:mt-0">
-                <button id="createVaBtn" class="w-full md:w-auto inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-university mr-2"></i>
-                    Create Virtual Account
-                </button>
+<div class="space-y-6 max-w-5xl mx-auto">
+
+    {{-- ============================================================
+         TOP ROW: Balance card + Virtual Account card
+         ============================================================ --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        {{-- Balance + Fund Wallet --}}
+        <div class="relative overflow-hidden rounded-2xl p-6 text-white"
+             style="background: linear-gradient(135deg, #10b981 0%, #059669 60%, #047857 100%);
+                    box-shadow: 0 8px 32px rgba(16,185,129,0.35), 0 2px 8px rgba(16,185,129,0.15);">
+            {{-- Decorative circles --}}
+            <div class="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/10 pointer-events-none"></div>
+            <div class="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-white/5 pointer-events-none"></div>
+
+            <div class="relative z-10">
+                <p class="text-emerald-100 text-xs uppercase tracking-widest font-medium mb-1">Wallet Balance</p>
+                <p class="text-3xl font-bold tracking-tight mb-5">&#8358;{{ number_format($balance, 2) }}</p>
+                <a href="{{ route('user.transaction') }}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all duration-200 backdrop-blur-sm border border-white/20">
+                    <i class="ri-arrow-up-circle-line text-base"></i>
+                    Fund Wallet
+                </a>
             </div>
         </div>
-        <div id="vaDetails" class="mt-4 hidden">
-            <div class="w-full max-w-9xl">
-                <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg shadow-md p-6 space-y-6">
-                    <div class="flex justify-between items-center">
+
+        {{-- Virtual Account area --}}
+        <div>
+            {{-- Has account: shiny card --}}
+            <div id="vaDetails" class="hidden h-full">
+                <div class="relative overflow-hidden rounded-2xl p-6 text-white h-full"
+                     style="background: linear-gradient(135deg, #475569 0%, #1e293b 55%, #0f172a 100%);
+                            box-shadow: 0 8px 32px rgba(71,85,105,0.45), 0 2px 8px rgba(71,85,105,0.2);">
+                    {{-- Decorative circles --}}
+                    <div class="absolute -top-8 -right-8 w-44 h-44 rounded-full bg-white/10 pointer-events-none"></div>
+                    <div class="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none"></div>
+
+                    <div class="relative z-10 flex flex-col justify-between h-full">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-white/60 text-xs uppercase tracking-widest">Virtual Account</p>
+                                <p class="text-white font-semibold text-base mt-0.5" id="vaBankName">-</p>
+                            </div>
+                            {{-- Card chip --}}
+                            <svg width="38" height="28" viewBox="0 0 38 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="38" height="28" rx="4" fill="rgba(255,255,255,0.18)"/>
+                                <rect x="4" y="7" width="30" height="14" rx="2" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)" stroke-width="0.6"/>
+                                <line x1="19" y1="7" x2="19" y2="21" stroke="rgba(255,255,255,0.25)" stroke-width="0.6"/>
+                                <line x1="4" y1="14" x2="34" y2="14" stroke="rgba(255,255,255,0.25)" stroke-width="0.6"/>
+                            </svg>
+                        </div>
+
                         <div>
-                            <h2 class="text-xl font-semibold" id="vaBankName">-</h2>
-                            <p class="text-sm opacity-80">Virtual Account</p>
+                            <p class="text-white/50 text-xs uppercase tracking-wider mb-1">Account Number</p>
+                            <div class="flex items-center gap-3 mb-3">
+                                <p class="text-xl font-mono font-bold tracking-widest" id="vaAccountNumber">-</p>
+                                <button onclick="copyToClipboard(document.getElementById('vaAccountNumber').textContent)"
+                                        class="p-1.5 rounded-lg bg-white/10 hover:bg-white/25 transition-colors text-white/70 hover:text-white">
+                                    <i class="ri-file-copy-line text-sm"></i>
+                                </button>
+                            </div>
+                            <p class="text-white/50 text-xs uppercase tracking-wider mb-0.5">Account Name</p>
+                            <p class="text-white font-medium text-sm" id="vaAccountName">-</p>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-sm opacity-80 mb-1">Account Number</p>
-                        <div class="flex items-center space-x-3">
-                            <p class="text-2xl font-mono" id="vaAccountNumber">-</p>
-                            <button onclick="copyToClipboard(document.getElementById('vaAccountNumber').textContent)" class="opacity-70 hover:opacity-100 transition-opacity">
-                                <i class="fas fa-copy"></i>
-                            </button>
+                </div>
+            </div>
+
+            {{-- No account: balance card with create button --}}
+            <div id="noVaCard" class="hidden h-full">
+                <div class="flex flex-col justify-between h-full bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <div class="flex items-start gap-4 mb-5">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                             style="background: rgba(71,85,105,0.1);">
+                            <i class="ri-bank-card-2-line text-primary-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Virtual Account</p>
+                            <p class="text-xs text-gray-400 mt-0.5 leading-relaxed">Link a virtual bank account to fund your wallet instantly with a direct bank transfer.</p>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-sm opacity-80">Account Name</p>
-                        <p class="text-lg font-medium" id="vaAccountName">-</p>
-                    </div>
+                    <button id="createVaBtn"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all btn-glow"
+                            style="background: linear-gradient(135deg, #475569, #1e293b);">
+                        <i class="ri-add-circle-line text-base"></i>
+                        Create Virtual Account
+                    </button>
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <!-- Balance Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Balance</p>
-                    <p class="text-2xl font-bold text-gray-900">₦{{ number_format($balance, 2) }}</p>
-                </div>
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-wallet text-green-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
 
-        <!-- Active Numbers Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Active Numbers</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $activeNumbers }}</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-phone text-blue-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Numbers Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total Numbers</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $totalNumbers }}</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-list text-purple-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Completed Orders Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Completed</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $completedOrders }}</p>
-                </div>
-                <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
-                </div>
+            {{-- Loading state (initial) --}}
+            <div id="vaLoading" class="h-full bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center justify-center">
+                <i class="ri-loader-4-line text-primary-400 text-2xl animate-spin"></i>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- USA Numbers 1 CTA -->
-                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
-                    <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span class="text-blue-600 text-xs font-bold">1</span>
-                        </div>
-                    </div>
-                    <div class="flex items-start mb-4">
-                        <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-gray-200">
-                            <svg class="w-10 h-7" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Red stripes -->
-                                <rect width="60" height="40" fill="#B22234"/>
-                                <!-- White stripes -->
-                                <rect y="3" width="60" height="3" fill="white"/>
-                                <rect y="9" width="60" height="3" fill="white"/>
-                                <rect y="15" width="60" height="3" fill="white"/>
-                                <rect y="21" width="60" height="3" fill="white"/>
-                                <rect y="27" width="60" height="3" fill="white"/>
-                                <rect y="33" width="60" height="3" fill="white"/>
-                                <!-- Blue canton -->
-                                <rect width="24" height="21" fill="#3C3B6E"/>
-                                <!-- Stars (simplified pattern) -->
-                                <g fill="white">
-                                    <circle cx="3" cy="3" r="0.8"/>
-                                    <circle cx="7" cy="3" r="0.8"/>
-                                    <circle cx="11" cy="3" r="0.8"/>
-                                    <circle cx="15" cy="3" r="0.8"/>
-                                    <circle cx="19" cy="3" r="0.8"/>
-                                    <circle cx="5" cy="6" r="0.8"/>
-                                    <circle cx="9" cy="6" r="0.8"/>
-                                    <circle cx="13" cy="6" r="0.8"/>
-                                    <circle cx="17" cy="6" r="0.8"/>
-                                    <circle cx="21" cy="6" r="0.8"/>
-                                    <circle cx="3" cy="9" r="0.8"/>
-                                    <circle cx="7" cy="9" r="0.8"/>
-                                    <circle cx="11" cy="9" r="0.8"/>
-                                    <circle cx="15" cy="9" r="0.8"/>
-                                    <circle cx="19" cy="9" r="0.8"/>
-                                    <circle cx="5" cy="12" r="0.8"/>
-                                    <circle cx="9" cy="12" r="0.8"/>
-                                    <circle cx="13" cy="12" r="0.8"/>
-                                    <circle cx="17" cy="12" r="0.8"/>
-                                    <circle cx="21" cy="12" r="0.8"/>
-                                    <circle cx="3" cy="15" r="0.8"/>
-                                    <circle cx="7" cy="15" r="0.8"/>
-                                    <circle cx="11" cy="15" r="0.8"/>
-                                    <circle cx="15" cy="15" r="0.8"/>
-                                    <circle cx="19" cy="15" r="0.8"/>
-                                    <circle cx="5" cy="18" r="0.8"/>
-                                    <circle cx="9" cy="18" r="0.8"/>
-                                    <circle cx="13" cy="18" r="0.8"/>
-                                    <circle cx="17" cy="18" r="0.8"/>
-                                    <circle cx="21" cy="18" r="0.8"/>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">USA Numbers 1</h4>
-                            <p class="text-sm text-gray-600 mb-3">Server 1 - Premium US phone numbers</p>
-                            <div class="flex items-center text-xs text-gray-500">
-                                <i class="fas fa-server mr-1"></i>
-                                <span>Primary server</span>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 text-sm mb-4 leading-relaxed">Access our primary server with premium US phone numbers for WhatsApp, Telegram, Discord, Instagram, and other services.</p>
-                    <a href="{{ route('user.sms.rental.index') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                        </svg>
-                        Browse USA Numbers 1
-                    </a>
-                </div>
+    {{-- ============================================================
+         QUICK ACTIONS
+         ============================================================ --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <p class="text-xs font-bold uppercase tracking-[0.1em] text-gray-400 mb-4">Quick Actions</p>
+        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3">
 
-                <!-- USA Numbers 2 CTA -->
-                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
-                    <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                            <span class="text-red-600 text-xs font-bold">2</span>
-                        </div>
-                    </div>
-                    <div class="flex items-start mb-4">
-                        <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-gray-200">
-                            <svg class="w-10 h-7" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Red stripes -->
-                                <rect width="60" height="40" fill="#B22234"/>
-                                <!-- White stripes -->
-                                <rect y="3" width="60" height="3" fill="white"/>
-                                <rect y="9" width="60" height="3" fill="white"/>
-                                <rect y="15" width="60" height="3" fill="white"/>
-                                <rect y="21" width="60" height="3" fill="white"/>
-                                <rect y="27" width="60" height="3" fill="white"/>
-                                <rect y="33" width="60" height="3" fill="white"/>
-                                <!-- Blue canton -->
-                                <rect width="24" height="21" fill="#3C3B6E"/>
-                                <!-- Stars (simplified pattern) -->
-                                <g fill="white">
-                                    <circle cx="3" cy="3" r="0.8"/>
-                                    <circle cx="7" cy="3" r="0.8"/>
-                                    <circle cx="11" cy="3" r="0.8"/>
-                                    <circle cx="15" cy="3" r="0.8"/>
-                                    <circle cx="19" cy="3" r="0.8"/>
-                                    <circle cx="5" cy="6" r="0.8"/>
-                                    <circle cx="9" cy="6" r="0.8"/>
-                                    <circle cx="13" cy="6" r="0.8"/>
-                                    <circle cx="17" cy="6" r="0.8"/>
-                                    <circle cx="21" cy="6" r="0.8"/>
-                                    <circle cx="3" cy="9" r="0.8"/>
-                                    <circle cx="7" cy="9" r="0.8"/>
-                                    <circle cx="11" cy="9" r="0.8"/>
-                                    <circle cx="15" cy="9" r="0.8"/>
-                                    <circle cx="19" cy="9" r="0.8"/>
-                                    <circle cx="5" cy="12" r="0.8"/>
-                                    <circle cx="9" cy="12" r="0.8"/>
-                                    <circle cx="13" cy="12" r="0.8"/>
-                                    <circle cx="17" cy="12" r="0.8"/>
-                                    <circle cx="21" cy="12" r="0.8"/>
-                                    <circle cx="3" cy="15" r="0.8"/>
-                                    <circle cx="7" cy="15" r="0.8"/>
-                                    <circle cx="11" cy="15" r="0.8"/>
-                                    <circle cx="15" cy="15" r="0.8"/>
-                                    <circle cx="19" cy="15" r="0.8"/>
-                                    <circle cx="5" cy="18" r="0.8"/>
-                                    <circle cx="9" cy="18" r="0.8"/>
-                                    <circle cx="13" cy="18" r="0.8"/>
-                                    <circle cx="17" cy="18" r="0.8"/>
-                                    <circle cx="21" cy="18" r="0.8"/>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">USA Numbers 2</h4>
-                            <p class="text-sm text-gray-600 mb-3">Server 2 - Premium US phone numbers</p>
-                            <div class="flex items-center text-xs text-gray-500">
-                                <i class="fas fa-shield-alt mr-1"></i>
-                                <span>High success rate</span>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 text-sm mb-4 leading-relaxed">Get instant access to premium US phone numbers for WhatsApp, Telegram, Discord, Instagram, and other popular services.</p>
-                    <a href="{{ route('user.usa-numbers') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                        </svg>
-                        Browse USA Numbers 2
-                    </a>
+            <a href="{{ route('user.sms.rental.index') }}"
+               class="flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-gray-100 hover:border-primary-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                     style="background: rgba(71,85,105,0.1);">
+                    <i class="ri-sim-card-line text-primary-600 text-xl"></i>
                 </div>
-
-                <!-- All Countries CTA -->
-                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
-                    <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                            <span class="text-green-600 text-xs font-bold">🌍</span>
-                        </div>
-                    </div>
-                    <div class="flex items-start mb-4">
-                        <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                            <i class="fas fa-globe-americas text-white text-xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">International Numbers</h4>
-                            <p class="text-sm text-gray-600 mb-3">Global phone numbers from 150+ countries</p>
-                            <div class="flex items-center text-xs text-gray-500">
-                                <i class="fas fa-globe mr-1"></i>
-                                <span>Worldwide coverage</span>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 text-sm mb-4 leading-relaxed">Access phone numbers from countries worldwide including UK, Canada, Germany, France, Australia, and many more.</p>
-                    <a href="{{ route('user.all-countries') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                        </svg>
-                        Browse All Countries
-                    </a>
-                </div>
-
-                <!-- Reseller Store CTA -->
-                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
-                    <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-tags text-yellow-600 text-xs"></i>
-                        </div>
-                    </div>
-                    <div class="flex items-start mb-4">
-                        <div class="w-14 h-14 bg-yellow-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-yellow-200">
-                            <i class="fas fa-tags text-yellow-600 text-xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Reseller Store</h4>
-                            <p class="text-sm text-gray-600 mb-3">Exclusive products for verified resellers</p>
-                            <div class="flex items-center text-xs text-gray-500">
-                                <i class="fas fa-user-tag mr-1"></i>
-                                <span>Request access if not a reseller</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{{ route('user.reseller') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
-                        <i class="fas fa-tags w-4 h-4 mr-2"></i>
-                        Go to Reseller Store
-                    </a>
-                </div>
-
-                <!-- Logs Store CTA -->
-                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
-                    <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-store text-blue-600 text-xs"></i>
-                        </div>
-                    </div>
-                    <div class="flex items-start mb-4">
-                        <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-blue-200">
-                            <i class="fas fa-store text-blue-600 text-xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Logs Store</h4>
-                            <p class="text-sm text-gray-600 mb-3">Browse categories of logs and services</p>
-                            <div class="flex items-center text-xs text-gray-500">
-                                <i class="fas fa-list mr-1"></i>
-                                <span>Organized by categories</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{{ route('all-categories') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
-                        <i class="fas fa-store w-4 h-4 mr-2"></i>
-                        Browse Logs Store
-                    </a>
-                </div>
-
-                <!-- Gift Store CTA -->
-                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
-                    <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-gift text-pink-600 text-xs"></i>
-                        </div>
-                    </div>
-                    <div class="flex items-start mb-4">
-                        <div class="w-14 h-14 bg-pink-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-pink-200">
-                            <i class="fas fa-gift text-pink-600 text-xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Gift Store</h4>
-                            <p class="text-sm text-gray-600 mb-3">Curated gifts and customizations</p>
-                            <div class="flex items-center text-xs text-gray-500">
-                                <i class="fas fa-gem mr-1"></i>
-                                <span>Unique items and bundles</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{{ route('all-gifts') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
-                        <i class="fas fa-gift w-4 h-4 mr-2"></i>
-                        Browse Gift Store
-                    </a>
-                </div>
-
-                <!-- Social Media Boosting CTA -->
-                <div class="group relative bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary-300">
-                    <div class="absolute top-4 right-4">
-                        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-rocket text-indigo-600 text-xs"></i>
-                        </div>
-                    </div>
-                    <div class="flex items-start mb-4">
-                        <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center mr-4 shadow-lg border-2 border-indigo-200">
-                            <i class="fas fa-rocket text-indigo-600 text-xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-1">Boosting Of Accounts</h4>
-                            <p class="text-sm text-gray-600 mb-3">Social media boosting and growth services</p>
-                            <div class="flex items-center text-xs text-gray-500">
-                                <i class="fas fa-shield-alt mr-1"></i>
-                                <span>High success rate</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{{ route('user.social-media-boosting.index') }}" class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 group-hover:shadow-lg">
-                        <i class="fas fa-rocket w-4 h-4 mr-2"></i>
-                        Go to Boosting
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Website Builder Contact -->
-<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
-    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
-        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
-        <p>
-            Need a custom website? <a href="https://wa.link/18c124" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
-                Contact the developer
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                <span class="text-xs font-medium text-gray-600 text-center leading-tight">USA Numbers 1</span>
             </a>
-        </p>
-        <i class="fas fa-code text-blue-600 animate-bounce"></i>
+
+            <a href="{{ route('user.usa-numbers') }}"
+               class="flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                     style="background: rgba(59,130,246,0.1);">
+                    <i class="ri-smartphone-line text-blue-600 text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600 text-center leading-tight">USA Numbers 2</span>
+            </a>
+
+            <a href="{{ route('user.all-countries') }}"
+               class="flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-gray-100 hover:border-emerald-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                     style="background: rgba(16,185,129,0.1);">
+                    <i class="ri-earth-line text-emerald-600 text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600 text-center leading-tight">All Countries</span>
+            </a>
+
+            <a href="{{ route('user.reseller') }}"
+               class="flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-gray-100 hover:border-amber-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                     style="background: rgba(245,158,11,0.1);">
+                    <i class="ri-price-tag-3-line text-amber-600 text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600 text-center leading-tight">Reseller Store</span>
+            </a>
+
+            <a href="{{ route('home') }}"
+               class="flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-gray-100 hover:border-sky-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                     style="background: rgba(14,165,233,0.1);">
+                    <i class="ri-archive-drawer-line text-sky-600 text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600 text-center leading-tight">Logs Store</span>
+            </a>
+
+            <a href="{{ route('all-gifts') }}"
+               class="flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-gray-100 hover:border-pink-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                     style="background: rgba(236,72,153,0.1);">
+                    <i class="ri-gift-line text-pink-600 text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600 text-center leading-tight">Gift Store</span>
+            </a>
+
+            <a href="{{ route('user.social-media-boosting.index') }}"
+               class="flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-gray-100 hover:border-violet-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                     style="background: rgba(139,92,246,0.1);">
+                    <i class="ri-rocket-line text-violet-600 text-xl"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600 text-center leading-tight">Boosting</span>
+            </a>
+
+        </div>
     </div>
+
 </div>
+
 @push('scripts')
 <script>
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        notify('success', 'Account number copied to clipboard!');
-    }, function() {
-        notify('error', 'Could not copy text');
-    });
-}
 document.addEventListener('DOMContentLoaded', function() {
-    const widget = document.getElementById('virtualAccountWidget');
-    const actionArea = document.getElementById('vaActionArea');
-    const details = document.getElementById('vaDetails');
-    const createBtn = document.getElementById('createVaBtn');
+    const vaDetails  = document.getElementById('vaDetails');
+    const noVaCard   = document.getElementById('noVaCard');
+    const vaLoading  = document.getElementById('vaLoading');
+    const createBtn  = document.getElementById('createVaBtn');
 
     function showCard(account) {
         document.getElementById('vaAccountNumber').textContent = account.account_number;
-        document.getElementById('vaAccountName').textContent = account.account_name;
-        document.getElementById('vaBankName').textContent = account.bank_name;
-        details.classList.remove('hidden');
-        actionArea.innerHTML = '<span class="inline-flex items-center px-3 py-1 text-xs rounded-full bg-green-100 text-green-700"><i class="fas fa-check mr-1"></i> Active</span>';
+        document.getElementById('vaAccountName').textContent   = account.account_name;
+        document.getElementById('vaBankName').textContent      = account.bank_name;
+        vaLoading.classList.add('hidden');
+        noVaCard.classList.add('hidden');
+        vaDetails.classList.remove('hidden');
+    }
+
+    function showNoVa() {
+        vaLoading.classList.add('hidden');
+        vaDetails.classList.add('hidden');
+        noVaCard.classList.remove('hidden');
     }
 
     function loadVA() {
@@ -432,14 +206,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.has_account) {
                 showCard(data.account);
+            } else {
+                showNoVa();
             }
         })
-        .catch(() => {/* ignore */});
+        .catch(() => showNoVa());
     }
 
     createBtn && createBtn.addEventListener('click', function() {
         createBtn.disabled = true;
-        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+        createBtn.innerHTML = '<i class="ri-loader-4-line animate-spin text-base"></i> Creating...';
         fetch('{{ route('api.user.virtual-account.create') }}', {
             method: 'POST',
             headers: {
@@ -456,14 +232,13 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 notify('error', data.message || 'Failed to create virtual account');
                 createBtn.disabled = false;
-                createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+                createBtn.innerHTML = '<i class="ri-add-circle-line text-base"></i> Create Virtual Account';
             }
         })
-        .catch(err => {
-            console.error(err);
+        .catch(() => {
             notify('error', 'An error occurred');
             createBtn.disabled = false;
-            createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+            createBtn.innerHTML = '<i class="ri-add-circle-line text-base"></i> Create Virtual Account';
         });
     });
 
@@ -472,6 +247,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 @endpush
 </div>
-
 
 @endsection

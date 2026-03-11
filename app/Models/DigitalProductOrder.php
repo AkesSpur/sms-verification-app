@@ -13,7 +13,7 @@ class DigitalProductOrder extends Model
     protected $fillable = [
         'user_id',
         'product_id',
-        'log_id',
+        'log_id', // Kept for legacy orders
         'quantity',
         'unit_price',
         'total_amount',
@@ -69,11 +69,40 @@ class DigitalProductOrder extends Model
     }
 
     /**
-     * Get the specific log item that was purchased.
+     * Legacy relationship: Get the specific log item that was purchased.
+     * Only works for old orders where log_id is set.
      */
     public function log()
     {
         return $this->belongsTo(DigitalProductLog::class, 'log_id');
+    }
+
+    /**
+     * Get all logs associated with this order.
+     * This is the NEW relationship for batch orders.
+     */
+    public function logs()
+    {
+        return $this->hasMany(DigitalProductLog::class, 'order_id');
+    }
+
+    /**
+     * Helper to get all purchased logs (supports both legacy and new orders).
+     * Returns a collection of DigitalProductLog.
+     */
+    public function getPurchasedLogsAttribute()
+    {
+        // New logic: check if logs relationship has items
+        if ($this->logs->isNotEmpty()) {
+            return $this->logs;
+        }
+
+        // Legacy logic: if single log exists
+        if ($this->log) {
+            return collect([$this->log]);
+        }
+
+        return collect();
     }
 
     /**

@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold gradient-text mb-2">Set New Password</h2>
-        <p class="text-gray-600">Create a strong password for your account</p>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Set New Password</h2>
+        <p class="text-slate-500">Create a strong password for your account</p>
     </div>
 
     <form method="POST" action="{{ route('password.store') }}" class="space-y-6">
@@ -37,8 +37,8 @@
             </x-primary-button>
             
             <div class="text-center">
-                <a href="{{ route('login') }}" class="auth-link text-sm font-semibold">
-                    <i class="fas fa-arrow-left mr-1"></i>
+                <a href="{{ route('login') }}" class="text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors flex items-center justify-center gap-1">
+                    <i class="ri-arrow-left-line"></i>
                     Back to Sign In
                 </a>
             </div>

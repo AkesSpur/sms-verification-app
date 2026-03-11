@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('layouts.app')
 
 @section('title', 'All Gifts - SMS Verification')
 
@@ -32,13 +32,13 @@
 
     .gift-card {
             transition: all 0.3s ease;
-            border: 1px solid #e5e7eb;
+            /* border: 1px solid #e5e7eb; */
             border-radius: 16px;
         }
     .gift-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        border-color: #3b82f6;
+        /* box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); */
+        /* border-color: #3b82f6; */
     }
     .gift-card img {
         transition: transform 0.3s ease;
@@ -50,47 +50,18 @@
 @endsection
 
 @section('content')
-<div>
+<div class="max-w-5xl mx-auto py-4 px-2 sm:px-4">
 
-    <!-- Hero Section -->
-    <section class="relative pt-20 pb-6 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-gray-100"></div>
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-            <div class="absolute top-40 right-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-            <div class="absolute bottom-20 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-        </div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-                    Beautiful <span class="gradient-text">Gifts</span>
-                </h1>
-                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                    Discover our complete collection of thoughtful gifts perfect for any special occasion
-                </p>
-                <div class="flex flex-wrap justify-center gap-4 text-sm mt-8">
-                    <div class="bg-white bg-opacity-80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-gray-200">
-                        <i class="fas fa-heart mr-2 text-red-500"></i><span class="text-gray-700">Thoughtfully Curated</span>
-                    </div>
-                    <div class="bg-white bg-opacity-80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-gray-200">
-                        <i class="fas fa-truck mr-2 text-blue-500"></i><span class="text-gray-700">Fast Delivery</span>
-                    </div>
-                    <div class="bg-white bg-opacity-80 backdrop-blur-sm px-6 py-3 rounded-full shadow-md border border-gray-200">
-                        <i class="fas fa-gift mr-2 text-purple-500"></i><span class="text-gray-700">Beautiful Packaging</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div class="mb-6">
+        <h1 class="text-lg font-bold text-gray-900">Gift Collection</h1>
+        <p class="text-xs text-gray-500 mt-0.5">Discover our complete collection of thoughtful gifts</p>
+    </div>
 
-    <!-- Gifts Collection -->
-    <section class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-aos="fade-up" data-aos-delay="200">
+    <div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 @forelse($gifts as $gift)
                     <div class="gift-card cursor-pointer" onclick="window.location.href='{{ route('gift.show', $gift->slug) }}'">
-                        <div class="aspect-square overflow-hidden relative rounded-t-2xl">
+                        <div class="aspect-square overflow-hidden relative rounded-t-lg">
                             @if($gift->main_image)
                                 <img src="{{ asset($gift->main_image) }}" alt="{{ $gift->name }}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
                             @else
@@ -103,9 +74,9 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="p-4">
-                            <h4 class="font-bold text-gray-900 mb-2 text-sm">{{ $gift->name }}</h4>
-                            <p class="text-lg font-bold text-slate-700">₦{{ number_format($gift->price, 0) }}</p>
+                        <div class="px-2 py-4">
+                            <h4 class="font-normal text-gray-900 mb-2 text-sm">{{ $gift->name }}</h4>
+                            <p class="text-lg font-normal text-slate-700">₦{{ number_format($gift->price, 0) }}</p>
                         </div>
                     </div>
                 @empty
@@ -114,27 +85,11 @@
                     </div>
                 @endforelse
             </div>
-        </div>
-    </section>
-
-    <!-- Website Builder Contact -->
-<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
-    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
-        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
-        <p>
-            Need a custom SMS platform? <a href="https://wa.link/18c124" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
-                Contact the developer
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-        </p>
-        <i class="fas fa-code text-blue-600 animate-bounce"></i>
     </div>
-</div>
-
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     // Gift redirect function
     function redirectToGift(giftId, giftName, giftPrice) {
@@ -153,4 +108,4 @@
 
 
 
-@endsection
+@endpush

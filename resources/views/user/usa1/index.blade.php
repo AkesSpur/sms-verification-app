@@ -1,458 +1,435 @@
-@extends('layouts.user')
+@extends('layouts.app')
 
 @section('title', 'USA Numbers 1')
 
+@section('styles')
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+@endsection
+
+@php
+$servicesData = $services->map(function($s) {
+    $sp = $s->getPriceForCountry('us');
+    $price = $sp ? (float)$sp->final_price_naira : 0;
+    return [
+        'code'  => $s->code,
+        'name'  => $s->name,
+        'price' => $price,
+        'label' => $price > 0 ? '₦' . number_format($price) : null,
+    ];
+})->filter(fn($s) => $s['price'] > 0)->values();
+@endphp
+
+{{-- Pass services data to JS before Alpine initialises --}}
+<script>
+    window.__usa1Services = @json($servicesData);
+
+    function svcPicker() {
+        return {
+            services: window.__usa1Services || [],
+            search: '',
+            open: false,
+            selected: null,
+            get filtered() {
+                const q = this.search.toLowerCase().trim();
+                return this.services.filter(s => !q || s.name.toLowerCase().includes(q));
+            },
+            pick(s) {
+                this.selected = s;
+                this.open = false;
+                this.search = '';
+                const inp = document.getElementById('serviceCode');
+                if (inp) inp.value = s.code;
+            },
+            clear() {
+                this.selected = null;
+                this.search = '';
+                const inp = document.getElementById('serviceCode');
+                if (inp) inp.value = '';
+            }
+        };
+    }
+</script>
+
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">USA Numbers 1</h1>
-            <p class="mt-1 text-sm text-gray-500">Get and manage your USA phone numbers</p>
+<div class="space-y-5 max-w-4xl mx-auto">
+
+    {{-- ── Purchase form ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        {{-- Title moved inside the form card --}}
+        <div class="mb-4">
+            <h1 class="text-sm font-bold text-gray-900">USA Numbers 1</h1>
+            <p class="text-[11px] text-gray-400 mt-0.5">Get a US phone number for SMS verification</p>
         </div>
-    </div>
 
-
-
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-mobile-alt text-blue-600 text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Total Orders</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $totalRentals }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-clock text-yellow-600 text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Active Orders</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $activeRentalsCount }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Purchase Form -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Get New USA Number</h2>
-        <form id="rentForm" class="space-y-4">
+        <form id="rentForm">
             @csrf
             <input type="hidden" name="country" value="us">
-            
-            <!-- Service Selection -->
-            <div>
-                <label for="serviceSelect" class="block text-sm font-medium text-gray-700 mb-2">Select Service</label>
-                <div class="relative">
-                    <input type="text" id="serviceSearch" placeholder="Search services..." 
-                           class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 mb-3 transition-all duration-300">
-                    <button type="button" id="clearSearch" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 hidden">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <select name="service" id="serviceSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300" required>
-                        <option value="">Choose a service...</option>
-                        @foreach($services as $service)
-                            @php
-                                $servicePrice = $service->getPriceForCountry('us');
-                                $finalPrice = $servicePrice ? $servicePrice->final_price_naira : 0;
-                            @endphp
-                            <option value="{{ $service->code }}" data-price="{{ $finalPrice }}">
-                                {{ $service->name }} - ₦{{ $servicePrice ? $finalPrice : 'N/A' }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <div id="noResults" class="hidden mt-2 text-sm text-red-500">No matching services found</div>
-                </div>
-            </div>
-            
-            <!-- Price Display -->
-            <div id="priceInfo" class="bg-gray-50 rounded-lg p-4 hidden">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-600">Price:</span>
-                    <span class="text-lg font-semibold text-gray-900" id="priceAmount"></span>
-                </div>
-            </div>
-            
-            <!-- Action Button -->
-            <div class="pt-4">
-                <button type="submit" id="purchaseBtn" class="w-full px-4 py-2 rounded-lg transition-colors bg-primary-600 text-white font-medium shadow-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2" disabled>
-                    <i class="fas fa-shopping-cart mr-2"></i>Purchase
+            <input type="hidden" name="service" id="serviceCode">
+
+            {{-- Custom dropdown via named Alpine component --}}
+            <div x-data="svcPicker()" class="relative">
+
+                {{-- Trigger button — no nested <button> inside to avoid invalid HTML --}}
+                <button type="button"
+                        @click="open = !open"
+                        class="w-full flex items-center justify-between gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm hover:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all">
+                    <span class="flex items-center gap-2 min-w-0">
+                        <i class="ri-apps-2-line text-gray-400 flex-shrink-0"></i>
+                        <span class="truncate text-xs font-medium"
+                              :class="selected ? 'text-gray-800' : 'text-gray-400'"
+                              x-text="selected ? selected.name : 'Select a service...'"></span>
+                    </span>
+                    <span class="flex items-center gap-1.5 flex-shrink-0">
+                        <span x-show="selected" x-cloak
+                              x-text="selected ? selected.label : ''"
+                              class="text-xs font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md"></span>
+                        {{-- Use <span> not <button> — can't nest buttons --}}
+                        <span x-show="selected" x-cloak
+                              @click.stop="clear()"
+                              class="cursor-pointer text-gray-300 hover:text-gray-500 transition-colors leading-none">
+                            <i class="ri-close-circle-line text-sm"></i>
+                        </span>
+                        <i class="ri-arrow-down-s-line text-gray-400 text-sm transition-transform duration-200"
+                           :class="open ? 'rotate-180' : ''"></i>
+                    </span>
                 </button>
-            </div>
-        </form>
-    </div>
 
-    <!-- Information Section -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-        <div class="flex items-start space-x-3">
-            <div class="flex-shrink-0">
-                <i class="fas fa-info-circle text-blue-600 text-lg mt-0.5"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-sm font-semibold text-blue-900 mb-2">How USA Numbers Work</h3>
-                <div class="text-sm text-blue-800 space-y-1">
-                    <p><strong>Timer:</strong> Each order has a countdown timer showing time remaining to receive SMS.</p>
-                    <p><strong>Auto-Refund:</strong> If no SMS is received within the time limit, your order will be automatically cancelled and your account will be refunded.</p>
-                    <p><strong>Real-time Updates:</strong> Order status and timers update automatically every 30 seconds.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+                {{-- Dropdown panel --}}
+                <div x-show="open"
+                     x-cloak
+                     @click.outside="open = false"
+                     @keydown.escape.window="open = false"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 scale-[0.98] -translate-y-1"
+                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 scale-[0.98] -translate-y-1"
+                     class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-[100] overflow-hidden">
 
-    
-    <!-- Recent Purchases -->
-    <div id="recent-purchases" class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900">Recent Purchases</h2>
-                <button onclick="refreshOrders()" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                    <i class="fas fa-sync-alt mr-1"></i>Refresh
-                </button>
-            </div>
-        </div>
-        <div class="p-6">
-            @if($rentals->count() > 0)
-                <!-- Desktop Table View -->
-                <div class="hidden lg:block overflow-x-auto">
-                    <table class="w-full divide-y divide-gray-200">
-                        <thead class="bg-primary-50">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">@lang('Phone Number')</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">@lang('Service')</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">@lang('Price')</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">@lang('Status')</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">@lang('SMS Code')</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">@lang('Date')</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">@lang('Action')</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($rentals as $rental)
-                                <tr class="hover:bg-gray-50" data-status="{{ $rental->status }}">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="font-semibold text-gray-900">{{ formatPhoneNumber($rental->phone_number) }}</span>
-                                            <button type="button" class="text-gray-400 hover:text-gray-600 p-1 rounded" onclick="copyToClipboard('{{ $rental->phone_number }}')" title="Copy phone number">
-                                                <i class="fas fa-copy text-sm"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-blue-800" style="background-color: #dbeafe;">{{ ucfirst($rental->service_name) }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="font-semibold text-gray-900">₦{{ number_format($rental->price,2) }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($rental->status == 'pending')
-                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-yellow-800" style="background-color: #fef3c7;">@lang('Pending')</span>
-                                        @elseif($rental->status == 'active')
-                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-blue-800" style="background-color: #dbeafe;">@lang('Active')</span>
-                                            @if($rental->expires_at)
-                                                <div class="countdown-timer mt-1" data-expires="{{ $rental->expires_at->toISOString() }}">
-                                                    <small class="text-muted">Expires in: <span class="countdown-display">--:--</span></small>
-                                                </div>
-                                            @endif
-                                        @elseif($rental->status == 'completed')
-                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-green-800" style="background-color: #dcfce7;">@lang('Completed')</span>
-                                        @else
-                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-red-800" style="background-color: #fecaca;">@lang('Cancelled')</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($rental->sms_code)
-                                            <div class="flex items-center space-x-2">
-                                                <span class="font-semibold text-green-600">{{ $rental->sms_code }}</span>
-                                                <button type="button" class="text-gray-400 hover:text-gray-600 p-1 rounded" onclick="copyToClipboard('{{ $rental->sms_code }}')" title="Copy SMS code">
-                                                    <i class="fas fa-copy text-sm"></i>
-                                                </button>
-                                            </div>
-                                        @elseif($rental->status == 'cancelled')
-                                            <span class="text-red-500">@lang('Cancelled')</span>
-                                        @else
-                                            <span class="text-gray-500">@lang('Waiting...')</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-gray-900">{{ showDateTime($rental->created_at, 'd M Y') }}</div>
-                                        <div class="text-sm text-gray-500">{{ diffForHumans($rental->created_at) }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex space-x-2">
-                                            @if(in_array($rental->status, ['pending', 'active']))
-                                                <button type="button" class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 text-sm rounded-lg font-medium transition-colors checkCodeBtn" data-id="{{ $rental->id }}">
-                                                    <i class="fas fa-sync-alt"></i>
-                                                </button>
-                                                <button type="button" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 text-sm rounded-lg font-medium transition-colors cancelBtn" data-id="{{ $rental->id }}">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            @endif
-                                            <a href="{{ route('user.sms.rental.details', $rental->id) }}" class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 text-sm rounded-lg font-medium transition-colors inline-flex items-center">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Mobile Card View -->
-                <div class="lg:hidden space-y-4">
-                    @foreach($rentals as $rental)
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm" data-status="{{ $rental->status }}">
-                            <!-- Header with Phone Number and Status -->
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <div class="flex items-center space-x-2 mb-1">
-                                        <h3 class="font-semibold text-gray-900 text-lg">{{ formatPhoneNumber($rental->phone_number) }}</h3>
-                                        <button type="button" class="text-gray-400 hover:text-gray-600 p-1 rounded" onclick="copyToClipboard('{{ $rental->phone_number }}')" title="Copy phone number">
-                                            <i class="fas fa-copy text-sm"></i>
-                                        </button>
-                                    </div>
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-blue-800" style="background-color: #dbeafe;">{{ ucfirst($rental->service_name) }}</span>
-                                </div>
-                                <div class="text-right">
-                                    @if($rental->status == 'pending')
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-yellow-800" style="background-color: #fef3c7;">@lang('Pending')</span>
-                                    @elseif($rental->status == 'active')
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-blue-800" style="background-color: #dbeafe;">@lang('Active')</span>
-                                        @if($rental->expires_at)
-                                            <div class="countdown-timer mt-1" data-expires="{{ $rental->expires_at->toISOString() }}">
-                                                <small class="text-muted">Expires in: <span class="countdown-display">--:--</span></small>
-                                            </div>
-                                        @endif
-                                    @elseif($rental->status == 'completed')
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-green-800" style="background-color: #dcfce7;">@lang('Completed')</span>
-                                    @else
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-red-800" style="background-color: #fecaca;">@lang('Cancelled')</span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Details Grid -->
-                            <div class="grid grid-cols-2 gap-3 mb-4">
-                                <div>
-                                    <p class="text-xs text-gray-500 uppercase tracking-wider">@lang('Price')</p>
-                                    <p class="font-semibold text-gray-900">₦{{ number_format($rental->price,2) }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-500 uppercase tracking-wider">@lang('SMS Code')</p>
-                                    @if($rental->sms_code)
-                                        <div class="flex items-center space-x-2">
-                                            <p class="font-semibold text-green-600">{{ $rental->sms_code }}</p>
-                                            <button type="button" class="text-gray-400 hover:text-gray-600 p-1 rounded" onclick="copyToClipboard('{{ $rental->sms_code }}')" title="Copy SMS code">
-                                                <i class="fas fa-copy text-sm"></i>
-                                            </button>
-                                        </div>
-                                    @elseif($rental->status == 'cancelled')
-                                        <p class="text-red-500">@lang('Cancelled')</p>
-                                    @else
-                                        <p class="text-gray-500">@lang('Waiting...')</p>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Date -->
-                            <div class="mb-4">
-                                <p class="text-xs text-gray-500 uppercase tracking-wider">@lang('Date')</p>
-                                <p class="text-gray-900">{{ showDateTime($rental->created_at, 'd M Y') }}</p>
-                                <p class="text-sm text-gray-500">{{ diffForHumans($rental->created_at) }}</p>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="flex space-x-2 pt-3 border-t border-gray-100">
-                                @if(in_array($rental->status, ['pending', 'active']))
-                                    <button type="button" class="flex-1 text-white px-3 py-2 text-sm rounded-md font-medium checkCodeBtn" style="background-color: #2563eb;" onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'" data-id="{{ $rental->id }}">
-                                        <i class="fas fa-sync mr-1"></i> @lang('Check Code')
-                                    </button>
-                                    <button type="button" class="flex-1 text-white px-3 py-2 text-sm rounded-md font-medium cancelBtn" style="background-color: #dc2626;" onmouseover="this.style.backgroundColor='#b91c1c'" onmouseout="this.style.backgroundColor='#dc2626'" data-id="{{ $rental->id }}">
-                                        <i class="fas fa-times mr-1"></i> @lang('Cancel')
-                                    </button>
-                                @endif
-                                <a href="{{ route('user.sms.rental.details', $rental->id) }}" class="flex-1 bg-primary-600 px-3 py-2 text-sm text-white rounded-md font-medium text-center">
-                                    <i class="fas fa-eye mr-1"></i> @lang('View')
-                                </a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <i class="fas fa-inbox text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $emptyMessage }}</h3>
-                    <p class="text-gray-500">@lang('Start by purchasing your first number above')</p>
-                </div>
-            @endif
-        </div>
-    
-    </div>
-
-
-                    <!-- Pagination -->
-            @if($rentals->hasPages())
-                <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1 flex justify-between sm:hidden">
-                            @if($rentals->onFirstPage())
-                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
-                                    Previous
-                                </span>
-                            @else
-                                <a href="{{ $rentals->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                                    Previous
-                                </a>
-                            @endif
-                            
-                            @if($rentals->hasMorePages())
-                                <a href="{{ $rentals->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                                    Next
-                                </a>
-                            @else
-                                <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
-                                    Next
-                                </span>
-                            @endif
-                        </div>
-                        
-                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                            <div>
-                                <p class="text-sm text-gray-700">
-                                    Showing <span class="font-medium">{{ $rentals->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $rentals->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $rentals->total() }}</span> results
-                                </p>
-                            </div>
-                            <div>
-                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                    @if($rentals->onFirstPage())
-                                        <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </span>
-                                    @else
-                                        <a href="{{ $rentals->previousPageUrl() }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </a>
-                                    @endif
-                                    
-                                    @foreach($rentals->getUrlRange(1, $rentals->lastPage()) as $page => $url)
-                                        @if($page == $rentals->currentPage())
-                                            <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-600 text-sm font-medium text-white">
-                                                {{ $page }}
-                                            </span>
-                                        @else
-                                            <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                                {{ $page }}
-                                            </a>
-                                        @endif
-                                    @endforeach
-                                    
-                                    @if($rentals->hasMorePages())
-                                        <a href="{{ $rentals->nextPageUrl() }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </a>
-                                    @else
-                                        <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </span>
-                                    @endif
-                                </nav>
-                            </div>
+                    {{-- Search inside dropdown --}}
+                    <div class="p-2.5 border-b border-gray-50">
+                        <div class="relative">
+                            <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                            <input type="text"
+                                   x-model="search"
+                                   @click.stop
+                                   placeholder="Search services..."
+                                   autocomplete="off"
+                                   class="w-full pl-8 pr-3 py-2 text-xs bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-transparent placeholder-gray-400 transition-all">
                         </div>
                     </div>
-                </div>
-            @endif
-</div>
 
-<!-- Cancel Order Modal -->
-<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="cancelModalContent">
-        <div class="p-6">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-red-100 rounded-full p-2">
-                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900">@lang('Cancel Purchase')</h3>
-                </div>
-                <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors" onclick="closeCancelModal()">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <!-- Content -->
-            <div class="mb-6">
-                <p class="text-gray-600 leading-relaxed">
-                    @lang('Are you sure you want to cancel this purchase? You may receive a partial refund depending on the current status.')
-                </p>
-            </div>
-            
-            <!-- Actions -->
-            <div class="flex space-x-3">
-                <button type="button" class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors" onclick="closeCancelModal()">
-                    @lang('Keep Purchase')
-                </button>
-                <button type="button" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors" id="confirmCancelBtn">
-                    @lang('Cancel Purchase')
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Important Notice Modal -->
-<div id="importantNoticeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-gray-900 flex items-center">
-                    <i class="fas fa-megaphone text-red-500 mr-3"></i>
-                    Important Announcement
-                </h3>
-                <button type="button" onclick="closeImportantNoticeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <div class="space-y-4">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 class="font-bold text-blue-900 mb-3 flex items-center">
-                        <i class="fab fa-whatsapp text-green-500 mr-2"></i>
-                        WhatsApp & Telegram Guidelines:
-                    </h4>
-                    <ul class="space-y-3 text-sm text-blue-800">
-                        <li class="flex items-start">
-                            <i class="fas fa-mobile-alt text-blue-600 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span><strong>Fresh Installation:</strong> Uninstall and reinstall WhatsApp or Telegram before requesting a number for optimal results.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-ban text-red-500 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span><strong>Account Type:</strong> Use regular WhatsApp only. Avoid WhatsApp Business for verification purposes.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-globe text-blue-600 mr-3 mt-0.5 flex-shrink-0"></i>
-                            <span><strong>Location Settings:</strong> Make sure your device timezone and VPN location match the country of your purchased number.</span>
+                    {{-- Options --}}
+                    <ul class="max-h-60 overflow-y-auto py-1">
+                        <template x-for="s in filtered" :key="s.code">
+                            <li @click="pick(s)"
+                                class="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-primary-50 transition-colors"
+                                :class="selected && selected.code === s.code ? 'bg-primary-50' : ''">
+                                <span class="text-sm text-gray-700" x-text="s.name"></span>
+                                <span class="text-xs font-bold text-primary-600 ml-3 flex-shrink-0" x-text="s.label"></span>
+                            </li>
+                        </template>
+                        <li x-show="filtered.length === 0"
+                            class="px-4 py-5 text-center text-xs text-gray-400">
+                            <i class="ri-search-line text-2xl block mb-1 text-gray-200"></i>
+                            No results for "<span x-text="search" class="font-medium text-gray-500"></span>"
                         </li>
                     </ul>
                 </div>
-                
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <p class="text-xs text-yellow-800 flex items-center">
-                        <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>
-                        Following these guidelines significantly increases your verification success rate.
-                    </p>
+
+                {{-- Price + Purchase row — shown only when a service is picked --}}
+                <div x-show="selected" x-cloak class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">Price</span>
+                            <span class="text-base font-bold text-gray-900"
+                                  x-text="selected ? selected.label : ''"></span>
+                        </div>
+                        <button type="submit" id="purchaseBtn"
+                                class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-5 py-1.5 rounded-lg text-xs font-bold text-white transition-all btn-glow"
+                                style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%);">
+                            <i class="ri-shopping-bag-2-line text-sm"></i>
+                            Purchase Number
+                        </button>
+                    </div>
+                </div>
+
+            </div>{{-- /x-data --}}
+        </form>
+    </div>
+
+    {{-- ── Info notice ── --}}
+    <div class="flex items-start gap-3 bg-primary-50 border border-primary-100 rounded-2xl p-4">
+        <i class="ri-shield-check-line text-primary-500 flex-shrink-0 mt-0.5"></i>
+        <p class="text-xs text-primary-700 leading-relaxed">
+            <span class="font-semibold">Auto-refund enabled.</span>
+            If no SMS arrives within the time limit, your order is cancelled and your balance is refunded automatically.
+        </p>
+    </div>
+
+    {{-- ── Recent orders ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-50">
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Recent Orders</p>
+            <button onclick="refreshOrders()"
+                    class="flex items-center gap-1.5 text-xs text-primary-500 hover:text-primary-700 font-medium transition-colors">
+                <i class="ri-refresh-line text-sm" id="refreshIcon"></i> Refresh
+            </button>
+        </div>
+
+        @if($rentals->count() > 0)
+
+            {{-- Desktop table --}}
+            <div class="hidden lg:block overflow-x-auto">
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Phone</th>
+                            <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Service</th>
+                            <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Price</th>
+                            <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                            <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">SMS Code</th>
+                            <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+                            <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        @foreach($rentals as $rental)
+                        <tr class="hover:bg-gray-50/60 transition-colors" data-status="{{ $rental->status }}">
+                            <td class="px-5 py-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-mono font-semibold text-gray-800">{{ formatPhoneNumber($rental->phone_number) }}</span>
+                                    <button onclick="copyToClipboard('{{ $rental->phone_number }}')"
+                                            class="text-gray-300 hover:text-primary-400 transition-colors">
+                                        <i class="ri-file-copy-line"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="px-5 py-3">
+                                <span class="px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 font-medium">{{ ucfirst($rental->service_name) }}</span>
+                            </td>
+                            <td class="px-5 py-3 font-bold text-gray-800">&#8358;{{ number_format($rental->price, 2) }}</td>
+                            <td class="px-5 py-3">
+                                @if($rental->status == 'pending')
+                                    <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-medium">Pending</span>
+                                @elseif($rental->status == 'active')
+                                    <div>
+                                        <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-medium">Active</span>
+                                        @if($rental->expires_at)
+                                            <div class="countdown-timer mt-1" data-expires="{{ $rental->expires_at->toISOString() }}">
+                                                <span class="text-gray-400">Exp: <span class="countdown-display font-mono font-semibold text-amber-500">--:--</span></span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @elseif($rental->status == 'completed')
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium">Completed</span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded-md bg-red-50 text-red-500 font-medium">Cancelled</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-3">
+                                @if($rental->sms_code)
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-mono font-bold text-emerald-600">{{ $rental->sms_code }}</span>
+                                        <button onclick="copyToClipboard('{{ $rental->sms_code }}')"
+                                                class="text-gray-300 hover:text-emerald-500 transition-colors">
+                                            <i class="ri-file-copy-line"></i>
+                                        </button>
+                                    </div>
+                                @elseif($rental->status == 'cancelled')
+                                    <span class="text-red-400">—</span>
+                                @else
+                                    <span class="text-gray-400">Waiting…</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-3 text-gray-500">
+                                <div>{{ showDateTime($rental->created_at, 'd M Y') }}</div>
+                                <div class="text-gray-400">{{ diffForHumans($rental->created_at) }}</div>
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="flex items-center gap-1.5">
+                                    @if(in_array($rental->status, ['pending', 'active']))
+                                        <button class="checkCodeBtn px-3 py-1.5 rounded-lg bg-primary-50 hover:bg-primary-100 text-primary-600 font-medium transition-colors"
+                                                data-id="{{ $rental->id }}">
+                                            <i class="ri-refresh-line"></i>
+                                        </button>
+                                        <button class="cancelBtn px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 font-medium transition-colors"
+                                                data-id="{{ $rental->id }}">
+                                            <i class="ri-close-line"></i>
+                                        </button>
+                                    @else
+                                        <span class="text-gray-300 text-xs">—</span>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Mobile cards --}}
+            <div class="lg:hidden divide-y divide-gray-50">
+                @foreach($rentals as $rental)
+                <div class="p-4" data-status="{{ $rental->status }}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="font-mono font-bold text-gray-800 text-sm">{{ formatPhoneNumber($rental->phone_number) }}</span>
+                                <button onclick="copyToClipboard('{{ $rental->phone_number }}')"
+                                        class="text-gray-300 hover:text-primary-400 transition-colors">
+                                    <i class="ri-file-copy-line text-xs"></i>
+                                </button>
+                            </div>
+                            <span class="px-2 py-0.5 text-xs rounded-md bg-primary-50 text-primary-700 font-medium">{{ ucfirst($rental->service_name) }}</span>
+                        </div>
+                        <div class="text-right">
+                            @if($rental->status == 'pending')
+                                <span class="px-2 py-0.5 text-xs rounded-md bg-amber-50 text-amber-700 font-medium">Pending</span>
+                            @elseif($rental->status == 'active')
+                                <span class="px-2 py-0.5 text-xs rounded-md bg-blue-50 text-blue-700 font-medium">Active</span>
+                                @if($rental->expires_at)
+                                    <div class="countdown-timer mt-1" data-expires="{{ $rental->expires_at->toISOString() }}">
+                                        <span class="text-xs text-gray-400">Exp: <span class="countdown-display font-mono font-semibold text-amber-500">--:--</span></span>
+                                    </div>
+                                @endif
+                            @elseif($rental->status == 'completed')
+                                <span class="px-2 py-0.5 text-xs rounded-md bg-emerald-50 text-emerald-700 font-medium">Completed</span>
+                            @else
+                                <span class="px-2 py-0.5 text-xs rounded-md bg-red-50 text-red-500 font-medium">Cancelled</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3 text-xs">
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Price</p>
+                            <p class="font-bold text-gray-800">&#8358;{{ number_format($rental->price, 2) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">SMS Code</p>
+                            @if($rental->sms_code)
+                                <div class="flex items-center gap-1">
+                                    <span class="font-mono font-bold text-emerald-600">{{ $rental->sms_code }}</span>
+                                    <button onclick="copyToClipboard('{{ $rental->sms_code }}')"
+                                            class="text-gray-300 hover:text-emerald-500 transition-colors">
+                                        <i class="ri-file-copy-line text-xs"></i>
+                                    </button>
+                                </div>
+                            @elseif($rental->status == 'cancelled')
+                                <p class="text-red-400">—</p>
+                            @else
+                                <p class="text-gray-400">Waiting…</p>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Date</p>
+                            <p class="text-gray-600">{{ showDateTime($rental->created_at, 'd M Y') }}</p>
+                        </div>
+                    </div>
+
+                    @if(in_array($rental->status, ['pending', 'active']))
+                    <div class="flex items-center gap-2 pt-3 border-t border-gray-50">
+                        <button class="checkCodeBtn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary-50 text-primary-600 text-xs font-semibold hover:bg-primary-100 transition-colors"
+                                data-id="{{ $rental->id }}">
+                            <i class="ri-refresh-line"></i> Check Code
+                        </button>
+                        <button class="cancelBtn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-red-50 text-red-500 text-xs font-semibold hover:bg-red-100 transition-colors"
+                                data-id="{{ $rental->id }}">
+                            <i class="ri-close-line"></i> Cancel
+                        </button>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+
+        @else
+            <div class="flex flex-col items-center py-14 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
+                    <i class="ri-sim-card-line text-gray-200 text-3xl"></i>
+                </div>
+                <p class="text-sm font-semibold text-gray-400">{{ $emptyMessage }}</p>
+                <p class="text-xs text-gray-300 mt-1">Purchase your first number using the form above</p>
+            </div>
+        @endif
+
+        {{-- Pagination --}}
+        <x-pagination :paginator="$rentals" />
+    </div>
+
+</div>
+
+{{-- ── Cancel modal ── --}}
+<div id="cancelModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 opacity-0" id="cancelModalContent">
+        <div class="p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <i class="ri-alert-line text-red-500"></i>
+                </div>
+                <h3 class="text-sm font-bold text-gray-900 flex-1">Cancel Purchase</h3>
+                <button class="text-gray-400 hover:text-gray-600 transition-colors" onclick="closeCancelModal()">
+                    <i class="ri-close-line text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mb-5 leading-relaxed">
+                Are you sure you want to cancel? You may receive a partial refund depending on the current status of the order.
+            </p>
+            <div class="flex gap-2.5">
+                <button onclick="closeCancelModal()"
+                        class="flex-1 py-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 text-xs font-semibold transition-colors">
+                    Keep Order
+                </button>
+                <button id="confirmCancelBtn"
+                        class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-bold transition-colors">
+                    Yes, Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ── Important Notice modal ── --}}
+<div id="importantNoticeModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+        <div class="p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    <i class="ri-megaphone-line text-amber-500"></i> Important Guidelines
+                </h3>
+                <button onclick="closeImportantNoticeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="ri-close-line text-lg"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-primary-50 rounded-xl p-4 space-y-2.5 text-xs">
+                    <p class="font-bold text-primary-800 mb-2">WhatsApp &amp; Telegram:</p>
+                    <div class="flex items-start gap-2 text-primary-700">
+                        <i class="ri-smartphone-line mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Fresh install:</strong> Reinstall the app before requesting a number for best results.</span>
+                    </div>
+                    <div class="flex items-start gap-2 text-primary-700">
+                        <i class="ri-forbid-line mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Regular only:</strong> Avoid WhatsApp Business for verification.</span>
+                    </div>
+                    <div class="flex items-start gap-2 text-primary-700">
+                        <i class="ri-earth-line mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Location:</strong> Set VPN and timezone to match the number's country.</span>
+                    </div>
+                </div>
+                <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 flex items-center gap-2 text-xs text-amber-700">
+                    <i class="ri-lightbulb-line flex-shrink-0"></i>
+                    Following these steps significantly increases your verification success rate.
                 </div>
             </div>
-            
-            <div class="mt-6 flex justify-end">
-                <button type="button" onclick="closeImportantNoticeModal()" 
-                        class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-all duration-200">
+            <div class="mt-5 flex justify-end">
+                <button onclick="closeImportantNoticeModal()"
+                        class="px-6 py-2.5 rounded-xl text-xs font-bold text-white transition-all btn-glow"
+                        style="background:linear-gradient(135deg,#475569,#1e293b);">
                     Got it, thanks!
                 </button>
             </div>
@@ -461,40 +438,34 @@
 </div>
 
 <script>
+// ── Modal helpers ──────────────────────────────────────────────────────────────
 function openImportantNoticeModal() {
     const modal = document.getElementById('importantNoticeModal');
     const content = document.getElementById('modalContent');
-    
     modal.classList.remove('hidden');
-    
-    // Trigger animation
-    setTimeout(() => {
+    requestAnimationFrame(() => {
         content.classList.remove('scale-95', 'opacity-0');
         content.classList.add('scale-100', 'opacity-100');
-    }, 10);
-    
-    // Prevent body scroll
+    });
     document.body.style.overflow = 'hidden';
 }
 
 function closeImportantNoticeModal() {
     const modal = document.getElementById('importantNoticeModal');
     const content = document.getElementById('modalContent');
-    
     content.classList.remove('scale-100', 'opacity-100');
     content.classList.add('scale-95', 'opacity-0');
-    
-    setTimeout(() => {
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }, 300);
+    setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
 }
 
-// Close modal when clicking outside
 document.getElementById('importantNoticeModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeImportantNoticeModal();
-    }
+    if (e.target === this) closeImportantNoticeModal();
+});
+
+// Auto-show on load, then every 30 minutes
+document.addEventListener('DOMContentLoaded', function() {
+    openImportantNoticeModal();
+    setInterval(openImportantNoticeModal, 30 * 60 * 1000);
 });
 </script>
 
@@ -504,541 +475,193 @@ document.getElementById('importantNoticeModal').addEventListener('click', functi
 <script>
 (function ($) {
     "use strict";
-    
-    // Service search functionality
-    const serviceSearch = document.getElementById('serviceSearch');
-    const serviceSelect = document.getElementById('serviceSelect');
-    const clearSearchBtn = document.getElementById('clearSearch');
-    const noResultsMsg = document.getElementById('noResults');
-    
-    // Store all options for filtering
-    const allOptions = Array.from(serviceSelect.options).slice(1); // Skip the first 'Select Service' option
-    
-    // Filter options based on search input
-    function filterOptions(searchTerm) {
-        searchTerm = searchTerm.toLowerCase().trim();
-        
-        // Show/hide clear button
-        if (clearSearchBtn) {
-            clearSearchBtn.classList.toggle('hidden', searchTerm === '');
-        }
-        
-        // Reset select to show all options first
-        while (serviceSelect.options.length > 1) {
-            serviceSelect.remove(1);
-        }
-        
-        // Filter and add matching options
-        let matchCount = 0;
-        
-        allOptions.forEach(option => {
-            const optionText = option.text.toLowerCase();
-            if (searchTerm === '' || optionText.includes(searchTerm)) {
-                serviceSelect.add(option.cloneNode(true));
-                matchCount++;
-            }
-        });
-        
-        // Show/hide no results message
-        noResultsMsg.classList.toggle('hidden', matchCount > 0);
-        
-        // Reset selection if no matches
-        if (matchCount === 0) {
-            serviceSelect.value = '';
-            $('#priceInfo').addClass('hidden');
-            $('#purchaseBtn').prop('disabled', true);
-        }
-    }
-    
-    // Search input event
-    if (serviceSearch) {
-        serviceSearch.addEventListener('input', function() {
-            filterOptions(this.value);
-        });
-    }
-    
-    // Clear search button
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', function() {
-            serviceSearch.value = '';
-            filterOptions('');
-            serviceSearch.focus();
-        });
-    }
-    
-    // Service change event
-    $('#serviceSelect').on('change', function() {
-        const service = $(this).val();
-        const selectedOption = $(this).find('option:selected');
-        const price = selectedOption.data('price');
-        
-        if (service && service !== '' && price && price > 0) {
-            const priceText = selectedOption.text().split(' - ')[1];
-            if (priceText && priceText !== 'N/A') {
-                $('#priceAmount').text(priceText);
-                $('#priceInfo').removeClass('hidden');
-                $('#purchaseBtn').prop('disabled', false);
-            } else {
-                $('#priceInfo').addClass('hidden');
-                $('#purchaseBtn').prop('disabled', true);
-            }
-        } else {
-            $('#priceInfo').addClass('hidden');
-            $('#purchaseBtn').prop('disabled', true);
-        }
-    });
-    
-    // Rent form submission
+
+    // ── Form submission ─────────────────────────────────────────────────────
     $('#rentForm').on('submit', function(e) {
         e.preventDefault();
-        
-        // Get service value using multiple methods to ensure we capture it
-        let service = $('#serviceSelect').val();
-        
-        // Fallback: try getting from the form data directly
-        if (!service || service === '') {
-            service = $(this).find('select[name="service"]').val();
-        }
-        
-        // Fallback: try getting from native DOM
-        if (!service || service === '') {
-            const serviceElement = document.getElementById('serviceSelect');
-            if (serviceElement) {
-                service = serviceElement.value;
-            }
-        }
-        
-        if (!service || service === '') {
-            notify('error', '@lang("Please select a service")');
+
+        const service = document.getElementById('serviceCode').value;
+        if (!service) {
+            notify('error', 'Please select a service');
             return;
         }
-        
-        const $btn = $('#purchaseBtn');
-        const originalText = $btn.html();
-        
-        $btn.prop('disabled', true).html('<i class="fas fa-spinner la-spin"></i> @lang("Processing...")');
-        
 
-        // Use FormData to ensure proper serialization
-        const formData = new FormData();
-        formData.append('_token', '{{ csrf_token() }}');
-        formData.append('service', service);
-        formData.append('country', 'us');
-        
+        const $btn = $('#purchaseBtn');
+        const origHtml = $btn.html();
+        $btn.prop('disabled', true).html('<i class="ri-loader-4-line animate-spin mr-1.5"></i> Processing…');
+
+        const fd = new FormData();
+        fd.append('_token', '{{ csrf_token() }}');
+        fd.append('service', service);
+        fd.append('country', 'us');
+
         $.ajax({
             url: '{{ route("user.sms.rental.rent") }}',
             type: 'POST',
-            data: formData,
+            data: fd,
             processData: false,
             contentType: false,
-            success: function(response) {
-                if (response.success) {
-                    notify('success', response.message);
-                    location.reload();
-                } else {
-                    notify('error', response.message);
-                }
+            success: function(res) {
+                if (res.success) { notify('success', res.message); location.reload(); }
+                else notify('error', res.message);
             },
-            error: function(xhr) {
-                const response = xhr.responseJSON;
-                notify('error', response?.message || '@lang("Something went wrong")');
-            },
-            complete: function() {
-                $btn.prop('disabled', false).html(originalText);
-            }
+            error: function(xhr) { notify('error', xhr.responseJSON?.message || 'Something went wrong'); },
+            complete: function() { $btn.prop('disabled', false).html(origHtml); }
         });
     });
-    
-    // Auto-check codes for active orders
-    function autoCheckCodes() {
-        $('.checkCodeBtn').each(function() {
-            const $btn = $(this);
-            const id = $btn.data('id');
-            const $row = $btn.closest('tr, .bg-white');
-            const status = $row.data('status') || $row.attr('data-status');
-            
-            // Only auto-check active and pending orders
-            if (status === 'active' || status === 'pending') {
-                checkCodeSilently(id);
-            }
-        });
-    }
-    
-    // Silent check function for auto-checking
-    function checkCodeSilently(id) {
-        $.ajax({
-            url: `{{ route('user.sms.rental.check.code', ':id') }}`.replace(':id', id),
-            method: 'GET',
-            success: function(response) {
-                if (response.success && response.sms_code) {
-                    // Only reload if SMS code is received
-                    location.reload();
-                }
-            },
-            error: function(xhr) {
-                // Silent fail for auto-check
-                console.log('Auto-check failed for order:', id);
-            }
-        });
-    }
-    
-    // Check code button
+
+    // ── Check code button ───────────────────────────────────────────────────
     $('.checkCodeBtn').on('click', function() {
         const id = $(this).data('id');
-        const btn = $(this);
-        const originalText = btn.html();
-        
-        btn.html('<i class="fas fa-spinner la-spin"></i>');
-        btn.prop('disabled', true);
-        
+        const $btn = $(this);
+        const orig = $btn.html();
+        $btn.html('<i class="ri-loader-4-line animate-spin"></i>').prop('disabled', true);
+
         $.ajax({
             url: `{{ route('user.sms.rental.check.code', ':id') }}`.replace(':id', id),
             method: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    notify('success', response.message);
-                    if (response.reload) {
-                        // Update SMS code in place instead of full page reload
-                        if (response.sms_code) {
-                            updateSmsCodeDisplay(id, response.sms_code);
-                            // Hide action buttons for completed rentals
-                            const $row = btn.closest('tr, .bg-white');
-                            $row.find('.checkCodeBtn, .cancelBtn').hide();
-                            // Update status to completed
-                            updateStatusDisplay(id, 'completed');
-                        } else {
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1500);
-                        }
+            success: function(res) {
+                if (res.success) {
+                    notify('success', res.message);
+                    if (res.sms_code) {
+                        updateSmsCodeDisplay(id, res.sms_code);
+                        $btn.closest('tr, [data-status]').find('.checkCodeBtn, .cancelBtn').hide();
+                        updateStatusDisplay(id, 'completed');
+                    } else {
+                        setTimeout(() => location.reload(), 1500);
                     }
                 } else {
-                    notify('info', response.message);
-                    setTimeout(() => {
-                                location.reload();
-                            }, 1500);
+                    notify('info', res.message);
+                    setTimeout(() => location.reload(), 1500);
                 }
             },
-            error: function(xhr) {
-                const response = xhr.responseJSON;
-                notify('error', response.message || '@lang("Something went wrong")');
-            },
-            complete: function() {
-                btn.html(originalText);
-                btn.prop('disabled', false);
-            }
+            error: function(xhr) { notify('error', xhr.responseJSON?.message || 'Something went wrong'); },
+            complete: function() { $btn.html(orig).prop('disabled', false); }
         });
     });
-    
-    // Cancel button
+
+    // ── Cancel button ───────────────────────────────────────────────────────
     let currentCancelId = null;
     let currentCancelBtn = null;
-    
+
     $('.cancelBtn').on('click', function() {
         currentCancelId = $(this).data('id');
         currentCancelBtn = $(this);
         openCancelModal();
     });
-    
-    // Confirm cancel button in modal
+
     $('#confirmCancelBtn').on('click', function() {
-        if (currentCancelId && currentCancelBtn) {
-            const btn = currentCancelBtn;
-            const originalText = btn.html();
-            
-            // Close modal first
-            closeCancelModal();
-            
-            // Show loading state
-            btn.html('<i class="fas fa-spinner fa-spin"></i>');
-            btn.prop('disabled', true);
-            
-            $.ajax({
-                url: `{{ route('user.sms.rental.cancel', ':id') }}`.replace(':id', currentCancelId),
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        notify('success', response.message);
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        notify('error', response.message);
-                    }
-                },
-                error: function(xhr) {
-                    const response = xhr.responseJSON;
-                    notify('error', response.message || '@lang("Something went wrong")');
-                },
-                complete: function() {
-                    btn.html(originalText);
-                    btn.prop('disabled', false);
-                    currentCancelId = null;
-                    currentCancelBtn = null;
-                }
-            });
-        }
-    });
-    
+        if (!currentCancelId) return;
+        const $btn = currentCancelBtn;
+        closeCancelModal();
+        $btn.html('<i class="ri-loader-4-line animate-spin"></i>').prop('disabled', true);
 
-    
-})(jQuery);
-    // Phone number formatting function
-    function formatPhoneNumber(phoneNumber) {
-        // Remove any non-digit characters
-        const cleaned = phoneNumber.replace(/\D/g, '');
-        
-        // Format based on length
-        if (cleaned.length === 10) {
-            // US format: (123) 456-7890
-            return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-        } else if (cleaned.length === 11 && cleaned[0] === '1') {
-            // US format with country code: +1 (123) 456-7890
-            return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
-        } else if (cleaned.length > 7) {
-            // International format: +XX XXX XXX XXXX
-            const countryCode = cleaned.slice(0, -10);
-            const areaCode = cleaned.slice(-10, -7);
-            const firstPart = cleaned.slice(-7, -4);
-            const lastPart = cleaned.slice(-4);
-            return `+${countryCode} ${areaCode} ${firstPart} ${lastPart}`;
-        }
-        
-        // Return original if can't format
-        return phoneNumber;
-    }
-
-    // Copy to clipboard function
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
-            notify('success', '@lang("Copied successfully!")');
-        }).catch(function(err) {
-            console.error('Failed to copy: ', err);
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            notify('success', '@lang("Copied successfully!")');
-        });
-    }
-
-    // Update SMS code display in place
-    function updateSmsCodeDisplay(rentalId, smsCode) {
-        // Update desktop table view
-        $(`.checkCodeBtn[data-id="${rentalId}"]`).closest('tr').find('td:nth-child(5)').html(`
-            <div class="flex items-center space-x-2">
-                <span class="font-semibold text-green-600">${smsCode}</span>
-                <button type="button" class="text-gray-400 hover:text-gray-600 p-1 rounded" onclick="copyToClipboard('${smsCode}')" title="Copy SMS code">
-                    <i class="fas fa-copy text-sm"></i>
-                </button>
-            </div>
-        `);
-        
-        // Update mobile card view
-        $(`.checkCodeBtn[data-id="${rentalId}"]`).closest('.bg-white').find('.grid .text-xs:contains("SMS Code")').next().html(`
-            <div class="flex items-center space-x-2">
-                <p class="font-semibold text-green-600">${smsCode}</p>
-                <button type="button" class="text-gray-400 hover:text-gray-600 p-1 rounded" onclick="copyToClipboard('${smsCode}')" title="Copy SMS code">
-                    <i class="fas fa-copy text-sm"></i>
-                </button>
-            </div>
-        `);
-    }
-
-    // Update status display in place
-    function updateStatusDisplay(rentalId, status) {
-        const statusHtml = '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-green-800" style="background-color: #dcfce7;">@lang("Completed")</span>';
-        
-        // Update desktop table view
-        $(`.checkCodeBtn[data-id="${rentalId}"]`).closest('tr').find('td:nth-child(4)').html(statusHtml);
-        
-        // Update mobile card view
-        $(`.checkCodeBtn[data-id="${rentalId}"]`).closest('.bg-white').find('.text-right span').replaceWith(statusHtml);
-    }
-
-
-
-    // Countdown timer functionality
-    function initCountdownTimers() {
-        $('.countdown-timer').each(function() {
-            const $timer = $(this);
-            const expiresAt = new Date($timer.data('expires'));
-            const $display = $timer.find('.countdown-display');
-            
-            function updateCountdown() {
-                const now = new Date();
-                const timeLeft = expiresAt - now;
-                
-                if (timeLeft <= 0) {
-                    $display.text('Expired');
-                    $timer.addClass('text-danger');
-                    // Auto-cancel if expired
-                    autoCancel($timer.closest('.purchase-item'));
-                    return;
-                }
-                
-                const minutes = Math.floor(timeLeft / 60000);
-                const seconds = Math.floor((timeLeft % 60000) / 1000);
-                $display.text(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-                
-                // Change color when less than 2 minutes left
-                if (timeLeft < 120000) {
-                    $timer.addClass('text-warning');
-                }
-            }
-            
-            updateCountdown();
-            const interval = setInterval(updateCountdown, 1000);
-            
-            // Store interval for cleanup
-            $timer.data('interval', interval);
-        });
-    }
-    
-    // Auto-cancel expired purchases
-    function autoCancel($purchaseItem) {
-        const purchaseId = $purchaseItem.find('.cancelBtn').data('id');
-        if (!purchaseId) return;
-        
-        // Mark as auto-cancelling to prevent user actions
-        $purchaseItem.addClass('auto-cancelling');
-        
         $.ajax({
-            url: `{{ route('user.sms.rental.index') }}/auto-cancel/${purchaseId}`,
+            url: `{{ route('user.sms.rental.cancel', ':id') }}`.replace(':id', currentCancelId),
             method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}'
+            data: { _token: '{{ csrf_token() }}' },
+            success: function(res) {
+                if (res.success) { notify('success', res.message); setTimeout(() => location.reload(), 1500); }
+                else notify('error', res.message);
             },
-            success: function(response) {
-                if (response.success) {
-                    notify('info', 'Purchase automatically cancelled due to expiration');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2000);
-                }
-            },
-            error: function() {
-                // Silent fail for auto-cancel
-                console.log('Auto-cancel failed for purchase:', purchaseId);
-            }
+            error: function(xhr) { notify('error', xhr.responseJSON?.message || 'Something went wrong'); },
+            complete: function() { currentCancelId = null; currentCancelBtn = null; }
         });
-    }
-    
-    // Auto-check codes for active/pending orders
-    function autoCheckCodes() {
-        // Find all active and pending orders
-        const activeOrders = $('[data-status="active"], [data-status="pending"]');
-        
-        activeOrders.each(function() {
-            const $row = $(this);
-            const checkBtn = $row.find('.checkCodeBtn');
-            
-            if (checkBtn.length > 0) {
-                const rentalId = checkBtn.data('id');
-                if (rentalId) {
-                    checkCodeSilently(rentalId);
-                }
-            }
-        });
-    }
-    
-    // Silent check for SMS codes (no user feedback)
+    });
+
+    // ── Silent auto-check every 30 s ────────────────────────────────────────
     function checkCodeSilently(rentalId) {
         $.ajax({
             url: `{{ route('user.sms.rental.check.code', ':id') }}`.replace(':id', rentalId),
             method: 'GET',
-            success: function(response) {
-                if (response.success && response.sms_code) {
-                    // SMS code received - refresh the page to show updated status
-                    location.reload();
-                }
-                // If no SMS code yet, do nothing (silent check)
-            },
-            error: function() {
-                // Silent fail - don't show error messages for auto-checks
-                console.log('Auto-check failed for rental:', rentalId);
-            }
+            success: function(res) { if (res.success && res.sms_code) location.reload(); },
+            error: function() {}
         });
     }
 
-    // Refresh orders function
-    function refreshOrders() {
-        // Show loading state
-        const refreshBtn = $('button[onclick="refreshOrders()"]');
-        const originalHtml = refreshBtn.html();
-        refreshBtn.html('<i class="fas fa-spinner fa-spin mr-1"></i>Refreshing...');
-        refreshBtn.prop('disabled', true);
-        
-        // Reload the page after a short delay
-        setTimeout(() => {
-            location.reload();
-        }, 500);
+    function autoCheckCodes() {
+        $('[data-status="active"], [data-status="pending"]').each(function() {
+            const id = $(this).find('.checkCodeBtn').data('id');
+            if (id) checkCodeSilently(id);
+        });
     }
-    
-    // Initialize countdown timers on page load
-    $(document).ready(function() {
-        initCountdownTimers();
-        // Update countdown every second
-        setInterval(initCountdownTimers, 1000);
-        
-        // Start auto-checking codes every 30 seconds
-        setInterval(autoCheckCodes, 30000);
-    });
-    
-    // Modal functions
-    function openCancelModal() {
-        const modal = $('#cancelModal');
-        const content = $('#cancelModalContent');
-        
-        modal.removeClass('hidden');
-        
-        // Trigger animation
-        setTimeout(() => {
-            content.removeClass('scale-95 opacity-0').addClass('scale-100 opacity-100');
-        }, 10);
-        
-        // Prevent body scroll
+
+    // ── Countdown timers ────────────────────────────────────────────────────
+    function initCountdownTimers() {
+        $('.countdown-timer').each(function() {
+            const $el = $(this);
+            if ($el.data('ticking')) return;
+            $el.data('ticking', true);
+            const expires = new Date($el.data('expires'));
+            const $disp = $el.find('.countdown-display');
+
+            setInterval(function() {
+                const left = expires - Date.now();
+                if (left <= 0) { $disp.text('Expired'); return; }
+                const m = Math.floor(left / 60000);
+                const s = Math.floor((left % 60000) / 1000);
+                $disp.text(`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+            }, 1000);
+        });
+    }
+
+    // ── DOM helpers ─────────────────────────────────────────────────────────
+    function updateSmsCodeDisplay(id, code) {
+        const copyBtn = `<button onclick="copyToClipboard('${code}')" class="text-gray-300 hover:text-emerald-500 transition-colors"><i class="ri-file-copy-line"></i></button>`;
+        $(`.checkCodeBtn[data-id="${id}"]`).closest('tr').find('td:nth-child(5)').html(
+            `<div class="flex items-center gap-1.5"><span class="font-mono font-bold text-emerald-600">${code}</span>${copyBtn}</div>`
+        );
+    }
+
+    function updateStatusDisplay(id) {
+        $(`.checkCodeBtn[data-id="${id}"]`).closest('tr').find('td:nth-child(4)').html(
+            '<span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium">Completed</span>'
+        );
+    }
+
+    window.refreshOrders = function() {
+        const icon = document.getElementById('refreshIcon');
+        if (icon) icon.classList.add('animate-spin');
+        setTimeout(() => location.reload(), 400);
+    };
+
+    window.copyToClipboard = function(text) {
+        navigator.clipboard.writeText(text)
+            .then(() => notify('success', 'Copied!'))
+            .catch(() => {
+                const t = document.createElement('textarea');
+                t.value = text; document.body.appendChild(t); t.select();
+                document.execCommand('copy'); document.body.removeChild(t);
+                notify('success', 'Copied!');
+            });
+    };
+
+    // ── Cancel modal helpers ────────────────────────────────────────────────
+    window.openCancelModal = function() {
+        const $modal = $('#cancelModal'), $content = $('#cancelModalContent');
+        $modal.removeClass('hidden');
+        setTimeout(() => $content.removeClass('scale-95 opacity-0').addClass('scale-100 opacity-100'), 10);
         $('body').addClass('overflow-hidden');
-        
-        // Close on backdrop click
-        modal.on('click', function(e) {
-            if (e.target === this) {
-                closeCancelModal();
-            }
-        });
-        
-        // Close on escape key
-        $(document).on('keydown.cancelModal', function(e) {
-            if (e.key === 'Escape') {
-                closeCancelModal();
-            }
-        });
-    }
-    
-    function closeCancelModal() {
-        const modal = $('#cancelModal');
-        const content = $('#cancelModalContent');
-        
-        content.removeClass('scale-100 opacity-100').addClass('scale-95 opacity-0');
-        
-        setTimeout(() => {
-            modal.addClass('hidden');
-            $('body').removeClass('overflow-hidden');
-        }, 300);
-        
-        // Remove event listeners
-        modal.off('click');
-        $(document).off('keydown.cancelModal');
-        
-        // Reset variables
+        $modal.on('click.cancel', function(e) { if (e.target === this) closeCancelModal(); });
+        $(document).on('keydown.cancel', function(e) { if (e.key === 'Escape') closeCancelModal(); });
+    };
+
+    window.closeCancelModal = function() {
+        const $modal = $('#cancelModal'), $content = $('#cancelModalContent');
+        $content.removeClass('scale-100 opacity-100').addClass('scale-95 opacity-0');
+        setTimeout(() => { $modal.addClass('hidden'); $('body').removeClass('overflow-hidden'); }, 300);
+        $modal.off('click.cancel');
+        $(document).off('keydown.cancel');
         currentCancelId = null;
         currentCancelBtn = null;
-    }
+    };
+
+    // ── Init ────────────────────────────────────────────────────────────────
+    $(document).ready(function() {
+        initCountdownTimers();
+        setInterval(autoCheckCodes, 10000);
+    });
+
+})(jQuery);
 </script>
 @endpush

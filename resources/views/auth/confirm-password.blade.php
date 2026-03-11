@@ -1,12 +1,12 @@
 <x-guest-layout>
     <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold gradient-text mb-2">Confirm Password</h2>
-        <p class="text-gray-600">Please confirm your password to continue</p>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Confirm Password</h2>
+        <p class="text-slate-500">Please confirm your password to continue</p>
     </div>
 
     <div class="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
         <div class="flex items-start">
-            <i class="fas fa-shield-alt text-orange-500 mt-0.5 mr-3"></i>
+            <i class="ri-shield-keyhole-line text-orange-500 mt-0.5 mr-3 text-lg"></i>
             <p class="text-sm text-orange-700">
                 {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
             </p>
@@ -25,13 +25,13 @@
 
         <div class="space-y-4">
             <x-primary-button>
-                <i class="fas fa-check mr-2"></i>
+                <i class="ri-check-line mr-2"></i>
                 {{ __('Confirm Password') }}
             </x-primary-button>
             
             <div class="text-center">
-                <a href="{{ url()->previous() }}" class="auth-link text-sm font-semibold">
-                    <i class="fas fa-arrow-left mr-1"></i>
+                <a href="{{ url()->previous() }}" class="text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors flex items-center justify-center gap-1">
+                    <i class="ri-arrow-left-line"></i>
                     Go Back
                 </a>
             </div>

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Country;
+use App\Models\DigitalProductOrder;
+use App\Models\GiftOrder;
 use App\Models\Localbank;
 use App\Models\Order;
 use App\Models\Paystack;
+use App\Models\ResellerOrder;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\SmsPoolService;
@@ -174,7 +177,7 @@ class UsersController extends Controller
             $transactions = $user->transactions()
                 ->with(['admin'])
                 ->latest()
-                ->paginate(10);
+                ->paginate(25);
             
             $transactionData = $transactions->map(function($transaction) {
                 return [
@@ -253,6 +256,45 @@ class UsersController extends Controller
             ], 400);
         }
     }
-    
+
+    public function smsOrders()
+    {
+        $orders = Order::where('user_id', auth()->id())
+            ->with(['service', 'country'])
+            ->latest()
+            ->paginate(25);
+
+        return view('user.orders.sms', compact('orders'));
+    }
+
+    public function logOrders()
+    {
+        $orders = DigitalProductOrder::where('user_id', auth()->id())
+            ->with(['product.subcategory', 'log'])
+            ->latest()
+            ->paginate(25);
+
+        return view('user.orders.logs', compact('orders'));
+    }
+
+    public function giftOrders()
+    {
+        $orders = GiftOrder::where('user_id', auth()->id())
+            ->with('gift')
+            ->latest()
+            ->paginate(25);
+
+        return view('user.orders.gifts', compact('orders'));
+    }
+
+    public function resellerOrders()
+    {
+        $orders = ResellerOrder::where('user_id', auth()->id())
+            ->with(['product', 'logs'])
+            ->latest()
+            ->paginate(25);
+
+        return view('user.orders.reseller', compact('orders'));
+    }
 
 }

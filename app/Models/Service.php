@@ -176,7 +176,7 @@ class Service extends Model
                 $apiPriceUsd = $prices[$this->code];
                 
                 // Get exchange rate from general settings
-                $generalSettings = \App\Models\GeneralSetting::first();
+                $generalSettings = GeneralSetting::first();
                 $exchangeRate = $generalSettings->naira_to_dollar_rate ?? 1700.00;
                 
                 // Use service-specific markup or default 20%

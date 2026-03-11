@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold gradient-text mb-2">Create Account</h2>
-        <p class="text-gray-600">Join us and start verifying your accounts securely</p>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Create Account</h2>
+        <p class="text-slate-500">Join us and start verifying your accounts securely</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}" class="space-y-6">
@@ -25,7 +25,7 @@
         <div>
             <x-input-label for="phone" :value="__('Phone Number')" />
             <x-text-input id="phone" type="text" name="phone" :value="old('phone')" required autocomplete="tel" maxlength="11" placeholder="Enter your phone number" />
-            <p class="text-xs text-gray-500 mt-1">Use a valid number; it will be required to access your dashboard.</p>
+            <p class="text-xs text-slate-500 mt-1">Use a valid number; it will be required to access your dashboard.</p>
             <x-input-error :messages="$errors->get('phone')" class="mt-2 text-red-600 text-sm" />
         </div>
 
@@ -49,8 +49,8 @@
             </x-primary-button>
             
             <div class="text-center">
-                <span class="text-gray-600 text-sm">Already have an account? </span>
-                <a href="{{ route('login') }}" class="auth-link text-sm font-semibold">
+                <span class="text-slate-500 text-sm">Already have an account? </span>
+                <a href="{{ route('login') }}" class="text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors">
                     Sign In
                 </a>
             </div>

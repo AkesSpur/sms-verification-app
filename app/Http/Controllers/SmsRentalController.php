@@ -71,8 +71,9 @@ class SmsRentalController extends Controller
     /**
      * Cancel a rental (alias for cancelRental)
      */
-    public function cancel(Request $request, $id)
+    public function cancel(Request $request, $id = null)
     {
+        $id = $id ?? $request->route('id');
         return $this->cancelRental($id);
     }
 
@@ -742,6 +743,15 @@ class SmsRentalController extends Controller
                 ->where('user_id', $user->id)
                 ->whereIn('status', [DaisyOrder::STATUS_PENDING, DaisyOrder::STATUS_ACTIVE])
                 ->firstOrFail();
+
+            Log::info('SMS Cancel Rental Request Started', [
+                'request_id' => $requestId,
+                'rental_id' => $rental->rental_id,
+                'user_id' => auth()->user()->id,
+                'timestamp' => now()->toISOString()
+            ]);
+        
+            
 
             // Check if rental is past its window (more than 1 minute expired)
             if ($rental->expires_at && $rental->expires_at->isPast()) {

@@ -1,218 +1,73 @@
-@extends('layouts.user')
+@extends('layouts.app')
 
 @section('title', 'Transaction History')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Page Header -->
-    <!-- Add Funds Section -->
-    <div class="mb-6">
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900">Account Funding</h3>
-                    <p class="text-sm text-gray-500 mt-1">Add funds to your account to purchase services</p>
-                </div>
-                <button id="addFundsBtn" class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-plus mr-2"></i>
-                    Add Funds
-                </button>
+<div class="space-y-5 max-w-4xl mx-auto">
+
+    {{-- ── Stat: Total Spent ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-sm font-bold text-gray-900">Wallet & Transactions</h1>
+                <p class="text-[11px] text-gray-400 mt-0.5">Manage your balance and view transaction history</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-0.5">Total Spent</p>
+                <p class="text-lg font-bold text-gray-900">&#8358;{{ number_format($totalSpent, 2) }}</p>
             </div>
         </div>
     </div>
 
-    <!-- Add Funds Modal -->
-    <div id="addFundsModal" style="display: none;" class="z-50">
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 w-full h-full" style="z-index: 999;"></div>
-        <div class="fixed inset-0 flex items-center justify-center" style="z-index: 1000;" onclick="closeAddFundsModal()">
-            <div class="relative mx-auto p-6 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
-                <div class="mt-3">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-medium text-gray-900">Add Funds to Account</h3>
-                        <button onclick="closeAddFundsModal()" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Payment Method Tabs -->
-                    <div class="mb-6">
-                        <div class="flex border-b border-gray-200">
-                            {{-- <button type="button" onclick="switchPaymentTab('paystack')" id="paystackTab" 
-                                    class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
-                                <i class="fas fa-credit-card mr-2"></i>Online Payment
-                            </button> --}}
-                            @if($localbankSetting && $localbankSetting->status)
-                            {{-- <button type="button" onclick="switchPaymentTab('localbank')" id="localbankTab" 
-                                    class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300">
-                                <i class="fas fa-university mr-2"></i>Bank Transfer
-                            </button> --}}
-                            @endif
-                            <button type="button" onclick="switchPaymentTab('virtualAccount')" id="virtualAccountTab" 
-                                    class="px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-white">
-                                <i class="fas fa-building mr-2"></i>Virtual Account
-                            </button>
-                        </div>
-                    </div>
+    {{-- ── Add Funds (inline, no modal) ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-4">Add Funds</p>
 
-                    <!-- Paystack Payment Section -->
-                    <div id="paystackSection" class="payment-section" style="display: none;">
-                        <form id="depositForm" action="{{ route('user.paystack.redirect') }}" method="GET" class="space-y-6">
-                            <div>
-                                <label for="depositAmount" class="block text-sm font-medium text-gray-700 mb-2">Amount (₦)</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 ml-3 text-sm">₦</span>
-                                    </div>
-                                    <input type="number" id="depositAmount" name="amount" min="100" max="1000000" step="0.01"
-                                           class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                                           placeholder="  Enter amount" required>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Minimum: ₦100 • Maximum: ₦1,000,000
-                                </p>
-                            </div>
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-shield-alt text-blue-600 mt-0.5"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h4 class="text-sm font-medium text-blue-800">Secure Payment</h4>
-                                        <p class="text-xs text-blue-700 mt-1">Your payment is processed securely through Paystack</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="mt-8 flex justify-end space-x-3">
-                            <button type="button" onclick="closeAddFundsModal()" 
-                                    class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-                                Cancel
-                            </button>
-                            <button type="submit" form="depositForm" 
-                                    class="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                                <i class="fas fa-credit-card mr-2"></i>
-                                Proceed to Payment
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Local Bank Transfer Section -->
-                     @if($localbankSetting && $localbankSetting->status)
-                     <div id="localbankSection" class="payment-section" style="display: none;">
-                         <div class="space-y-6 max-h-96 overflow-y-auto pr-2">
-                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h4 class="text-sm font-medium text-yellow-800">Manual Processing</h4>
-                                        <p class="text-xs text-yellow-700 mt-1">After making the transfer, contact support for manual account funding</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                                <h4 class="text-lg font-medium text-gray-900 mb-4">
-                                    <i class="fas fa-university mr-2 text-primary-600"></i>
-                                    Bank Account Details
-                                </h4>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center py-2 border-b border-gray-200">
-                                        <span class="text-sm font-medium text-gray-600">Account Name:</span>
-                                        <span class="text-sm text-gray-900 font-medium">{{ $localbankSetting->account_name }}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center py-2 border-b border-gray-200">
-                                        <span class="text-sm font-medium text-gray-600">Account Number:</span>
-                                        <span class="text-sm text-gray-900 font-mono font-bold">{{ $localbankSetting->account_number }}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center py-2 border-b border-gray-200">
-                                        <span class="text-sm font-medium text-gray-600">Bank Name:</span>
-                                        <span class="text-sm text-gray-900 font-medium">{{ $localbankSetting->bank_name }}</span>
-                                    </div>
-                                </div>
-                                
-                                @if($localbankSetting->extra_info)
-                                <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                                    <h5 class="text-sm font-medium text-blue-800 mb-2">Additional Information:</h5>
-                                    <div class="text-sm text-blue-700">{!! $localbankSetting->extra_info !!}</div>
-                                </div>
-                                @endif
-                            </div>
-                            
-                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-info-circle text-red-600 mt-0.5"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h4 class="text-sm font-medium text-red-800">Important Instructions</h4>
-                                        <ul class="text-xs text-red-700 mt-1 list-disc list-inside space-y-1">
-                                            <li>Make the transfer to the account details above</li>
-                                            <li>Contact our support team with your transfer receipt</li>
-                                            <li>Include your username and transfer amount in your message</li>
-                                            <li>Your account will be funded manually after verification</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <div>
+            {{-- Virtual Account Section --}}
+            <div id="virtualAccountSection" class="payment-section">
+                <div class="flex items-start gap-2 bg-primary-50 border border-primary-100 rounded-xl px-3 py-2 mb-4 text-xs text-primary-700">
+                    <i class="ri-information-line flex-shrink-0 mt-0.5"></i>
+                    <span>Create your virtual bank account and fund it by transfer. Your wallet will be credited automatically.</span>
+                </div>
+                <div id="vaCreateContainer">
+                    <button id="createVaBtnModal" type="button"
+                            class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all btn-glow"
+                            style="background:linear-gradient(135deg,#475569,#1e293b)">
+                        <i class="ri-bank-card-line"></i> Create Virtual Account
+                    </button>
+                </div>
+                <div id="vaCardModal" class="hidden">
+                    <div class="rounded-2xl p-6 text-white relative overflow-hidden" style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);">
+                        <!-- Background Pattern -->
+                        <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-5 rounded-full blur-xl"></div>
+                        <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-primary-500 opacity-10 rounded-full blur-xl"></div>
                         
-                        <div class="mt-8 flex justify-end space-x-3">
-                            <button type="button" onclick="closeAddFundsModal()" 
-                                    class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
-                                Close
-                            </button>
-                           
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Virtual Account Section -->
-                    <div id="virtualAccountSection" class="payment-section">
-                        <div class="space-y-4">
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h4 class="text-sm font-medium text-blue-800">Virtual Account Funding</h4>
-                                        <p class="text-xs text-blue-700 mt-1">Create your PaymentPoint virtual bank account and fund it by transfer. Your wallet will be credited automatically.</p>
-                                    </div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-6">
+                                <div>
+                                    <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Bank Name</p>
+                                    <p class="font-bold text-lg text-white tracking-wide" id="vaBankNameModal">—</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center backdrop-blur-sm">
+                                    <i class="ri-bank-line text-white"></i>
                                 </div>
                             </div>
-                            <div id="vaCreateContainer" class="flex justify-end">
-                                <button id="createVaBtnModal" type="button" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                                    <i class="fas fa-university mr-2"></i>Create Virtual Account
-                                </button>
-                            </div>
-                            <div id="vaCardModal" class="hidden">
-                                <!-- Professional and Minimalistic Virtual Account Card -->
-                                <div class="w-full max-w-md mx-auto">
-                                    <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg shadow-md p-6 space-y-6">
-                                        <div class="flex justify-between items-center">
-                                            <div>
-                                                <h2 class="text-xl font-semibold" id="vaBankNameModal">-</h2>
-                                                <p class="text-sm opacity-80">Virtual Account</p>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm opacity-80 mb-1">Account Number</p>
-                                            <div class="flex items-center space-x-3">
-                                                <p class="text-2xl font-mono" id="vaAccountNumberModal">-</p>
-                                                <button onclick="copyToClipboard(document.getElementById('vaAccountNumberModal').textContent)" class="opacity-70 hover:opacity-100 transition-opacity">
-                                                    <i class="fas fa-copy"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm opacity-80">Account Name</p>
-                                            <p class="text-lg font-medium" id="vaAccountNameModal">-</p>
-                                        </div>
-                                    </div>
+                            
+                            <div class="mb-6">
+                                <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Account Number</p>
+                                <div class="flex items-center gap-3 group">
+                                    <p class="font-mono font-bold text-2xl text-white tracking-widest" id="vaAccountNumberModal">—</p>
+                                    <button onclick="copyToClipboard(document.getElementById('vaAccountNumberModal').textContent)"
+                                            class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0">
+                                        <i class="ri-file-copy-line text-sm"></i>
+                                    </button>
                                 </div>
+                            </div>
+                            
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Account Name</p>
+                                <p class="font-medium text-sm text-gray-200" id="vaAccountNameModal">—</p>
                             </div>
                         </div>
                     </div>
@@ -221,147 +76,36 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <!-- Total Transactions -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-receipt text-blue-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total Transactions</p>
-                    <p class="text-2xl font-bold text-gray-900" id="totalTransactions">{{ $totalTransactions ?? 0 }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Spent -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-arrow-down text-red-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total Spent</p>
-                    <p class="text-2xl font-bold text-gray-900" id="totalSpent">₦{{ number_format($totalSpent ?? 0, 2) }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Refunds -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-arrow-up text-green-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total Refunds</p>
-                    <p class="text-2xl font-bold text-gray-900" id="totalRefunds">₦{{ number_format($totalRefunds ?? 0, 2) }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Amount -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Pending</p>
-                    <p class="text-2xl font-bold text-gray-900" id="pendingAmount">₦{{ number_format($pendingAmount ?? 0, 2) }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Transactions Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Recent Transactions</h3>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200" id="transactionsTable">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="transactionsTableBody">
-                   
-                </tbody>
-            </table>
+    {{-- ── Transactions List (Div-based) ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-gray-50">
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Recent Transactions</p>
         </div>
         
-        <!-- Pagination -->
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6" id="paginationContainer" style="display: none;">
+        <div id="transactionsContainer">
+            {{-- Transactions will be loaded here via AJAX --}}
+        </div>
+
+        {{-- Pagination --}}
+        <div class="px-5 py-3 border-t border-gray-50" id="paginationContainer" style="display: none;">
             <div class="flex items-center justify-between">
-                <div class="flex-1 flex justify-between sm:hidden">
-                    <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        Previous
-                    </button>
-                    <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        Next
-                    </button>
+                <div class="flex gap-2 sm:hidden">
+                    <button id="prevPageMobile" class="px-3 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                    <button id="nextPageMobile" class="px-3 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
                 </div>
-                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                        <p class="text-sm text-gray-700" id="paginationInfo">
-                            Showing <span class="font-medium" id="showingFrom">0</span> to <span class="font-medium" id="showingTo">0</span> of <span class="font-medium" id="totalResults">0</span> results
-                        </p>
-                    </div>
-                    <div>
-                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="paginationNav">
-                            <!-- Pagination buttons will be dynamically generated -->
-                        </nav>
-                    </div>
+                <div class="hidden sm:flex sm:items-center sm:justify-between w-full">
+                    <p class="text-xs text-gray-400" id="paginationInfo">
+                        Showing <span class="font-medium text-gray-600" id="showingFrom">0</span>–<span class="font-medium text-gray-600" id="showingTo">0</span> of <span class="font-medium text-gray-600" id="totalResults">0</span>
+                    </p>
+                    <nav class="flex items-center gap-1" id="paginationNav"></nav>
                 </div>
             </div>
         </div>
-
-        <!-- Website Builder Contact -->
-<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
-    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
-        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
-        <p>
-            Need a custom website? <a href="https://wa.link/18c124 class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
-                Contact the developer
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-        </p>
-        <i class="fas fa-code text-blue-600 animate-bounce"></i>
-    </div>
-</div>
-
     </div>
 </div>
 @endsection
 
 @push('scripts')
-<!-- Custom Styles -->
-<style>
-    /* Use consistent primary colors that match the sidebar theme */
-    .primary-600 { color: #1e293b; }
-    .primary-700 { background-color: #0f172a; }
-    .primary-500 { border-color: #334155; }
-    .primary-50 { background-color: #f8fafc; }
-    .bg-primary-600 { background-color: #1e293b; }
-    .bg-primary-700 { background-color: #0f172a; }
-    .focus\:ring-primary-500:focus { --tw-ring-color: #334155; }
-    .border-primary-500 { border-color: #334155; }
-    .text-primary-600 { color: #1e293b; }
-    .text-primary-700 { color: #0f172a; }
-    .hover\:text-primary-700:hover { color: #0f172a; }
-</style>
-
-
 <!-- JavaScript for enhanced functionality -->
 <script>
 $(document).ready(function() {
@@ -372,26 +116,7 @@ $(document).ready(function() {
         },
         error: function(xhr, status, error) {
             if (xhr.status === 401) {
-                // Handle authentication error with JSON response instead of redirect
-                const response = {
-                    success: false,
-                    message: 'Authentication required. Please log in to continue.',
-                    error: 'Unauthorized',
-                    status: 401
-                };
-                
-                // Show error message using toastr or alert
-                if (typeof toastr !== 'undefined') {
-                    toastr.error(response.message, 'Authentication Error');
-                } else {
-                    notify('error', response.message);
-                }
-                
-                // Optionally redirect to login after showing the message
-                setTimeout(function() {
-                    window.location.href = '/login';
-                }, 2000);
-                
+                window.location.href = '/login';
                 return false;
             }
         }
@@ -409,29 +134,35 @@ $(document).ready(function() {
             data: { page: page },
             success: function(response) {
                 if (response.success) {
-                    updateTransactionsTable(response.data.transactions);
+                    updateTransactionsList(response.data.transactions);
                     updateStats(response.data.stats);
                     updatePagination(response.data.pagination);
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Failed to load transactions:', error);
-                // Error handling is already set up in ajaxSetup
             }
         });
     }
     
-    function updateTransactionsTable(transactions) {
-        const tbody = $('#transactionsTableBody');
-        tbody.empty();
+    function updateTransactionsList(transactions) {
+        const container = $('#transactionsContainer');
+        container.empty();
         
         if (transactions && transactions.length > 0) {
             transactions.forEach(function(transaction) {
                 const row = createTransactionRow(transaction);
-                tbody.append(row);
+                container.append(row);
             });
         } else {
-            tbody.append('<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No transactions found</td></tr>');
+            container.append(`
+                <div class="flex flex-col items-center py-14 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
+                        <i class="ri-file-list-3-line text-gray-200 text-3xl"></i>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-400">No transactions found</p>
+                </div>
+            `);
         }
     }
     
@@ -467,305 +198,133 @@ $(document).ready(function() {
         // Previous button
         const prevDisabled = currentPage <= 1;
         nav.append(`
-            <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${prevDisabled ? 'opacity-50 cursor-not-allowed' : ''}" 
+            <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed" 
                     onclick="${prevDisabled ? '' : 'changePage(' + (currentPage - 1) + ')'}" ${prevDisabled ? 'disabled' : ''}>
-                <i class="fas fa-chevron-left"></i>
+                <i class="ri-arrow-left-s-line"></i>
             </button>
         `);
         
-        // Page numbers
+        // Page numbers logic
         const startPage = Math.max(1, currentPage - 2);
         const endPage = Math.min(totalPages, currentPage + 2);
         
-        // First page if not in range
         if (startPage > 1) {
-            nav.append(`
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" 
-                        onclick="changePage(1)">1</button>
-            `);
-            if (startPage > 2) {
-                nav.append('<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>');
-            }
+            nav.append(`<button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-xs font-medium text-gray-600" onclick="changePage(1)">1</button>`);
+            if (startPage > 2) nav.append(`<span class="px-1 text-gray-400">...</span>`);
         }
         
-        // Page range
         for (let i = startPage; i <= endPage; i++) {
             const isActive = i === currentPage;
             nav.append(`
-                <button class="${isActive ? 'bg-primary-50 border-primary-500 text-primary-600' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'} relative inline-flex items-center px-4 py-2 border text-sm font-medium" 
+                <button class="w-8 h-8 rounded-lg border ${isActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'} flex items-center justify-center text-xs font-medium transition-colors" 
                         onclick="${isActive ? '' : 'changePage(' + i + ')'}" ${isActive ? 'disabled' : ''}>
                     ${i}
                 </button>
             `);
         }
         
-        // Last page if not in range
         if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                nav.append('<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>');
-            }
-            nav.append(`
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" 
-                        onclick="changePage(${totalPages})">${totalPages}</button>
-            `);
+            if (endPage < totalPages - 1) nav.append(`<span class="px-1 text-gray-400">...</span>`);
+            nav.append(`<button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-xs font-medium text-gray-600" onclick="changePage(${totalPages})">${totalPages}</button>`);
         }
         
         // Next button
         const nextDisabled = currentPage >= totalPages;
         nav.append(`
-            <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${nextDisabled ? 'opacity-50 cursor-not-allowed' : ''}" 
+            <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed" 
                     onclick="${nextDisabled ? '' : 'changePage(' + (currentPage + 1) + ')'}" ${nextDisabled ? 'disabled' : ''}>
-                <i class="fas fa-chevron-right"></i>
+                <i class="ri-arrow-right-s-line"></i>
             </button>
         `);
     }
     
-    // Global function to change page
     window.changePage = function(page) {
         if (page >= 1 && page <= totalPages && page !== currentPage) {
             loadTransactions(page);
         }
     };
     
-    // Mobile pagination event handlers
-    $('#prevPageMobile').on('click', function() {
-        if (currentPage > 1) {
-            changePage(currentPage - 1);
-        }
-    });
-    
-    $('#nextPageMobile').on('click', function() {
-        if (currentPage < totalPages) {
-            changePage(currentPage + 1);
-        }
-    });
+    // Mobile pagination handlers
+    $('#prevPageMobile').on('click', function() { if (currentPage > 1) changePage(currentPage - 1); });
+    $('#nextPageMobile').on('click', function() { if (currentPage < totalPages) changePage(currentPage + 1); });
     
     function createTransactionRow(transaction) {
-        const statusClass = getStatusClass(transaction.status);
-        const typeClass = getTypeClass(transaction.transaction_type);
-        const typeIcon = getTypeIcon(transaction.transaction_type);
-        const amountDisplay = transaction.transaction_type === 'credit' ? '+₦' : '-₦';
+        const isCredit = transaction.transaction_type.toLowerCase() === 'credit';
+        const amountDisplay = isCredit ? '+₦' : '-₦';
+        const amountClass = isCredit ? 'text-emerald-600' : 'text-red-600';
+        const iconBg = isCredit ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600';
+        const icon = isCredit ? 'ri-arrow-left-down-line' : 'ri-arrow-right-up-line';
         
-        return `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${transaction.id}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${typeClass}">
-                        <i class="${typeIcon} mr-1"></i>
-                        ${transaction.type}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.service || '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${transaction.transaction_type === 'credit' ? 'text-green-600' : 'text-red-600'}">${amountDisplay}${parseFloat(transaction.amount).toFixed(2)}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
-                        <i class="fas fa-${transaction.status === 'completed' ? 'check-circle' : transaction.status === 'pending' ? 'clock' : 'times-circle'} mr-1"></i>
-                        ${transaction.status}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(transaction.created_at)}</td>
+        // Format date to "time ago"
+        const timeAgoStr = timeAgo(transaction.created_at);
 
-            </tr>
+        // Status badge style
+        let statusClass = 'bg-gray-100 text-gray-600';
+        let statusIcon = 'ri-checkbox-circle-line';
+        if (transaction.status === 'completed') {
+            statusClass = 'bg-emerald-50 text-emerald-600';
+            statusIcon = 'ri-checkbox-circle-fill';
+        } else if (transaction.status === 'pending') {
+            statusClass = 'bg-amber-50 text-amber-600';
+            statusIcon = 'ri-time-line';
+        } else if (transaction.status === 'failed') {
+            statusClass = 'bg-red-50 text-red-600';
+            statusIcon = 'ri-close-circle-line';
+        }
+
+        return `
+        <div class="flex items-center gap-4 p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition-colors">
+            <div class="w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0">
+                <i class="${icon} text-lg"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-gray-800 text-sm truncate">#${transaction.id}</p>
+                <p class="text-[11px] text-gray-400 mt-0.5 flex items-center gap-1">
+                    <i class="ri-time-line"></i> ${timeAgoStr}
+                </p>
+            </div>
+            <div class="font-medium text-sm ${amountClass}">
+                ${amountDisplay}${parseFloat(transaction.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            </div>
+            <div class="flex-shrink-0">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${statusClass}">
+                    <i class="${statusIcon}"></i> ${transaction.status}
+                </span>
+            </div>
+        </div>
         `;
     }
     
-    function getStatusClass(status) {
-        switch(status.toLowerCase()) {
-            case 'completed': return 'bg-green-100 text-green-800';
-            case 'pending': return 'bg-yellow-100 text-yellow-800';
-            case 'failed': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    }
-    
-    function getTypeClass(type) {
-        switch(type.toLowerCase()) {
-            case 'credit': return 'bg-green-100 text-green-800';
-            case 'debit': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    }
-    
-    function getTypeIcon(type) {
-        switch(type.toLowerCase()) {
-            case 'credit': return 'fas fa-arrow-up';
-            case 'debit': return 'fas fa-arrow-down';
-            default: return 'fas fa-circle';
-        }
+    function timeAgo(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " years ago";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " months ago";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " days ago";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " hours ago";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minutes ago";
+        return Math.floor(seconds) + " seconds ago";
     }
     
     function updateStats(stats) {
-        if (stats) {
-            $('#totalTransactions').text(stats.total_transactions || 0);
-            $('#totalSpent').text('₦' + parseFloat(stats.total_spent || 0).toFixed(2));
-            $('#totalRefunds').text('₦' + parseFloat(stats.total_refunds || 0).toFixed(2));
-            $('#pendingAmount').text('₦' + parseFloat(stats.pending_amount || 0).toFixed(2));
-        }
+        // Logic to update stats if needed
     }
-    
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-    
-
     
     // Load transactions on page load
     loadTransactions();
+    
+    // Initialize Virtual Account Modal Logic immediately
+    initVirtualAccountModal();
 });
 
-// Legacy functions removed - now using closeAddFundsModal()
-
-// Add Funds Modal functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // Modal functionality
-    document.getElementById('addFundsBtn').addEventListener('click', function() {
-        document.getElementById('addFundsModal').style.display = 'block';
-        initVirtualAccountModal();
-    });
-
-    function closeAddFundsModal() {
-        document.getElementById('addFundsModal').style.display = 'none';
-        // Reset form
-        document.getElementById('depositForm').reset();
-    }
-
-    // Make closeAddFundsModal globally accessible
-    window.closeAddFundsModal = closeAddFundsModal;
-
-    // Form submission
-    document.getElementById('depositForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const amount = document.getElementById('depositAmount').value;
-        
-        if (amount < 100 || amount > 1000000) {
-            notify('error', 'Please enter an amount between ₦100 and ₦1,000,000');
-            return;
-        }
-        
-        // Show loading state
-        const submitBtn = document.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-        submitBtn.disabled = true;
-        
-        // Send AJAX request to set deposit amount
-        fetch('{{ route("user.set-deposit-amount") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ amount: amount })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Redirect to Paystack
-                window.location.href = '{{ route("user.paystack.redirect") }}';
-            } else {
-                // Reset button state
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                notify('error', 'Error: ' + (data.message || 'Something went wrong'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Reset button state
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-            notify('error', 'An error occurred. Please try again.');
-        });
-    });
-
-    // Format amount input with thousand separators
-    document.getElementById('depositAmount').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/,/g, '');
-        if (value && !isNaN(value)) {
-            // Add thousand separators for display
-            const formatted = parseFloat(value).toLocaleString('en-US');
-            // Don't update the actual value, just for visual feedback
-        }
-    });
-    
-    // Close modal with Escape key
-     document.addEventListener('keydown', function(e) {
-         if (e.key === 'Escape') {
-             closeAddFundsModal();
-         }
-     });
-});
-
-// Payment tab switching functionality
-function switchPaymentTab(tabName) {
-    // Hide all payment sections
-    const sections = document.querySelectorAll('.payment-section');
-    sections.forEach(section => {
-        section.style.display = 'none';
-    });
-    
-    // Remove active classes from all tabs
-    const tabs = document.querySelectorAll('[id$="Tab"]');
-    tabs.forEach(tab => {
-        tab.classList.remove('text-primary-600', 'border-primary-600');
-        tab.classList.add('text-gray-500', 'border-transparent');
-    });
-    
-    // Show selected section and activate tab
-    if (tabName === 'paystack') {
-        document.getElementById('paystackSection').style.display = 'block';
-        const paystackTab = document.getElementById('paystackTab');
-        paystackTab.classList.remove('text-gray-500', 'border-transparent');
-        paystackTab.classList.add('text-primary-600', 'border-primary-600');
-    } else if (tabName === 'localbank') {
-        document.getElementById('localbankSection').style.display = 'block';
-        const localbankTab = document.getElementById('localbankTab');
-        localbankTab.classList.remove('text-gray-500', 'border-transparent');
-        localbankTab.classList.add('text-primary-600', 'border-primary-600');
-    } else if (tabName === 'virtualAccount') {
-        document.getElementById('virtualAccountSection').style.display = 'block';
-        const virtualTab = document.getElementById('virtualAccountTab');
-        virtualTab.classList.remove('text-gray-500', 'border-transparent');
-        virtualTab.classList.add('text-primary-600', 'border-primary-600');
-        // Load VA details when tab is opened
-        initVirtualAccountModal();
-    }
-}
-
-// Contact support functionality
-function contactSupport() {
-    // You can customize this based on your support system
-    // For now, it will open a mailto link or redirect to support page
-    const supportEmail = 'support@yoursite.com'; // Replace with actual support email
-    const subject = 'Bank Transfer - Account Funding Request';
-    const body = `Hello Support Team,\n\nI have made a bank transfer for account funding.\n\nUsername: {{ Auth::user()->username ?? Auth::user()->email }}\n\nPlease find the transfer receipt attached and fund my account accordingly.\n\nThank you.`;
-    
-    const mailtoLink = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-    
-    // Alternative: You can redirect to a support page or open a chat widget
-    // window.open('/support', '_blank');
-}
-
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        notify('success', 'Account number copied to clipboard!');
-    }, function(err) {
-        notify('error', 'Could not copy text: ', err);
-    });
-}
-</script>
-
-@push('scripts')
-<script>
+// Virtual Account Logic
 function initVirtualAccountModal() {
     const createBtn = document.getElementById('createVaBtnModal');
     const card = document.getElementById('vaCardModal');
@@ -795,7 +354,7 @@ function initVirtualAccountModal() {
         createBtn.dataset.bound = '1';
         createBtn.addEventListener('click', function() {
             createBtn.disabled = true;
-            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+            createBtn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Creating...';
             fetch('{{ route('api.user.virtual-account.create') }}', {
                 method: 'POST',
                 headers: {
@@ -816,20 +375,26 @@ function initVirtualAccountModal() {
                 } else {
                     notify('error', data.message || 'Failed to create virtual account');
                     createBtn.disabled = false;
-                    createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+                    createBtn.innerHTML = '<i class="ri-bank-card-line"></i> Create Virtual Account';
                 }
             })
             .catch(err => {
                 console.error(err);
                 notify('error', 'An error occurred');
                 createBtn.disabled = false;
-                createBtn.innerHTML = '<i class="fas fa-university mr-2"></i>Create Virtual Account';
+                createBtn.innerHTML = '<i class="ri-bank-card-line"></i> Create Virtual Account';
             });
         });
     }
 }
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        if(typeof notify === 'function') notify('success', 'Copied to clipboard!');
+        else alert('Copied!');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
 </script>
-@endpush
-
-
 @endpush

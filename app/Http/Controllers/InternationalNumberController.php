@@ -736,8 +736,9 @@ class InternationalNumberController extends Controller
     /**
      * Cancel an order
      */
-    public function cancelOrder(Request $request, $orderId)
+    public function cancelOrder(Request $request, $orderId = null)
     {
+        $orderId = $orderId ?? $request->route('order');
         $user = Auth::user();
         
         $order = Order::where('id', $orderId)

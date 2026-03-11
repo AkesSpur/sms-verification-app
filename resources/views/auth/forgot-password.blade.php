@@ -1,12 +1,12 @@
 <x-guest-layout>
     <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold gradient-text mb-2">Reset Password</h2>
-        <p class="text-gray-600">Enter your email to receive a password reset link</p>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Reset Password</h2>
+        <p class="text-slate-500">Enter your email to receive a password reset link</p>
     </div>
 
     <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div class="flex items-start">
-            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
+            <i class="ri-information-line text-blue-500 mt-0.5 mr-3 text-lg"></i>
             <p class="text-sm text-blue-700">
                 {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
             </p>
@@ -32,8 +32,8 @@
             </x-primary-button>
             
             <div class="text-center">
-                <a href="{{ route('login') }}" class="auth-link text-sm font-semibold">
-                    <i class="fas fa-arrow-left mr-1"></i>
+                <a href="{{ route('login') }}" class="text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors flex items-center justify-center gap-1">
+                    <i class="ri-arrow-left-line"></i>
                     Back to Sign In
                 </a>
             </div>

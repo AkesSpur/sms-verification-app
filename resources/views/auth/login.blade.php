@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold gradient-text mb-2">Welcome Back</h2>
-        <p class="text-gray-600">Sign in to your account to continue</p>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h2>
+        <p class="text-slate-500">Sign in to your account to continue</p>
     </div>
 
     <!-- Session Status -->
@@ -27,12 +27,12 @@
         <!-- Remember Me -->
         <div class="flex items-center justify-between">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500" name="remember">
+                <span class="ml-2 text-sm text-slate-600">{{ __('Remember me') }}</span>
             </label>
             
             @if (Route::has('password.request'))
-                <a class="auth-link text-sm" href="{{ route('password.request') }}">
+                <a class="text-sm text-primary-600 hover:text-primary-800 font-medium transition-colors" href="{{ route('password.request') }}">
                     {{ __('Forgot password?') }}
                 </a>
             @endif
@@ -44,8 +44,8 @@
             </x-primary-button>
             
             <div class="text-center">
-                <span class="text-gray-600 text-sm">Don't have an account? </span>
-                <a href="{{ route('register') }}" class="auth-link text-sm font-semibold">
+                <span class="text-slate-500 text-sm">Don't have an account? </span>
+                <a href="{{ route('register') }}" class="text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors">
                     Create Account
                 </a>
             </div>

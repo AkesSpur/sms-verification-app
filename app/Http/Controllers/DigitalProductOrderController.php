@@ -91,34 +91,32 @@ class DigitalProductOrderController extends Controller
             DB::beginTransaction();
 
             try {
-                $orders = [];
-                
-                // Create individual orders for each quantity
-                for ($i = 0; $i < $quantity; $i++) {
-                    // Get an available log
-                    $availableLog = $product->availableLogs()->lockForUpdate()->first();
-                    
-                    if (!$availableLog) {
-                        throw new \Exception('No available items in stock.');
-                    }
+                // Fetch available logs for the quantity
+                $availableLogs = $product->availableLogs()
+                    ->lockForUpdate()
+                    ->take($quantity)
+                    ->get();
 
-                    // Create order
-                    $order = DigitalProductOrder::create([
-                        'user_id' => $user->id,
-                        'product_id' => $product->id,
-                        'log_id' => $availableLog->id,
-                        'quantity' => 1,
-                        'unit_price' => $unitPrice,
-                        'total_amount' => $unitPrice,
-                        'status' => 'pending',
-                        'payment_method' => 'wallet',
-                        'payment_status' => 'pending'
-                    ]);
+                if ($availableLogs->count() < $quantity) {
+                    throw new \Exception('Not enough items in stock to fulfill this order.');
+                }
 
-                    // Mark log as sold
-                    $availableLog->markAsSold($user->id);
-                    
-                    $orders[] = $order;
+                // Create a single order for the batch
+                $order = DigitalProductOrder::create([
+                    'user_id' => $user->id,
+                    'product_id' => $product->id,
+                    'log_id' => null, // New logic: logs are linked via order_id in logs table
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'total_amount' => $totalAmount,
+                    'status' => 'pending',
+                    'payment_method' => 'wallet',
+                    'payment_status' => 'pending'
+                ]);
+
+                // Mark logs as sold and attach to order
+                foreach ($availableLogs as $log) {
+                    $log->markAsSold($user->id, $order->id);
                 }
 
                 // Deduct balance from user with transaction logging
@@ -126,16 +124,17 @@ class DigitalProductOrderController extends Controller
                     $totalAmount,
                     'digital_purchase',
                     "Digital product purchase: {$product->name} (Qty: {$quantity})",
-                    collect($orders)->first() // Use first order as reference
+                    $order
                 );
 
-                // Mark all orders as completed
-                foreach ($orders as $order) {
-                    $order->markAsCompleted();
-                }
+                // Mark order as completed
+                $order->markAsCompleted();
 
-                // Update product stock
-                $product->updateStock();
+                // Update product stock (technically markAsSold handles this individually, but we might want to optimize or ensure consistency)
+                // Since markAsSold calls updateStock each time, it might be redundant but safe. 
+                // Alternatively, we could optimize by calling updateStock once at the end if we modified markAsSold, 
+                // but for now let's rely on the existing model method to ensure stock count is correct.
+                // However, markAsSold updates the count by counting available logs. So calling it multiple times is fine.
 
                 DB::commit();
 
@@ -145,7 +144,7 @@ class DigitalProductOrderController extends Controller
                     'product_id' => $product->id,
                     'quantity' => $quantity,
                     'total_amount' => $totalAmount,
-                    'order_ids' => collect($orders)->pluck('id')->toArray()
+                    'order_id' => $order->id
                 ]);
 
                 // Send sales notification email
@@ -155,33 +154,25 @@ class DigitalProductOrderController extends Controller
                     $recipient   = $settings->contact_email ?? null;
 
                     if ($emailConfig && $emailConfig->email && $recipient) {
-                        $saleData = collect($orders)->map(function ($order) use ($user, $product) {
-                            return [
+                        $saleData = [
+                            [
                                 'order_id'      => $order->id,
                                 'category'      => $product->subcategory->category->name ?? 'N/A',
                                 'name'          => $product->name,
                                 'quantity'      => $order->quantity,
                                 'customer_name' => $user->name,
                                 'price'         => $order->total_amount
-                            ];
-                        })->toArray();
-
-                        $amount = collect($orders)->sum('total_amount');
+                            ]
+                        ];
 
                         Mail::to($recipient)->queue(
-                            new SaleNotificationMail('digital_product', $saleData, $amount, $settings->site_name ?? 'Admin')
+                            new SaleNotificationMail('digital_product', $saleData, $totalAmount, $settings->site_name ?? 'Admin')
                         );
-                    } else {
-                        Log::warning('Digital product sale notification skipped: missing SMTP config or contact email', [
-                            'order_ids'        => collect($orders)->pluck('id')->toArray(),
-                            'has_email_config' => (bool) ($emailConfig && $emailConfig->email),
-                            'has_recipient'    => (bool) $recipient,
-                        ]);
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to send sales notification email', [
                         'error'     => $e->getMessage(),
-                        'order_ids' => collect($orders)->pluck('id')->toArray()
+                        'order_id' => $order->id
                     ]);
                 }
 
@@ -189,7 +180,7 @@ class DigitalProductOrderController extends Controller
                     'success' => true,
                     'message' => 'Purchase completed successfully!',
                     'data' => [
-                        'orders' => $orders,
+                        'orders' => [$order], // Keep structure somewhat consistent for frontend if it expects array
                         'total_amount' => $totalAmount,
                         'remaining_balance' => $user->fresh()->balance,
                         'product_name' => $product->name
@@ -249,8 +240,9 @@ class DigitalProductOrderController extends Controller
             $status = $request->get('status');
             $search = $request->get('search');
 
+            // Updated query to include 'logs' relationship for new batch orders
             $query = $user->digitalProductOrders()
-                          ->with(['product.subcategory.category', 'log'])
+                          ->with(['product.subcategory.category', 'log', 'logs'])
                           ->orderBy('created_at', 'desc');
 
             // Filter by status
@@ -300,7 +292,7 @@ class DigitalProductOrderController extends Controller
 
             $user = Auth::user();
             $order = $user->digitalProductOrders()
-                          ->with(['product.subcategory.category', 'log'])
+                          ->with(['product.subcategory.category', 'log', 'logs'])
                           ->findOrFail($id);
 
             return response()->json([

@@ -1,1709 +1,648 @@
-@extends('layouts.user')
+@extends('layouts.app')
 
 @section('title', 'USA Numbers 2')
 
+
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">USA Numbers 2</h1>
-            <p class="mt-1 text-sm text-gray-500">Get and manage your USA phone numbers</p>
-        </div>
-        {{-- <div class="mt-4 sm:mt-0">
-            <div class="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
-                <span class="text-sm text-green-800 font-medium">Balance: ₦{{ number_format($stats['balance'], 2) }}</span>
-            </div>
-        </div> --}}
-    </div>
+<div class="space-y-5 max-w-4xl mx-auto">
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-mobile-alt text-blue-600 text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Total Orders</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['total_orders'] }}</p>
-                </div>
-            </div>
+    {{-- ── Purchase form ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div class="mb-4">
+            <h1 class="text-sm font-bold text-gray-900">USA Numbers 2</h1>
+            <p class="text-[11px] text-gray-400 mt-0.5">Get a US phone number for SMS verification</p>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-clock text-yellow-600 text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Active Orders</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['active_orders'] }}</p>
-                </div>
-            </div>
-        </div>
-        {{-- <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Completed</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['completed_orders'] }}</p>
-                </div>
-            </div>
-        </div> --}}
-    </div>
 
-    <!-- Purchase Form -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Get New USA Number</h2>
-        <form id="usaForm" class="space-y-4">
+        <form id="usaForm">
             @csrf
-            
-            <!-- Service Selection -->
-            <div>
-                <label for="service" class="block text-sm font-medium text-gray-700 mb-2">Select Service</label>
-                <!-- Custom Searchable Dropdown -->
-                <div class="relative" id="searchable-dropdown">
-                    <!-- Hidden select for form submission -->
-                    <select id="service" name="service" class="hidden">
-                        <option value="">Choose a service...</option>
-                        @foreach($services as $service)
-                            <option value="{{ $service->code }}">{{ $service->name }}</option>
-                        @endforeach
-                    </select>
-                    
-                    <!-- Custom searchable dropdown -->
-                    <div class="relative">
-                        <button type="button" id="dropdown-button" 
-                                class="w-full px-3 py-2 text-left border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white flex items-center justify-between">
-                            <span id="dropdown-text" class="block truncate text-gray-900">Choose a service...</span>
-                            <svg id="dropdown-arrow" class="w-5 h-5 text-gray-400 transition-transform duration-200" 
-                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                        
-                        <!-- Dropdown panel -->
-                        <div id="dropdown-panel" 
-                             class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm hidden">
-                            
-                            <!-- Search input -->
-                            <div class="sticky top-0 bg-white px-3 py-2 border-b border-gray-200">
-                                <div class="relative">
-                                    <input type="text" id="search-input" 
-                                           placeholder="Search services..." 
-                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </div>
-                                </div>
+            <input type="hidden" name="service" id="service">
+
+            <div class="space-y-3">
+
+                {{-- ── Service dropdown ── --}}
+                <div class="relative" id="serviceDropdownWrap">
+                    <button type="button" id="serviceTrigger"
+                            class="w-full flex items-center justify-between gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm hover:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all">
+                        <span class="flex items-center gap-2 min-w-0">
+                            <i class="ri-apps-2-line text-gray-400 flex-shrink-0"></i>
+                            <span id="serviceLabel" class="truncate text-xs font-medium text-gray-400">Select a service...</span>
+                        </span>
+                        <i class="ri-arrow-down-s-line text-gray-400 text-sm"></i>
+                    </button>
+                    <div id="servicePanel" class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-[100] overflow-hidden">
+                        <div class="p-2.5 border-b border-gray-50">
+                            <div class="relative">
+                                <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                                <input type="text" id="serviceSearch" placeholder="Search services..." autocomplete="off"
+                                       class="w-full pl-8 pr-3 py-2 text-xs bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-transparent placeholder-gray-400 transition-all">
                             </div>
-                            
-                            <!-- Options list -->
-                            <div id="options-container" class="max-h-48 overflow-y-auto">
-                                <!-- Options will be populated by JavaScript -->
-                            </div>
+                        </div>
+                        <div class="max-h-60 overflow-y-auto py-1" id="serviceList">
+                            @foreach($services as $s)
+                                <div class="service-option flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 cursor-pointer transition-colors"
+                                     data-value="{{ $s->code }}" data-name="{{ $s->name }}">{{ $s->name }}</div>
+                            @endforeach
+                            <div id="serviceEmpty" class="hidden px-4 py-5 text-center text-xs text-gray-400">No results found</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Price Display -->
-            <div id="price-display" class="bg-gray-50 rounded-lg p-4 hidden">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-600">Price:</span>
-                    <span id="price-text" class="text-lg font-semibold text-gray-900">₦0</span>
+                {{-- ── Check availability (hidden until service selected) ── --}}
+                <div class="hidden pt-3 border-t border-gray-100 space-y-2.5" id="checkRow">
+                    <div class="hidden flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2" id="availError">
+                        <i class="ri-error-warning-line flex-shrink-0"></i>
+                        <span id="availErrorText"></span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <p class="text-xs text-gray-400">Check if this service has available numbers</p>
+                        <button type="button" id="checkAvailBtn"
+                                class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-5 py-1.5 rounded-lg text-xs font-bold text-white bg-slate-700 hover:bg-slate-800 disabled:opacity-60 transition-all">
+                            <i class="ri-search-line text-sm" id="checkAvailIcon"></i>
+                            <span id="checkAvailText">Check Availability</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div id="action-buttons" class="flex space-x-3 hidden">
-                <button type="button" id="check-availability-btn"
-                        class="flex-1 text-gray-700 px-4 py-2 rounded-lg transition-colors bg-gray-100 hover:bg-gray-200">
-                    <i id="check-icon" class="fas fa-search mr-2"></i>
-                    <span id="check-text">Check Availability</span>
-                </button>
-                <button type="submit" id="purchase-btn" disabled
-                        class="flex-1 px-4 py-2 rounded-lg transition-colors bg-gray-300 text-gray-500 cursor-not-allowed">
-                    <i class="fas fa-shopping-cart mr-2"></i>Purchase
-                </button>
-            </div>
+                {{-- ── Price + purchase (hidden until available) ── --}}
+                <div class="hidden pt-3 border-t border-gray-100" id="priceRow">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">Price</span>
+                            <span class="text-base font-bold text-gray-900" id="priceDisplay"></span>
+                        </div>
+                        <button type="submit" id="purchaseBtn"
+                                class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-5 py-1.5 rounded-lg text-xs font-bold text-white transition-all btn-glow"
+                                style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%);">
+                            <i class="ri-shopping-bag-2-line text-sm"></i>
+                            Purchase Number
+                        </button>
+                    </div>
+                </div>
 
-            <!-- Status Result -->
-            <div id="status-result"></div>
+            </div>
         </form>
     </div>
 
-    <!-- Information Section -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-        <div class="flex items-start space-x-3">
-            <div class="flex-shrink-0">
-                <i class="fas fa-info-circle text-blue-600 text-lg mt-0.5"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-sm font-semibold text-blue-900 mb-2">How USA Numbers Work</h3>
-                <div class="text-sm text-blue-800 space-y-1">
-                    <p><strong>Timer:</strong> Each order has a countdown timer showing time remaining to receive SMS.</p>
-                    <p><strong>Auto-Refund:</strong> If no SMS is received within the time limit, your order will be automatically cancelled and your account will be refunded.</p>
-                    <p><strong>Real-time Updates:</strong> Order status and timers update automatically every 30 seconds.</p>
+    {{-- ── Info notice ── --}}
+    <div class="flex items-start gap-3 bg-primary-50 border border-primary-100 rounded-2xl p-4">
+        <i class="ri-shield-check-line text-primary-500 flex-shrink-0 mt-0.5"></i>
+        <p class="text-xs text-primary-700 leading-relaxed">
+            <span class="font-semibold">Auto-refund enabled.</span>
+            If no SMS arrives within the time limit, your order is cancelled and your balance is refunded automatically.
+        </p>
+    </div>
+
+    {{-- ── Active orders ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-50">
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Active Orders</p>
+            <button onclick="refreshOrders()"
+                    class="flex items-center gap-1.5 text-xs text-primary-500 hover:text-primary-700 font-medium transition-colors">
+                <i class="ri-refresh-line text-sm" id="refreshIcon"></i> Refresh
+            </button>
+        </div>
+        <div id="active-orders" class="divide-y divide-gray-50">
+            @forelse($activeOrders as $order)
+            <div class="order-item p-4" data-order-id="{{ $order->id }}" data-status="{{ $order->status }}">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="font-mono font-bold text-gray-800 text-sm">{{ $order->phone_number ?? 'Requesting…' }}</span>
+                            @if($order->phone_number)
+                            <button onclick="copyToClipboard('{{ $order->phone_number }}')"
+                                    class="text-gray-300 hover:text-indigo-400 transition-colors">
+                                <i class="ri-file-copy-line text-xs"></i>
+                            </button>
+                            @endif
+                        </div>
+                        <span class="px-2 py-0.5 text-xs rounded-md bg-primary-50 text-primary-700 font-medium">
+                            {{ $order->service->name ?? 'Unknown' }}
+                        </span>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span id="usa-status-{{ $order->id }}" class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium
+                            {{ $order->status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                               ($order->status === 'pending'   ? 'bg-amber-50 text-amber-700'   :
+                               ($order->status === 'cancelled' ? 'bg-red-50 text-red-500'       : 'bg-blue-50 text-blue-700')) }}">
+                            {{ ucfirst($order->status) }}
+                        </span>
+                        @if(in_array($order->status, ['pending','active']) && isset($order->sms_window_expires_at) && $order->sms_window_expires_at?->isFuture())
+                        <span id="timer-{{ $order->id }}"
+                              data-expires="{{ $order->sms_window_expires_at->toISOString() }}"
+                              class="text-xs font-mono text-amber-500 font-semibold">--:--</span>
+                        @endif
+                    </div>
                 </div>
+
+                <div id="usa-sms-{{ $order->id }}">
+                    @if($order->sms_code)
+                    <div class="flex items-center gap-1.5 mb-2 text-xs">
+                        <span class="text-[10px] uppercase tracking-wider text-gray-400">SMS Code:</span>
+                        <span class="font-mono font-bold text-emerald-600">{{ $order->sms_code }}</span>
+                        <button onclick="copyToClipboard('{{ $order->sms_code }}')"
+                                class="text-gray-300 hover:text-emerald-500 transition-colors">
+                            <i class="ri-file-copy-line"></i>
+                        </button>
+                    </div>
+                    @else
+                    <p class="text-xs text-gray-400 mb-2">Waiting for SMS…</p>
+                    @endif
+                </div>
+
+                @if(in_array($order->status, ['pending','active']))
+                <div class="flex items-center gap-2 pt-2.5 border-t border-gray-50" id="usa-actions-{{ $order->id }}">
+                    <button onclick="checkOrderStatus({{ $order->id }})"
+                            class="check-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-50 hover:bg-primary-100 text-primary-600 text-xs font-medium transition-colors">
+                        <i class="ri-refresh-line"></i> Check
+                    </button>
+                    <button onclick="cancelOrder({{ $order->id }})"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 text-xs font-medium transition-colors">
+                        <i class="ri-close-line"></i> Cancel
+                    </button>
+                </div>
+                @endif
             </div>
+            @empty
+            <div class="flex flex-col items-center py-12 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
+                    <i class="ri-smartphone-line text-gray-200 text-3xl"></i>
+                </div>
+                <p class="text-sm font-semibold text-gray-400">No active orders</p>
+                <p class="text-xs text-gray-300 mt-1">Purchase a number to get started</p>
+            </div>
+            @endforelse
         </div>
     </div>
 
-    <!-- Active Orders Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900">Active Orders</h2>
-                <button onclick="refreshOrders()" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                    <i class="fas fa-sync-alt mr-1"></i>Refresh
-                </button>
-            </div>
+    {{-- ── Order history ── --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-gray-50">
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Your USA Numbers</p>
         </div>
-        <div class="p-6">
-            <div id="active-orders" class="space-y-4">
-                @forelse($activeOrders as $order)
-                    <div class="order-item flex items-center justify-between p-4 bg-gray-50 rounded-lg" data-order-id="{{ $order->id }}">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-mobile-alt {{ $order->status === 'completed' ? 'text-green-600' : ($order->status === 'pending' ? 'text-yellow-600' : 'text-blue-600') }}"></i>
-                                </div>
-                                <div>
-                                    <div class="flex items-center space-x-2">
-                                        <p class="text-sm font-medium text-gray-900">{{ $order->phone_number ?? 'Requesting...' }}</p>
-                                        @if($order->phone_number)
-                                            <button onclick="copyToClipboard('{{ $order->phone_number }}', this)" 
-                                                    class="text-gray-400 hover:text-blue-600 transition-colors duration-200" 
-                                                    title="Copy phone number">
-                                                <i class="fas fa-copy text-xs"></i>
-                                            </button>
-                                        @endif
-                                    </div>
-                                    <p class="text-xs text-gray-500">
-                                        {{ $order->service->name ?? 'Unknown Service' }} • 
-                                        @if($order->sms_code)
-                                            Code: {{ $order->sms_code }}
-                                        @else
-                                            Waiting for SMS
-                                        @endif
-                                    </p>
-                                    <p class="text-xs text-gray-400">{{ $order->created_at->diffForHumans() }}</p>
-                                    @if($order->status === 'pending' && $order->sms_window_expires_at)
-                                        <p class="text-xs text-orange-600 font-medium">
-                                            <i class="fas fa-clock mr-1"></i>
-                                            <span id="timer-{{ $order->id }}" data-expires="{{ $order->sms_window_expires_at->toISOString() }}">Loading...</span>
-                                        </p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                {{ $order->status === 'completed' ? 'bg-green-100 text-green-800' : 
-                                   ($order->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                   ($order->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')) }}">
-                                {{ ucfirst($order->status) }}
-                            </span>
-                            <div class="relative">
-                                <button onclick="toggleOrderMenu({{ $order->id }})" class="text-gray-400 hover:text-gray-600">
-                                    <i class="fas fa-ellipsis-v"></i>
+
+        @if($allOrders->count() > 0)
+        @php
+        if (!function_exists('getStatusBadge')) {
+            function getStatusBadge($status) {
+                return match(strtolower($status)) {
+                    'active'    => 'bg-blue-50 text-blue-700',
+                    'pending'   => 'bg-amber-50 text-amber-700',
+                    'completed' => 'bg-emerald-50 text-emerald-700',
+                    default     => 'bg-red-50 text-red-500',
+                };
+            }
+        }
+        @endphp
+
+        {{-- Desktop table --}}
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100">
+                        <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Phone</th>
+                        <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Service</th>
+                        <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">SMS Code</th>
+                        <th class="px-5 py-3 text-left font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @foreach($allOrders as $order)
+                    <tr class="hover:bg-gray-50/60 transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-mono font-semibold text-gray-800">{{ formatPhoneNumber($order->phone_number) }}</span>
+                                <button onclick="copyToClipboard('{{ $order->phone_number }}')"
+                                        class="text-gray-300 hover:text-primary-400 transition-colors">
+                                    <i class="ri-file-copy-line"></i>
                                 </button>
-                                <div id="order-menu-{{ $order->id }}" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200 hidden">
-                                    <div class="py-1">
-                                        <button onclick="checkOrderStatus({{ $order->id }})" 
-                                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            <i class="fas fa-sync mr-2"></i>Check Status
-                                        </button>
-                                        @if($order->status === 'pending')
-                                            <button onclick="cancelOrder({{ $order->id }})" 
-                                                    class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                                <i class="fas fa-times mr-2"></i>Cancel Order
-                                            </button>
-                                        @endif
-                                        <a href="{{ route('usa.order.show', $order->id) }}" 
-                                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            <i class="fas fa-eye mr-2"></i>View Details
-                                        </a>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-8">
-                        <i class="fas fa-mobile-alt text-gray-300 text-4xl mb-4"></i>
-                        <p class="text-gray-500">No active orders found</p>
-                        <p class="text-sm text-gray-400">Purchase a number to get started</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    <!-- Numbers History -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">Your USA Numbers</h2>
-        </div>
-        
-        <div class="p-6">
-            <!-- Desktop Table -->
-            <div class="hidden md:block overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SMS Code</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @php
-                            function getStatusBadge($status) {
-                                switch(strtolower($status)) {
-                                    case 'active':
-                                        return 'bg-green-100 text-green-800';
-                                    case 'pending':
-                                        return 'bg-yellow-100 text-yellow-800';
-                                    case 'completed':
-                                        return 'bg-blue-100 text-blue-800';
-                                    case 'cancelled':
-                                        return 'bg-red-100 text-red-800';
-                                    case 'expired':
-                                        return 'bg-gray-100 text-gray-800';
-                                    case 'failed':
-                                        return 'bg-red-100 text-red-800';
-                                    default:
-                                        return 'bg-gray-100 text-gray-800';
-                                }
-                            }
-                        @endphp
-                        
-                        @forelse($allOrders as $order)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <div class="flex items-center space-x-2">
-                                    <span>{{ formatPhoneNumber($order->phone_number) }}</span>
-                                    <button onclick="copyToClipboard('{{ $order->phone_number }}')"
-                                            class="text-gray-400 hover:text-gray-600 transition-colors"
-                                            title="Copy phone number">
-                                        <i class="fas fa-copy"></i>
+                        </td>
+                        <td class="px-5 py-3">
+                            <span class="px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 font-medium">{{ $order->service->name }}</span>
+                        </td>
+                        <td class="px-5 py-3">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="px-2 py-0.5 rounded-md font-medium {{ getStatusBadge($order->status) }}">{{ ucfirst($order->status) }}</span>
+                                @if($order->status === 'cancelled' && $order->refunded)
+                                    <span class="text-[10px] text-emerald-600"><i class="ri-check-line"></i> Refunded</span>
+                                @elseif($order->status === 'cancelled' && !$order->refunded)
+                                    <span class="text-[10px] text-red-400"><i class="ri-close-line"></i> No Refund</span>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-5 py-3">
+                            @if($order->sms_code)
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-mono font-bold text-emerald-600">{{ $order->sms_code }}</span>
+                                    <button onclick="copyToClipboard('{{ $order->sms_code }}')"
+                                            class="text-gray-300 hover:text-emerald-500 transition-colors">
+                                        <i class="ri-file-copy-line"></i>
                                     </button>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                #{{ $order->id }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $order->service->name }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class=" px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusBadge($order->status) }}">
-                                        {{ ucfirst($order->status) }}
-                                    </span>
-                                    @if($order->status === 'cancelled' && $order->refunded)
-                                        <span class="text-xs text-green-600 mt-1">
-                                            <i class="fas fa-check-circle mr-1"></i>Refunded
-                                        </span>
-                                    @elseif($order->status === 'cancelled' && !$order->refunded)
-                                        <span class="text-xs text-red-600 mt-1">
-                                            <i class="fas fa-times-circle mr-1"></i>No Refund
-                                        </span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                @if($order->sms_code)
-                                    <div class="flex items-center space-x-2">
-                                        <span class="font-mono font-bold text-green-600">{{ $order->sms_code }}</span>
-                                        <button onclick="copyToClipboard('{{ $order->sms_code }}')" class="text-gray-400 hover:text-gray-600">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </div>
-                                @elseif($order->status === 'cancelled')
-                                    <span class="text-red-500">Cancelled</span>
-                                @else
-                                    <span class="text-gray-500">Pending...</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $order->created_at->format('M j, Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex justify-center space-x-2">
-                                    @if(in_array($order->status, ['pending', 'active']))
-                                        <button class="text-primary-600 hover:text-primary-900" onclick="refreshNumber({{ $order->id }})" title="Refresh Status">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                        {{-- @if($order->sms_window_expires_at && !$order->sms_window_expires_at->isPast())
-                                            <button class="text-orange-600 hover:text-orange-900" onclick="resendSms({{ $order->id }})" title="Resend SMS">
-                                                <i class="fas fa-redo"></i>
-                                            </button>
-                                        @endif --}}
-                                    @endif
-                                    <a href="{{ route('usa.order.show', $order->id) }}" class="text-gray-600 hover:text-gray-900" title="View Details">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-12 text-center">
-                                <i class="fas fa-mobile-alt text-gray-400 text-4xl mb-4"></i>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">No USA Numbers Yet</h3>
-                                <p class="text-gray-500">Get your first USA number using the form above.</p>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Mobile Cards -->
-            <div class="md:hidden space-y-4">
-                @forelse($allOrders as $order)
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-flag-usa text-blue-600"></i>
-                            <span class="font-medium text-gray-900">{{ formatPhoneNumber($order->phone_number) }}</span>
-                            <button onclick="copyToClipboard('{{ $order->phone_number }}')"
-                                    class="text-gray-400 hover:text-gray-600 transition-colors"
-                                    title="Copy phone number">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                        <div class="flex flex-col items-end">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getStatusBadge($order->status) }}">
-                                {{ ucfirst($order->status) }}
-                            </span>
-                            @if($order->status === 'cancelled' && $order->refunded)
-                                <span class="text-xs text-green-600 mt-1">
-                                    <i class="fas fa-check-circle mr-1"></i>Refunded
-                                </span>
-                            @elseif($order->status === 'cancelled' && !$order->refunded)
-                                <span class="text-xs text-red-600 mt-1">
-                                    <i class="fas fa-times-circle mr-1"></i>No Refund
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                            <span class="text-gray-500">Order ID:</span>
-                            <span class="ml-1 font-medium">#{{ $order->id }}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500">Service:</span>
-                            <span class="ml-1 font-medium">{{ $order->service->name }}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500">Created:</span>
-                            <span class="ml-1 text-gray-500">{{ $order->created_at->format('M j, H:i') }}</span>
-                        </div>
-                        <div class="col-span-2">
-                            <span class="text-gray-500">SMS Code:</span>
-                            <div class="mobile-sms-code mt-1">
-                                @if($order->sms_code)
-                                    <div class="flex items-center space-x-2">
-                                        <span class="font-mono font-bold text-green-600">{{ $order->sms_code }}</span>
-                                        <button onclick="copyToClipboard('{{ $order->sms_code }}')" class="text-gray-400 hover:text-gray-600">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </div>
-                                @elseif($order->status === 'cancelled')
-                                    <span class="text-red-500">Cancelled</span>
-                                @else
-                                    <span class="text-gray-500">Pending...</span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex space-x-2 mt-3">
-                        @if(in_array($order->status, ['pending', 'active']))
-                            <button onclick="refreshNumber({{ $order->id }})" class="flex-1 bg-primary-100 text-primary-700 px-3 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
-                                <i class="fas fa-sync-alt mr-1"></i>Refresh
-                            </button>
-
-                        @endif
-                        <a href="{{ route('usa.order.show', $order->id) }}" class="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors text-center">
-                            <i class="fas fa-info-circle mr-1"></i>Details
-                        </a>
-                    </div>
-                </div>
-                @empty
-                <div class="text-center py-12">
-                    <i class="fas fa-mobile-alt text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No USA Numbers Yet</h3>
-                    <p class="text-gray-500 mb-4">Get your first USA number using the form above.</p>
-                </div>
-                @endforelse
-            </div>
-
-            <!-- Pagination -->
-            @if($allOrders->hasPages())
-                <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1 flex justify-between sm:hidden">
-                            @if($allOrders->onFirstPage())
-                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
-                                    Previous
-                                </span>
+                            @elseif($order->status === 'cancelled')
+                                <span class="text-red-400">—</span>
                             @else
-                                <a href="{{ $allOrders->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                                    Previous
-                                </a>
+                                <span class="text-gray-400">Waiting…</span>
                             @endif
-                            
-                            @if($allOrders->hasMorePages())
-                                <a href="{{ $allOrders->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                                    Next
-                                </a>
-                            @else
-                                <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
-                                    Next
-                                </span>
-                            @endif
-                        </div>
-                        
-                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                            <div>
-                                <p class="text-sm text-gray-700">
-                                    Showing <span class="font-medium">{{ $allOrders->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $allOrders->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $allOrders->total() }}</span> results
-                                </p>
-                            </div>
-                            <div>
-                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                    @if($allOrders->onFirstPage())
-                                        <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </span>
-                                    @else
-                                        <a href="{{ $allOrders->previousPageUrl() }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </a>
-                                    @endif
-                                    
-                                    @foreach($allOrders->getUrlRange(1, $allOrders->lastPage()) as $page => $url)
-                                        @if($page == $allOrders->currentPage())
-                                            <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-600 text-sm font-medium text-white">
-                                                {{ $page }}
-                                            </span>
-                                        @else
-                                            <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                                {{ $page }}
-                                            </a>
-                                        @endif
-                                    @endforeach
-                                    
-                                    @if($allOrders->hasMorePages())
-                                        <a href="{{ $allOrders->nextPageUrl() }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </a>
-                                    @else
-                                        <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </span>
-                                    @endif
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
+                        </td>
+                        <td class="px-5 py-3 text-gray-500">
+                            <div>{{ $order->created_at->format('d M Y') }}</div>
+                            <div class="text-gray-400 text-[10px]">{{ $order->created_at->diffForHumans() }}</div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+
+        {{-- Mobile cards --}}
+        <div class="lg:hidden divide-y divide-gray-50">
+            @foreach($allOrders as $order)
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="font-mono font-bold text-gray-800 text-sm">{{ formatPhoneNumber($order->phone_number) }}</span>
+                            <button onclick="copyToClipboard('{{ $order->phone_number }}')"
+                                    class="text-gray-300 hover:text-primary-400 transition-colors">
+                                <i class="ri-file-copy-line text-xs"></i>
+                            </button>
+                        </div>
+                        <span class="px-2 py-0.5 text-xs rounded-md bg-primary-50 text-primary-700 font-medium">{{ $order->service->name }}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="px-2 py-0.5 text-xs rounded-md font-medium {{ getStatusBadge($order->status) }}">{{ ucfirst($order->status) }}</span>
+                        @if($order->status === 'cancelled' && $order->refunded)
+                            <div class="text-[10px] text-emerald-600 mt-0.5">Refunded</div>
+                        @elseif($order->status === 'cancelled' && !$order->refunded)
+                            <div class="text-[10px] text-red-400 mt-0.5">No Refund</div>
+                        @endif
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">SMS Code</p>
+                        @if($order->sms_code)
+                            <div class="flex items-center gap-1">
+                                <span class="font-mono font-bold text-emerald-600">{{ $order->sms_code }}</span>
+                                <button onclick="copyToClipboard('{{ $order->sms_code }}')" class="text-gray-300 hover:text-emerald-500 transition-colors">
+                                    <i class="ri-file-copy-line"></i>
+                                </button>
+                            </div>
+                        @elseif($order->status === 'cancelled')
+                            <p class="text-red-400">—</p>
+                        @else
+                            <p class="text-gray-400">Waiting…</p>
+                        @endif
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Date</p>
+                        <p class="text-gray-600">{{ $order->created_at->format('d M Y') }}</p>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        @else
+        <div class="flex flex-col items-center py-14 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
+                <i class="ri-smartphone-line text-gray-200 text-3xl"></i>
+            </div>
+            <p class="text-sm font-semibold text-gray-400">No USA numbers yet</p>
+            <p class="text-xs text-gray-300 mt-1">Purchase your first number using the form above</p>
+        </div>
+        @endif
+
+        <x-pagination :paginator="$allOrders" />
     </div>
+
 </div>
 
-<!-- Cancel Order Modal -->
-<div id="cancelOrderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="fixed inset-0 flex items-center justify-center p-4" onclick="hideCancelOrderModal()">
-        <div class="relative mx-auto border w-full max-w-md shadow-lg rounded-xl bg-white" onclick="event.stopPropagation()">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-medium text-gray-900">Cancel Order</h3>
-                    <button onclick="hideCancelOrderModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
+{{-- ── Cancel modal ── --}}
+<div id="cancelOrderModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 opacity-0" id="cancelOrderModalContent">
+        <div class="p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <i class="ri-alert-line text-red-500"></i>
                 </div>
-                
-                <div class="text-center mb-6">
-                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
-                    </div>
-                    <p class="text-gray-600 leading-relaxed">
-                        Are you sure you want to cancel this order? This action cannot be undone and any refund will be processed according to our policy.
-                    </p>
-                </div>
-                
-                <div class="flex space-x-3">
-                    <button id="cancelOrderCancel" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium">
-                        <i class="fas fa-arrow-left mr-2"></i>Keep Order
-                    </button>
-                    <button id="cancelOrderConfirm" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
-                        <i class="fas fa-times mr-2"></i>Cancel Order
-                    </button>
-                </div>
+                <h3 class="text-sm font-bold text-gray-900 flex-1">Cancel Order</h3>
+                <button onclick="hideCancelOrderModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="ri-close-line text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mb-5 leading-relaxed">
+                Are you sure you want to cancel? Any refund will be processed according to our policy.
+            </p>
+            <div class="flex gap-2.5">
+                <button id="cancelOrderCancel"
+                        class="flex-1 py-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 text-xs font-semibold transition-colors">
+                    Keep Order
+                </button>
+                <button id="cancelOrderConfirm"
+                        class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-bold transition-colors">
+                    Yes, Cancel
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// Global variables for security and rate limiting
-let lastRequestTime = 0;
-let requestCount = 0;
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 10;
-let activeStatusChecks = new Set();
+// ── Vanilla JS Dropdown (same pattern as all-countries page) ─────────────
+(function() {
+    let currentService = '';
 
-// Security: Rate limiting check
+    function setupDropdown(triggerId, panelId, searchId, listId, optClass, emptyId, onSelect) {
+        const trigger = document.getElementById(triggerId);
+        const panel   = document.getElementById(panelId);
+        const search  = document.getElementById(searchId);
+        const list    = document.getElementById(listId);
+        const empty   = document.getElementById(emptyId);
+        if (!trigger || !panel) return;
+
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const opening = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !opening);
+            if (opening) {
+                search.value = '';
+                search.focus();
+                list.querySelectorAll('.' + optClass).forEach(el => el.classList.remove('hidden'));
+                empty.classList.add('hidden');
+            }
+        });
+
+        search.addEventListener('input', function() {
+            const term = this.value.toLowerCase().trim();
+            let visible = 0;
+            list.querySelectorAll('.' + optClass).forEach(el => {
+                const match = !term || el.textContent.toLowerCase().includes(term);
+                el.classList.toggle('hidden', !match);
+                if (match) visible++;
+            });
+            empty.classList.toggle('hidden', visible > 0);
+        });
+
+        list.addEventListener('click', function(e) {
+            const opt = e.target.closest('.' + optClass);
+            if (!opt) return;
+            const value = opt.dataset.value;
+            const name  = opt.dataset.name || opt.textContent.trim();
+            document.getElementById(triggerId.replace('Trigger', 'Label')).textContent = name;
+            panel.classList.add('hidden');
+            onSelect(value, name);
+        });
+
+        panel.addEventListener('click', function(e) { e.stopPropagation(); });
+    }
+
+    document.addEventListener('click', function() {
+        const panel = document.getElementById('servicePanel');
+        if (panel) panel.classList.add('hidden');
+    });
+
+    setupDropdown('serviceTrigger', 'servicePanel', 'serviceSearch', 'serviceList', 'service-option', 'serviceEmpty',
+        function(value) {
+            currentService = value;
+            document.getElementById('service').value = value;
+            document.getElementById('checkRow').classList.remove('hidden');
+            document.getElementById('priceRow').classList.add('hidden');
+            document.getElementById('availError').classList.add('hidden');
+        }
+    );
+
+    document.getElementById('checkAvailBtn').addEventListener('click', function() {
+        if (!currentService) return;
+        const btn  = this;
+        const icon = document.getElementById('checkAvailIcon');
+        const text = document.getElementById('checkAvailText');
+        btn.disabled = true;
+        icon.className = 'ri-loader-4-line animate-spin text-sm';
+        text.textContent = 'Checking...';
+        document.getElementById('availError').classList.add('hidden');
+        document.getElementById('priceRow').classList.add('hidden');
+
+        fetch('{{ route("usa.check-availability") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ service: currentService })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.available) {
+                document.getElementById('priceDisplay').textContent = '₦' + Number(data.price).toLocaleString();
+                document.getElementById('priceRow').classList.remove('hidden');
+            } else {
+                document.getElementById('availErrorText').textContent = data.message || 'Service currently unavailable';
+                document.getElementById('availError').classList.remove('hidden');
+            }
+        })
+        .catch(() => {
+            document.getElementById('availErrorText').textContent = 'Error checking availability. Please try again.';
+            document.getElementById('availError').classList.remove('hidden');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            icon.className = 'ri-search-line text-sm';
+            text.textContent = 'Check Availability';
+        });
+    });
+})();
+
+window.copyToClipboard = function(text) {
+    navigator.clipboard.writeText(text)
+        .then(() => notify('success', 'Copied!'))
+        .catch(() => {
+            const t = document.createElement('textarea');
+            t.value = text; document.body.appendChild(t); t.select();
+            document.execCommand('copy'); document.body.removeChild(t);
+            notify('success', 'Copied!');
+        });
+};
+
+// ── Cancel modal ─────────────────────────────────────────────────────────
+function showCancelOrderModal(orderId) {
+    const modal   = document.getElementById('cancelOrderModal');
+    const content = document.getElementById('cancelOrderModalContent');
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    });
+    document.body.style.overflow = 'hidden';
+    document.getElementById('cancelOrderConfirm').onclick = function() { hideCancelOrderModal(); processCancelOrder(orderId); };
+    document.getElementById('cancelOrderCancel').onclick  = hideCancelOrderModal;
+    modal.onclick = function(e) { if (e.target === modal) hideCancelOrderModal(); };
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { hideCancelOrderModal(); document.removeEventListener('keydown', esc); } });
+}
+
+function hideCancelOrderModal() {
+    const modal   = document.getElementById('cancelOrderModal');
+    const content = document.getElementById('cancelOrderModalContent');
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
+}
+
+function cancelOrder(orderId) { showCancelOrderModal(orderId); }
+
+// ── Rate limiting ─────────────────────────────────────────────────────────
+let lastRequestTime = 0, requestCount = 0;
+const RATE_LIMIT_WINDOW = 60000, MAX_REQUESTS_PER_WINDOW = 10;
+
 function checkRateLimit() {
     const now = Date.now();
-    if (now - lastRequestTime > RATE_LIMIT_WINDOW) {
-        requestCount = 0;
-        lastRequestTime = now;
-    }
-    
-    if (requestCount >= MAX_REQUESTS_PER_WINDOW) {
-        showNotification('Too many requests. Please wait a moment.', 'warning');
-        return false;
-    }
-    
+    if (now - lastRequestTime > RATE_LIMIT_WINDOW) { requestCount = 0; lastRequestTime = now; }
+    if (requestCount >= MAX_REQUESTS_PER_WINDOW) { notify('warning', 'Too many requests. Please wait.'); return false; }
     requestCount++;
     return true;
 }
 
-// Enhanced form handling with security
+// ── Form submission ───────────────────────────────────────────────────────
 document.getElementById('usaForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
     if (!checkRateLimit()) return;
-    
-    const formData = new FormData(this);
-    const submitBtn = this.querySelector('button[type="submit"]');
+
     const service = document.getElementById('service').value;
-    
-    if (!service) {
-        showNotification('Please select a service first', 'warning');
-        return;
-    }
-    
+    if (!service) { notify('warning', 'Please select a service first'); return; }
+
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const origHtml  = submitBtn.innerHTML;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-    
+    submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-1.5"></i> Processing…';
+
+    const fd = new FormData(this);
     fetch('{{ route("usa.purchase") }}', {
         method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json'
-        }
+        body: fd,
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
     })
-    .then(response => {
-        // Handle both success and error responses
-        return response.json().then(data => {
-            return { data, status: response.status, ok: response.ok };
-        });
-    })
-    .then(({ data, status, ok }) => {
+    .then(res => res.json().then(data => ({ data, ok: res.ok, status: res.status })))
+    .then(({ data, ok, status }) => {
         if (ok && data.success) {
-            showNotification(data.message || 'Number purchased successfully!', 'success');
-            // Reset form
-            document.getElementById('service').value = '';
-            document.getElementById('status-result').innerHTML = '';
-            // Refresh orders after a short delay
-            setTimeout(() => {
-                refreshOrders();
-            }, 1000);
+            notify('success', data.message || 'Number purchased successfully!');
+            setTimeout(() => location.reload(), 1000);
+        } else if (status === 422 && data.errors) {
+            Object.values(data.errors).flat().forEach(err => notify('error', err));
         } else {
-            // Handle validation errors (422) and other errors
-            if (status === 422 && data.errors) {
-                // Show validation errors
-                Object.values(data.errors).forEach(errorArray => {
-                    if (Array.isArray(errorArray)) {
-                        errorArray.forEach(error => {
-                            showNotification(error, 'error');
-                        });
-                    } else {
-                        showNotification(errorArray, 'error');
-                    }
-                });
-            } else {
-                // Show general error message
-                showNotification(data.message || 'Purchase failed', 'error');
-            }
+            notify('error', data.message || 'Purchase failed');
         }
     })
-    .catch(error => {
-        console.error('Network Error:', error);
-        showNotification('Network error. Please check your connection.', 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i>Purchase';
-    });
+    .catch(() => notify('error', 'Network error. Please check your connection.'))
+    .finally(() => { submitBtn.disabled = false; submitBtn.innerHTML = origHtml; });
 });
 
-// Enhanced availability checking with Alpine.js integration
-function checkAvailability() {
-    const service = document.getElementById('service').value;
-    if (!service) {
-        showNotification('Please select a service first', 'warning');
-        return;
-    }
-    
-    if (!checkRateLimit()) return;
-    
-    // Prevent duplicate requests
-    if (activeStatusChecks.has(service)) {
-        showNotification('Already checking this service...', 'info');
-        return;
-    }
-    
-    activeStatusChecks.add(service);
-    const statusResult = document.getElementById('status-result');
-    statusResult.innerHTML = '<div class="bg-blue-50 border border-blue-200 rounded-lg p-4"><i class="fas fa-spinner fa-spin mr-2"></i>Checking availability...</div>';
-    
-    fetch(`{{ route('usa.check-availability') }}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            service: service
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.available) {
-            statusResult.innerHTML = `
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                            <span class="text-green-800 font-medium">Service available!</span>
-                        </div>
-                        <span class="text-green-800 font-bold">₦${data.price.toLocaleString()}</span>
-                    </div>
-                    <p class="text-sm text-green-700 mt-2">Available numbers: ${data.count || 'Multiple'}</p>
-                </div>
-            `;
-            // Update Alpine.js data
-            const formElement = document.getElementById('usaForm');
-            formElement._x_dataStack[0].servicePrice = data.price;
-            formElement._x_dataStack[0].statusChecked = true;
-        } else {
-            statusResult.innerHTML = `
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div class="flex items-center">
-                        <i class="fas fa-times-circle text-red-600 mr-2"></i>
-                        <span class="text-red-800 font-medium">${data.message || 'Service currently unavailable'}</span>
-                    </div>
-                </div>
-            `;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        statusResult.innerHTML = `
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
-                    <span class="text-red-800 font-medium">Error checking availability</span>
-                </div>
-            </div>
-        `;
-    })
-    .finally(() => {
-        activeStatusChecks.delete(service);
-    });
-}
-
-// Real-time order status checking
+// ── Check order status (DOM update — never reloads) ──────────────────────
 function checkOrderStatus(orderId) {
-    if (!checkRateLimit()) return;
-    
-    const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
-    if (!orderElement) return;
-    
-    const statusSpan = orderElement.querySelector('.inline-flex');
-    const originalStatus = statusSpan.textContent;
-    statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Checking...';
-    
+    const orderEl  = document.querySelector(`.order-item[data-order-id="${orderId}"]`);
+    const checkBtn = orderEl?.querySelector('.check-btn');
+    if (checkBtn) { checkBtn.disabled = true; checkBtn.innerHTML = '<i class="ri-loader-4-line animate-spin"></i>'; }
+
     fetch(`/user/usa/order/${orderId}/status`, {
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json'
-        }
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            // Update order display
-            updateOrderDisplay(orderElement, data.order);
-            
-            // Check if SMS code was received and show special notification
-            if (data.order.status === 'completed' && data.order.sms_code) {
-                showNotification(`🎉 SMS Code Received: ${data.order.sms_code}`, 'sms-success', 10000);
-                // Also play a notification sound if available
-                playNotificationSound();
-            } else {
-                showNotification(data.message || 'Status updated', 'success');
-            }
-        } else {
-            statusSpan.textContent = originalStatus;
-            showNotification(data.message || 'Failed to check status', 'error');
+        if (data.success && data.order) {
+            updateOrderUI(orderId, data.order);
+            if (data.order.sms_code) notify('success', `SMS Code: ${data.order.sms_code}`);
         }
+        // Silent when no update — no reload, no notification
     })
-    .catch(error => {
-        console.error('Error:', error);
-        statusSpan.textContent = originalStatus;
-        showNotification('Error checking order status', 'error');
+    .catch(() => {}) // Silent fail for background checks
+    .finally(() => {
+        if (checkBtn) { checkBtn.disabled = false; checkBtn.innerHTML = '<i class="ri-refresh-line"></i> Check'; }
     });
 }
 
-// Cancel order function
-function cancelOrder(orderId) {
-    // Show custom modal instead of browser confirm
-    showCancelOrderModal(orderId);
+function updateOrderUI(orderId, order) {
+    const orderEl = document.querySelector(`.order-item[data-order-id="${orderId}"]`);
+    if (!orderEl) return;
+
+    orderEl.setAttribute('data-status', order.status);
+
+    // Update status badge
+    const statusEl = document.getElementById(`usa-status-${orderId}`);
+    if (statusEl) {
+        const map = { pending: 'bg-amber-50 text-amber-700', active: 'bg-blue-50 text-blue-700', completed: 'bg-emerald-50 text-emerald-700', cancelled: 'bg-red-50 text-red-500' };
+        const cls = map[order.status] || 'bg-gray-100 text-gray-500';
+        statusEl.className = `inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${cls}`;
+        statusEl.textContent = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+    }
+
+    // Update SMS code display
+    const smsEl = document.getElementById(`usa-sms-${orderId}`);
+    if (smsEl && order.sms_code) {
+        const copyBtn = `<button onclick="copyToClipboard('${order.sms_code}')" class="text-gray-300 hover:text-emerald-500 transition-colors"><i class="ri-file-copy-line"></i></button>`;
+        smsEl.innerHTML = `<div class="flex items-center gap-1.5 mb-2 text-xs"><span class="text-[10px] uppercase tracking-wider text-gray-400">SMS Code:</span><span class="font-mono font-bold text-emerald-600">${order.sms_code}</span>${copyBtn}</div>`;
+    }
+
+    // Remove action buttons once order is no longer active
+    if (!['pending', 'active'].includes(order.status)) {
+        document.getElementById(`usa-actions-${orderId}`)?.remove();
+    }
 }
 
-// Show cancel order modal
-function showCancelOrderModal(orderId) {
-    const modal = document.getElementById('cancelOrderModal');
-    const confirmBtn = document.getElementById('cancelOrderConfirm');
-    const cancelBtn = document.getElementById('cancelOrderCancel');
-    
-    // Show modal
-    modal.classList.remove('hidden');
-    
-    // Handle confirm button click
-    confirmBtn.onclick = function() {
-        hideCancelOrderModal();
-        processCancelOrder(orderId);
-    };
-    
-    // Handle cancel button click
-    cancelBtn.onclick = function() {
-        hideCancelOrderModal();
-    };
-    
-    // Handle click outside modal to close
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            hideCancelOrderModal();
-        }
-    };
-    
-    // Handle escape key to close
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            hideCancelOrderModal();
-        }
-    });
-}
-
-// Hide cancel order modal
-function hideCancelOrderModal() {
-    const modal = document.getElementById('cancelOrderModal');
-    modal.classList.add('hidden');
-    
-    // Remove event listeners
-    document.removeEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            hideCancelOrderModal();
-        }
-    });
-}
-
-// Process the actual order cancellation
+// ── Process cancel ────────────────────────────────────────────────────────
 function processCancelOrder(orderId) {
     if (!checkRateLimit()) return;
-    
-    const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
-    if (!orderElement) return;
-    
-    // Disable all cancel buttons for this order to prevent multiple requests
-    const cancelButtons = document.querySelectorAll(`button[onclick*="cancelOrder(${orderId})"]`);
-    cancelButtons.forEach(btn => {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Cancelling...';
-    });
-    
-    // Show loading state
-    showNotification('Cancelling order...', 'info', 2000);
-    
+    notify('success', 'Cancelling order…');
     fetch(`/user/usa/order/${orderId}/cancel`, {
         method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json'
-        }
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification(data.message || 'Order cancelled successfully', 'success');
-            // Remove or update the order element
-            if (data.refunded) {
-                showNotification(`Refund of ₦${data.refund_amount} processed`, 'info');
-            }
-            refreshOrders();
+            notify('success', data.message || 'Order cancelled');
+            setTimeout(() => location.reload(), 1200);
         } else {
-            showNotification(data.message || 'Failed to cancel order', 'error');
+            notify('error', data.message || 'Failed to cancel order');
         }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error cancelling order', 'error');
-        
-        // Re-enable cancel buttons on error
-        const cancelButtons = document.querySelectorAll(`button[onclick*="cancelOrder(${orderId})"]`);
-        cancelButtons.forEach(btn => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-times mr-2"></i>Cancel Order';
-        });
-    });
+    .catch(() => notify('error', 'Error cancelling order'));
 }
 
-// Refresh orders function
+// ── Refresh: loops through all active check buttons ───────────────────────
 function refreshOrders() {
-    const refreshBtn = document.querySelector('button[onclick="refreshOrders()"]');
-    const originalContent = refreshBtn.innerHTML;
-    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Refreshing...';
-    refreshBtn.disabled = true;
-    
-    // Store currently displayed completed orders to preserve them
-    const currentCompletedOrders = new Map();
-    const currentOrderElements = document.querySelectorAll('.order-item[data-order-id]');
-    currentOrderElements.forEach(orderElement => {
-        const orderId = orderElement.getAttribute('data-order-id');
-        const statusElement = orderElement.querySelector('.inline-flex');
-        if (statusElement && statusElement.textContent.toLowerCase().includes('completed')) {
-            currentCompletedOrders.set(orderId, orderElement.cloneNode(true));
-        }
-    });
-    
-    // First, fetch the latest active orders to ensure we have all new orders
-    fetch('/user/usa-numbers', {
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.text())
-    .then(html => {
-        // Create a temporary element to parse the HTML
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        
-        // Get the active orders section from the response
-        const newActiveOrders = tempDiv.querySelector('#active-orders');
-        
-        if (newActiveOrders) {
-            // Replace the current active orders with the new ones
-            document.querySelector('#active-orders').innerHTML = newActiveOrders.innerHTML;
-            
-            // Re-add preserved completed orders that are not in the new response
-            const activeOrdersContainer = document.querySelector('#active-orders');
-            const newOrderIds = new Set();
-            const newOrderElements = document.querySelectorAll('.order-item[data-order-id]');
-            newOrderElements.forEach(orderElement => {
-                const orderId = orderElement.getAttribute('data-order-id');
-                newOrderIds.add(orderId);
-            });
-            
-            // Add back completed orders that were preserved but not in new response
-            currentCompletedOrders.forEach((orderElement, orderId) => {
-                if (!newOrderIds.has(orderId)) {
-                    // Find the right place to insert (maintain chronological order)
-                    const ordersList = activeOrdersContainer.querySelector('tbody') || activeOrdersContainer.querySelector('.space-y-4');
-                    if (ordersList) {
-                        ordersList.appendChild(orderElement);
-                    }
-                }
-            });
-            
-            // Now check status for each order to get real-time updates
-            const activeOrderElements = document.querySelectorAll('.order-item[data-order-id]');
-            
-            if (activeOrderElements.length === 0) {
-                refreshBtn.innerHTML = originalContent;
-                refreshBtn.disabled = false;
-                return;
-            }
-            
-            let completedChecks = 0;
-            const totalChecks = activeOrderElements.length;
-            
-            activeOrderElements.forEach(orderElement => {
-                const orderId = orderElement.getAttribute('data-order-id');
-                
-                // Skip status check for preserved completed orders to avoid unnecessary API calls
-                const statusElement = orderElement.querySelector('.inline-flex');
-                if (statusElement && statusElement.textContent.toLowerCase().includes('completed') && currentCompletedOrders.has(orderId)) {
-                    completedChecks++;
-                    if (completedChecks === totalChecks) {
-                        refreshBtn.innerHTML = originalContent;
-                        refreshBtn.disabled = false;
-                        showNotification('Orders refreshed', 'success');
-                        
-                        // Restart all timers after refresh
-                        startAllTimers();
-                    }
-                    return;
-                }
-                
-                fetch(`/user/usa/order/${orderId}/status`, {
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Check if this is a newly completed order with SMS code
-                        const wasCompleted = statusElement && statusElement.textContent.toLowerCase().includes('completed');
-                        
-                        updateOrderDisplay(orderElement, data.order);
-                        
-                        // Show special notification for newly received SMS codes
-                        if (!wasCompleted && data.order.status === 'completed' && data.order.sms_code) {
-                            showNotification(`🎉 SMS Code Received: ${data.order.sms_code}`, 'sms-success', 10000);
-                            playNotificationSound();
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking order status:', error);
-                })
-                .finally(() => {
-                    completedChecks++;
-                    if (completedChecks === totalChecks) {
-                        refreshBtn.innerHTML = originalContent;
-                        refreshBtn.disabled = false;
-                        showNotification('Orders refreshed', 'success');
-                        
-                        // Restart all timers after refresh
-                        startAllTimers();
-                    }
-                });
-            });
-        } else {
-            refreshBtn.innerHTML = originalContent;
-            refreshBtn.disabled = false;
-        }
-    })
-    .catch(error => {
-        console.error('Error refreshing orders:', error);
-        refreshBtn.innerHTML = originalContent;
-        refreshBtn.disabled = false;
-        showNotification('Error refreshing orders', 'error');
-    });}
-
-
-// Update order display helper
-function updateOrderDisplay(orderElement, orderData) {
-    // Update status badge
-    const statusElement = orderElement.querySelector('.inline-flex');
-    const iconElement = orderElement.querySelector('.fas.fa-mobile-alt');
-    
-    const statusClasses = {
-        'completed': 'bg-green-100 text-green-800',
-        'pending': 'bg-yellow-100 text-yellow-800',
-        'cancelled': 'bg-red-100 text-red-800',
-        'expired': 'bg-gray-100 text-gray-800'
-    };
-    
-    const iconClasses = {
-        'completed': 'text-green-600',
-        'pending': 'text-yellow-600',
-        'cancelled': 'text-red-600',
-        'expired': 'text-gray-600'
-    };
-    
-    if (statusElement) {
-        statusElement.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClasses[orderData.status] || 'bg-blue-100 text-blue-800'}`;
-        statusElement.textContent = orderData.status.charAt(0).toUpperCase() + orderData.status.slice(1);
-    }
-    
-    if (iconElement) {
-        iconElement.className = `fas fa-mobile-alt ${iconClasses[orderData.status] || 'text-blue-600'}`;
-    }
-    
-    // Update timer if present and order is pending
-    const orderId = orderElement.getAttribute('data-order-id');
-    const timerElement = document.getElementById(`timer-${orderId}`);
-    
-    if (timerElement && orderData.status === 'pending' && orderData.expires_at) {
-        // Update the expires attribute with the new expiration time
-        timerElement.setAttribute('data-expires', orderData.expires_at);
-        
-        // Update the timer display
-        updateTimer(timerElement, orderData.expires_at);
-    } else if (timerElement && orderData.status !== 'pending') {
-        // If order is no longer pending, remove the timer
-        timerElement.parentElement.remove();
-    }
-    
-    // Update SMS code display
-    const smsCodeCell = orderElement.querySelector('td:nth-child(4)');
-    if (smsCodeCell) {
-        if (orderData.sms_code) {
-            smsCodeCell.innerHTML = `
-                <div class="flex items-center space-x-2 p-2 bg-green-50 rounded-lg border border-green-200">
-                    <span class="font-mono text-sm font-bold text-green-800">${orderData.sms_code}</span>
-                    <button onclick="copyToClipboard('${orderData.sms_code}')" class="text-green-600 hover:text-green-800 transition-colors">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <span class="text-green-600 text-xs animate-pulse">✓ Received</span>
-                </div>
-            `;
-        } else if (orderData.status === 'cancelled') {
-            smsCodeCell.innerHTML = '<span class="text-red-500">Cancelled</span>';
-        } else {
-            smsCodeCell.innerHTML = '<span class="text-gray-500">Pending...</span>';
-        }
-    }
-    
-    // Update mobile card SMS code display
-    const mobileSmsElement = orderElement.querySelector('.mobile-sms-code');
-    if (mobileSmsElement) {
-        if (orderData.sms_code) {
-            mobileSmsElement.innerHTML = `
-                <div class="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200">
-                    <span class="font-mono text-sm font-bold text-green-800">${orderData.sms_code}</span>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-green-600 text-xs animate-pulse">✓ Received</span>
-                        <button onclick="copyToClipboard('${orderData.sms_code}')" class="text-green-600 hover:text-green-800 transition-colors">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        } else if (orderData.status === 'cancelled') {
-            mobileSmsElement.innerHTML = '<span class="text-red-500">Cancelled</span>';
-        } else {
-            mobileSmsElement.innerHTML = '<span class="text-gray-500">Pending...</span>';
-        }
-    }
+    const icon = document.getElementById('refreshIcon');
+    if (icon) { icon.classList.add('animate-spin'); setTimeout(() => icon.classList.remove('animate-spin'), 2000); }
+    document.querySelectorAll('.check-btn:not([disabled])').forEach(btn => btn.click());
 }
 
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        showNotification('SMS code copied to clipboard!', 'success');
-    }, function(err) {
-        console.error('Could not copy text: ', err);
-        showNotification('Failed to copy SMS code', 'error');
-    });
-}
-
-function refreshNumber(orderId) {
-    checkOrderStatus(orderId);
-}
-
-
-
-function showDetails(orderId) {
-    // Redirect to order details page
-    window.location.href = `/user/usa/order/${orderId}`;
-}
-
-// Timer functionality
-let timerIntervals = new Map();
-
-function updateTimer(timerElement, expiresAt) {
-    const orderId = timerElement.id.replace('timer-', '');
-    
-    // Clear existing interval if any
-    if (timerIntervals.has(orderId)) {
-        clearInterval(timerIntervals.get(orderId));
-    }
-    
-    const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const expiry = new Date(expiresAt).getTime();
-        const distance = expiry - now;
-        
-        if (distance < 0) {
-            clearInterval(interval);
-            timerIntervals.delete(orderId);
-            timerElement.innerHTML = 'EXPIRED';
-            timerElement.className = 'text-red-600 font-bold';
-            return;
-        }
-        
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-        timerElement.innerHTML = `${minutes}m ${seconds}s remaining`;
-    }, 1000);
-    
-    timerIntervals.set(orderId, interval);
-}
-
+// ── Countdown timers ──────────────────────────────────────────────────────
 function startAllTimers() {
-    const timerElements = document.querySelectorAll('[id^="timer-"]');
-    timerElements.forEach(timerElement => {
-        const expiresAt = timerElement.getAttribute('data-expires');
-        if (expiresAt) {
-            updateTimer(timerElement, expiresAt);
-        }
+    document.querySelectorAll('[data-expires]').forEach(el => {
+        if (el.dataset.ticking) return;
+        el.dataset.ticking = '1';
+        const expires = new Date(el.getAttribute('data-expires'));
+        setInterval(function() {
+            const left = expires - Date.now();
+            if (left <= 0) { el.textContent = 'Expired'; return; }
+            const m = Math.floor(left / 60000);
+            const s = Math.floor((left % 60000) / 1000);
+            el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }, 1000);
     });
 }
 
-// Auto-refresh active orders every 30 seconds
-let autoRefreshInterval;
-function startAutoRefresh() {
-    autoRefreshInterval = setInterval(() => {
-        // Only refresh if there are pending or active orders (not just completed ones)
-        const pendingOrderElements = document.querySelectorAll('.order-item');
-        let hasPendingOrders = false;
-        
-        pendingOrderElements.forEach(orderElement => {
-            const statusElement = orderElement.querySelector('.inline-flex');
-            if (statusElement) {
-                const statusText = statusElement.textContent.toLowerCase();
-                if (statusText.includes('pending') || statusText.includes('active')) {
-                    hasPendingOrders = true;
-                }
-            }
-        });
-        
-        if (hasPendingOrders) {
-            refreshOrders();
-        }
-    }, 30000);
-}
-
-// Stop auto-refresh when page is not visible
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        if (autoRefreshInterval) {
-            clearInterval(autoRefreshInterval);
-        }
-    } else {
-        startAutoRefresh();
-    }
-});
-
-// Pure JavaScript Searchable Dropdown
-class SearchableDropdown {
-    constructor() {
-        this.services = @js($services->toArray());
-        this.filteredServices = [...this.services];
-        this.selectedService = null;
-        this.isOpen = false;
-        
-        this.dropdownButton = document.getElementById('dropdown-button');
-        this.dropdownPanel = document.getElementById('dropdown-panel');
-        this.dropdownText = document.getElementById('dropdown-text');
-        this.dropdownArrow = document.getElementById('dropdown-arrow');
-        this.searchInput = document.getElementById('search-input');
-        this.optionsContainer = document.getElementById('options-container');
-        this.hiddenSelect = document.getElementById('service');
-        
-        this.init();
-    }
-    
-    init() {
-        this.bindEvents();
-        this.renderOptions();
-    }
-    
-    bindEvents() {
-        // Toggle dropdown
-        this.dropdownButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleDropdown();
-        });
-        
-        // Search functionality
-        this.searchInput.addEventListener('input', (e) => {
-            this.filterServices(e.target.value);
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('searchable-dropdown').contains(e.target)) {
-                this.closeDropdown();
-            }
-        });
-        
-        // Keyboard navigation
-        this.searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeDropdown();
-            }
-        });
-    }
-    
-    toggleDropdown() {
-        if (this.isOpen) {
-            this.closeDropdown();
-        } else {
-            this.openDropdown();
-        }
-    }
-    
-    openDropdown() {
-        this.isOpen = true;
-        this.dropdownPanel.classList.remove('hidden');
-        this.dropdownArrow.style.transform = 'rotate(180deg)';
-        this.searchInput.value = '';
-        this.filteredServices = [...this.services];
-        this.renderOptions();
-        setTimeout(() => this.searchInput.focus(), 100);
-    }
-    
-    closeDropdown() {
-        this.isOpen = false;
-        this.dropdownPanel.classList.add('hidden');
-        this.dropdownArrow.style.transform = 'rotate(0deg)';
-    }
-    
-    filterServices(searchTerm) {
-        const term = searchTerm.toLowerCase().trim();
-        if (term === '') {
-            this.filteredServices = [...this.services];
-        } else {
-            this.filteredServices = this.services.filter(service => 
-                service.name.toLowerCase().includes(term)
-            );
-        }
-        this.renderOptions();
-    }
-    
-    selectService(service) {
-        this.selectedService = service;
-        this.dropdownText.textContent = service.name;
-        this.hiddenSelect.value = service.code;
-        
-        // Trigger change event on hidden select
-        const changeEvent = new Event('change', { bubbles: true });
-        this.hiddenSelect.dispatchEvent(changeEvent);
-        
-        // Reset form state
-        if (window.selectedService !== undefined) {
-            window.selectedService = service.code;
-        }
-        if (window.servicePrice !== undefined) {
-            window.servicePrice = 0;
-        }
-        if (window.statusChecked !== undefined) {
-            window.statusChecked = false;
-        }
-        
-        const statusResult = document.getElementById('status-result');
-        if (statusResult) {
-            statusResult.innerHTML = '';
-        }
-        
-        this.closeDropdown();
-    }
-    
-    renderOptions() {
-        this.optionsContainer.innerHTML = '';
-        
-        if (this.filteredServices.length === 0) {
-            const noResults = document.createElement('div');
-            noResults.className = 'px-3 py-2 text-gray-500 text-sm';
-            noResults.textContent = this.services.length === 0 ? 'No services available' : 'No services found matching your search';
-            this.optionsContainer.appendChild(noResults);
-            return;
-        }
-        
-        this.filteredServices.forEach(service => {
-            const option = document.createElement('button');
-            option.type = 'button';
-            option.className = `w-full px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none block ${
-                this.selectedService && this.selectedService.code === service.code 
-                    ? 'bg-primary-50 text-primary-700' 
-                    : 'text-gray-900'
-            }`;
-            
-            const span = document.createElement('span');
-            span.className = 'block truncate';
-            span.textContent = service.name;
-            option.appendChild(span);
-            
-            option.addEventListener('click', () => {
-                this.selectService(service);
-            });
-            
-            this.optionsContainer.appendChild(option);
-        });
-    }
-}
-
-// Global variables for form state
-let selectedService = null;
-let servicePrice = 0;
-let statusChecked = false;
-let isLoading = false;
-
-// Initialize dropdown when DOM is loaded
+// ── Auto-check active/pending orders every 10 s — no page reload ──────────
 document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('searchable-dropdown')) {
-        new SearchableDropdown();
-    }
-    
-    // Initialize form event listeners
-    initializeFormHandlers();
-});
-
-// Initialize form handlers
-function initializeFormHandlers() {
-    const hiddenSelect = document.getElementById('service');
-    if (hiddenSelect) {
-        hiddenSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.value) {
-                selectedService = selectedOption.value;
-                servicePrice = parseFloat(selectedOption.dataset.price) || 0;
-                statusChecked = false;
-                
-                updatePriceDisplay();
-                updateActionButtons();
-                clearStatusResult();
-            } else {
-                selectedService = null;
-                servicePrice = 0;
-                statusChecked = false;
-                
-                hidePriceDisplay();
-                hideActionButtons();
-                clearStatusResult();
-            }
-        });
-    }
-    
-    // Check availability button
-    const checkBtn = document.getElementById('check-availability-btn');
-    if (checkBtn) {
-        checkBtn.addEventListener('click', checkAvailability);
-    }
-    
-    // Form submission
-    const form = document.getElementById('purchase-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            if (!statusChecked) {
-                e.preventDefault();
-                showNotification('Please check availability first', 'warning');
-            }
-        });
-    }
-    
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        // Close order menus
-        const orderMenus = document.querySelectorAll('[id^="order-menu-"]');
-        orderMenus.forEach(menu => {
-            if (!menu.contains(e.target) && !e.target.closest('button[onclick^="toggleOrderMenu"]')) {
-                menu.classList.add('hidden');
-            }
-        });
-    });
-}
-
-// Update price display
-function updatePriceDisplay() {
-    const priceDisplay = document.getElementById('price-display');
-    const priceText = document.getElementById('price-text');
-    
-    if (servicePrice > 0) {
-        priceText.textContent = '₦' + servicePrice.toLocaleString();
-        priceDisplay.classList.remove('hidden');
-    } else {
-        hidePriceDisplay();
-    }
-}
-
-// Hide price display
-function hidePriceDisplay() {
-    const priceDisplay = document.getElementById('price-display');
-    priceDisplay.classList.add('hidden');
-}
-
-// Update action buttons
-function updateActionButtons() {
-    const actionButtons = document.getElementById('action-buttons');
-    const purchaseBtn = document.getElementById('purchase-btn');
-    
-    if (selectedService) {
-        actionButtons.classList.remove('hidden');
-        updatePurchaseButton();
-    } else {
-        hideActionButtons();
-    }
-}
-
-// Hide action buttons
-function hideActionButtons() {
-    const actionButtons = document.getElementById('action-buttons');
-    actionButtons.classList.add('hidden');
-}
-
-// Update purchase button state
-function updatePurchaseButton() {
-    const purchaseBtn = document.getElementById('purchase-btn');
-    
-    if (statusChecked && !isLoading) {
-        purchaseBtn.disabled = false;
-        purchaseBtn.className = 'flex-1 px-4 py-2 rounded-lg transition-colors bg-primary-600 hover:bg-primary-700 text-white';
-    } else {
-        purchaseBtn.disabled = true;
-        purchaseBtn.className = 'flex-1 px-4 py-2 rounded-lg transition-colors bg-gray-300 text-gray-500 cursor-not-allowed';
-    }
-}
-
-// Update loading state
-function updateLoadingState(loading) {
-    isLoading = loading;
-    const checkBtn = document.getElementById('check-availability-btn');
-    const checkIcon = document.getElementById('check-icon');
-    const checkText = document.getElementById('check-text');
-    
-    if (loading) {
-        checkBtn.disabled = true;
-        checkBtn.className = 'flex-1 text-gray-700 px-4 py-2 rounded-lg transition-colors bg-gray-300 cursor-not-allowed';
-        checkIcon.className = 'fas fa-spinner fa-spin mr-2';
-        checkText.textContent = 'Checking...';
-    } else {
-        checkBtn.disabled = false;
-        checkBtn.className = 'flex-1 text-gray-700 px-4 py-2 rounded-lg transition-colors bg-gray-100 hover:bg-gray-200';
-        checkIcon.className = 'fas fa-search mr-2';
-        checkText.textContent = 'Check Availability';
-    }
-    
-    updatePurchaseButton();
-}
-
-// Clear status result
-function clearStatusResult() {
-    const statusResult = document.getElementById('status-result');
-    if (statusResult) {
-        statusResult.innerHTML = '';
-    }
-}
-
-// Check availability function
-function checkAvailability() {
-    if (!selectedService || isLoading) return;
-    
-    updateLoadingState(true);
-    statusChecked = false;
-    clearStatusResult();
-    
-    fetch('{{ route("usa.check-availability") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            service: selectedService
-        })
-    })
-    .then(response => {
-        return response.json();
-    })
-    .then(data => {
-        updateLoadingState(false);
-        
-        const statusResult = document.getElementById('status-result');
-        if (data.available) {
-            statusChecked = true;
-            statusResult.innerHTML = `
-                <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                        <span class="text-green-800 font-medium">Available</span>
-                    </div>
-                    <p class="text-green-700 text-sm mt-1">${data.message}</p>
-                    ${data.price ? `<p class="text-green-600 text-xs mt-1">Price: ₦${data.price.toLocaleString()}</p>` : ''}
-                </div>
-            `;
-            showNotification('Service is available!', 'success');
-        } else {
-            statusChecked = false;
-            statusResult.innerHTML = `
-                <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-times-circle text-red-500 mr-2"></i>
-                        <span class="text-red-800 font-medium">Not Available</span>
-                    </div>
-                    <p class="text-red-700 text-sm mt-1">${data.message}</p>
-                </div>
-            `;
-            showNotification('Service is not available', 'error');
-        }
-        
-        updatePurchaseButton();
-    })
-    .catch(error => {
-        updateLoadingState(false);
-        
-        const statusResult = document.getElementById('status-result');
-        statusResult.innerHTML = `
-            <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
-                    <span class="text-red-800 font-medium">Error</span>
-                </div>
-                <p class="text-red-700 text-sm mt-1">Failed to check availability. Please try again.</p>
-            </div>
-        `;
-        showNotification('Failed to check availability', 'error');
-    });
-}
-
-// Toggle order menu
-function toggleOrderMenu(orderId) {
-    const menu = document.getElementById(`order-menu-${orderId}`);
-    const allMenus = document.querySelectorAll('[id^="order-menu-"]');
-    
-    // Close all other menus
-    allMenus.forEach(otherMenu => {
-        if (otherMenu.id !== `order-menu-${orderId}`) {
-            otherMenu.classList.add('hidden');
-        }
-    });
-    
-    // Toggle current menu
-    menu.classList.toggle('hidden');
-}
-
-// Enhanced notification function
-function showNotification(message, type = 'info', duration = 5000) {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-x-full ${
-        type === 'success' ? 'bg-green-100 border border-green-200 text-green-800' :
-        type === 'sms-success' ? 'bg-gradient-to-r from-green-400 to-blue-500 border-2 border-green-300 text-white shadow-2xl animate-pulse' :
-        type === 'error' ? 'bg-red-100 border border-red-200 text-red-800' :
-        type === 'warning' ? 'bg-yellow-100 border border-yellow-200 text-yellow-800' :
-        'bg-blue-100 border border-blue-200 text-blue-800'
-    }`;
-    
-    notification.innerHTML = `
-        <div class="flex items-center">
-            <i class="fas ${
-                type === 'success' ? 'fa-check-circle' :
-                type === 'sms-success' ? 'fa-mobile-alt animate-bounce' :
-                type === 'error' ? 'fa-times-circle' :
-                type === 'warning' ? 'fa-exclamation-triangle' :
-                'fa-info-circle'
-            } mr-2 ${type === 'sms-success' ? 'text-yellow-300' : ''}"></i>
-            <span class="flex-1 ${type === 'sms-success' ? 'font-bold text-lg' : ''}">${message}</span>
-
-            
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 ${type === 'sms-success' ? 'text-yellow-200 hover:text-white' : 'text-gray-500 hover:text-gray-700'}">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-        notification.classList.remove('translate-x-full');
-    }, 100);
-    
-    // Auto remove (longer duration for SMS notifications)
-    const actualDuration = type === 'sms-success' ? Math.max(duration, 10000) : duration;
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.classList.add('translate-x-full');
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
-            }, 300);
-        }
-    }, actualDuration);
-}
-
-// Play notification sound for SMS received
-function playNotificationSound() {
-    try {
-        // Create a simple beep sound using Web Audio API
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 800; // Frequency in Hz
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
-    } catch (error) {
-        console.log('Could not play notification sound:', error);
-    }
-}
-
-// Initialize auto-refresh and timers on page load
-document.addEventListener('DOMContentLoaded', function() {
-    startAutoRefresh();
     startAllTimers();
-});
-
-// Security: Clear sensitive data on page unload
-window.addEventListener('beforeunload', function() {
-    if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-    }
-    
-    // Clear all timer intervals
-    timerIntervals.forEach(interval => clearInterval(interval));
-    timerIntervals.clear();
-    
-    activeStatusChecks.clear();
+    setInterval(function() {
+        document.querySelectorAll('.order-item[data-status="pending"], .order-item[data-status="active"]').forEach(el => {
+            const id = el.getAttribute('data-order-id');
+            if (id) checkOrderStatus(id);
+        });
+    }, 10000);
 });
 </script>
-
-<!-- Website Builder Contact -->
-<div class="py-3 text-center text-sm text-gray-700 border-t border-gray-200 mt-6">
-    <div class="flex items-center justify-center space-x-2 scale-90 hover:scale-100 transition-transform duration-300">
-        <i class="fas fa-mobile-alt text-blue-600 animate-pulse"></i>
-        <p>
-            Need a custom website? <a href="https://wa.link/18c124" class="text-blue-600 hover:text-blue-800 font-medium transition-colors relative group">
-                Contact the developer
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-        </p>
-        <i class="fas fa-code text-blue-600 animate-bounce"></i>
-    </div>
-</div>
 
 @endsection

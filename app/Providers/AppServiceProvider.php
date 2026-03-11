@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\EmailConfiguration;
 use App\Models\GeneralSetting;
 use App\Models\LogoSetting;
+use App\Models\DigitalProductSubcategory;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\View;
@@ -51,9 +52,14 @@ class AppServiceProvider extends ServiceProvider
 
         /** Share variable at all view */
         View::composer('*', function ($view) use ($generalSetting, $logoSetting) {
+            $allSubcategories = DigitalProductSubcategory::active()
+                ->whereHas('category', fn($q) => $q->where('status', 1))
+                ->ordered()
+                ->get();
             $view->with([
                 'settings' => $generalSetting,
                 'logoSetting' => $logoSetting,
+                'allSubcategories' => $allSubcategories,
             ]);
         });
     }
