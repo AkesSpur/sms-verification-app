@@ -88,20 +88,20 @@
                                 @auth
                                     <a href="{{ route('product.show', $product->slug) }}" 
                                        class="inline-flex items-center justify-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg text-xs transition-colors duration-300 gap-1.5 shadow-sm whitespace-nowrap">
-                                        <i class="ri-shopping-cart-2-line text-sm hidden sm:block"></i>
+                                        <i class="ri-shopping-cart-2-line text-sm block"></i>
                                         Buy Now
                                     </a>
                                 @else
                                     <a href="{{ route('login') }}" 
                                        class="inline-flex items-center justify-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg text-xs transition-colors duration-300 gap-1.5 shadow-sm whitespace-nowrap">
-                                        <i class="ri-shopping-cart-2-line text-sm hidden sm:block"></i>
+                                        <i class="ri-shopping-cart-2-line text-sm block"></i>
                                         Buy Now
                                     </a>
                                 @endauth
                             @else
                                 <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
                                    class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-xs transition-colors duration-300 gap-1.5 shadow-sm whitespace-nowrap">
-                                    <i class="ri-whatsapp-line text-sm hidden sm:block"></i>
+                                    <i class="ri-whatsapp-line text-sm block"></i>
                                     Request
                                 </a>
                             @endif
