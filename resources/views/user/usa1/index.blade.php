@@ -256,8 +256,8 @@ $servicesData = $services->map(function($s) {
                                                 data-id="{{ $rental->id }}">
                                             <i class="ri-refresh-line"></i>
                                         </button>
-                                        <button class="cancelBtn px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 font-medium transition-colors"
-                                                data-id="{{ $rental->id }}">
+                                        <button onclick="prepareCancel({{ $rental->id }})"
+                                                class="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 font-medium transition-colors">
                                             <i class="ri-close-line"></i>
                                         </button>
                                     @else
@@ -337,8 +337,8 @@ $servicesData = $services->map(function($s) {
                                 data-id="{{ $rental->id }}">
                             <i class="ri-refresh-line"></i> Check Code
                         </button>
-                        <button class="cancelBtn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-red-50 text-red-500 text-xs font-semibold hover:bg-red-100 transition-colors"
-                                data-id="{{ $rental->id }}">
+                        <button onclick="prepareCancel({{ $rental->id }})"
+                                class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-red-50 text-red-500 text-xs font-semibold hover:bg-red-100 transition-colors">
                             <i class="ri-close-line"></i> Cancel
                         </button>
                     </div>
@@ -542,30 +542,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ── Cancel button ───────────────────────────────────────────────────────
     let currentCancelId = null;
-    let currentCancelBtn = null;
 
-    $('.cancelBtn').on('click', function() {
-        currentCancelId = $(this).data('id');
-        currentCancelBtn = $(this);
+    window.prepareCancel = function(id) {
+        currentCancelId = id;
         openCancelModal();
-    });
+    };
 
     $('#confirmCancelBtn').on('click', function() {
         if (!currentCancelId) return;
-        const $btn = currentCancelBtn;
-        closeCancelModal();
-        $btn.html('<i class="ri-loader-4-line animate-spin"></i>').prop('disabled', true);
+        const $btn = $(this);
+        const origHtml = $btn.html();
+        
+        // Show loading state on the confirm button
+        $btn.html('<i class="ri-loader-4-line animate-spin"></i> Processing...').prop('disabled', true);
+
+        // Use direct URL construction to ensure ID is passed correctly
+        const url = `/user/sms-rental/cancel/${currentCancelId}`;
 
         $.ajax({
-            url: `{{ route('user.sms.rental.cancel', ':id') }}`.replace(':id', currentCancelId),
+            url: url,
             method: 'POST',
             data: { _token: '{{ csrf_token() }}' },
             success: function(res) {
-                if (res.success) { notify('success', res.message); setTimeout(() => location.reload(), 1500); }
-                else notify('error', res.message);
+                if (res.success) { 
+                    notify('success', res.message); 
+                    closeCancelModal();
+                    setTimeout(() => location.reload(), 1000); 
+                } else { 
+                    notify('error', res.message);
+                    $btn.html(origHtml).prop('disabled', false);
+                    closeCancelModal();
+                }
             },
-            error: function(xhr) { notify('error', xhr.responseJSON?.message || 'Something went wrong'); },
-            complete: function() { currentCancelId = null; currentCancelBtn = null; }
+            error: function(xhr) { 
+                notify('error', xhr.responseJSON?.message || 'Something went wrong'); 
+                $btn.html(origHtml).prop('disabled', false);
+                closeCancelModal();
+            }
         });
     });
 
@@ -653,7 +666,6 @@ document.addEventListener('DOMContentLoaded', function() {
         $modal.off('click.cancel');
         $(document).off('keydown.cancel');
         currentCancelId = null;
-        currentCancelBtn = null;
     };
 
     // ── Init ────────────────────────────────────────────────────────────────
