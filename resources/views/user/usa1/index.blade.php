@@ -511,33 +511,53 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ── Check code button ───────────────────────────────────────────────────
-    $('.checkCodeBtn').on('click', function() {
-        const id = $(this).data('id');
-        const $btn = $(this);
-        const orig = $btn.html();
-        $btn.html('<i class="ri-loader-4-line animate-spin"></i>').prop('disabled', true);
+    // Function to handle code checking logic
+    function performCheck(id, $btn = null, silent = false) {
+        if ($btn) {
+            $btn.html('<i class="ri-loader-4-line animate-spin"></i>').prop('disabled', true);
+        }
 
         $.ajax({
             url: `{{ route('user.sms.rental.check.code', ':id') }}`.replace(':id', id),
             method: 'GET',
             success: function(res) {
                 if (res.success) {
-                    notify('success', res.message);
                     if (res.sms_code) {
+                        if (!silent) notify('success', res.message);
                         updateSmsCodeDisplay(id, res.sms_code);
-                        $btn.closest('tr, [data-status]').find('.checkCodeBtn, .cancelBtn').hide();
                         updateStatusDisplay(id, 'completed');
-                    } else {
-                        setTimeout(() => location.reload(), 1500);
+                        
+                        // Hide action buttons
+                        const $container = $btn ? $btn.closest('tr, .p-4') : $(`[data-id="${id}"]`).closest('tr, .p-4');
+                        $container.find('.checkCodeBtn, .cancelBtn, [onclick^="prepareCancel"]').hide();
+                        
+                        // Update data-status attribute to stop auto-checking
+                        $container.attr('data-status', 'completed');
+                    } else if (!silent) {
+                        notify('info', res.message);
                     }
-                } else {
+                } else if (!silent) {
                     notify('info', res.message);
-                    setTimeout(() => location.reload(), 1500);
                 }
             },
-            error: function(xhr) { notify('error', xhr.responseJSON?.message || 'Something went wrong'); },
-            complete: function() { $btn.html(orig).prop('disabled', false); }
+            error: function(xhr) { 
+                if (!silent) notify('error', xhr.responseJSON?.message || 'Something went wrong'); 
+            },
+            complete: function() { 
+                if ($btn) {
+                    $btn.html('<i class="ri-refresh-line"></i> Check Code').prop('disabled', false);
+                    // Shorter text for desktop table button
+                    if ($btn.parents('table').length) {
+                        $btn.html('<i class="ri-refresh-line"></i>');
+                    }
+                }
+            }
         });
+    }
+
+    // Click handler
+    $('.checkCodeBtn').on('click', function() {
+        performCheck($(this).data('id'), $(this), false);
     });
 
     // ── Cancel button ───────────────────────────────────────────────────────
@@ -582,20 +602,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ── Silent auto-check every 30 s ────────────────────────────────────────
-    function checkCodeSilently(rentalId) {
-        $.ajax({
-            url: `{{ route('user.sms.rental.check.code', ':id') }}`.replace(':id', rentalId),
-            method: 'GET',
-            success: function(res) { if (res.success && res.sms_code) location.reload(); },
-            error: function() {}
-        });
-    }
-
+    // ── Silent auto-check every 10 s ────────────────────────────────────────
     function autoCheckCodes() {
         $('[data-status="active"], [data-status="pending"]').each(function() {
-            const id = $(this).find('.checkCodeBtn').data('id');
-            if (id) checkCodeSilently(id);
+            const $btn = $(this).find('.checkCodeBtn');
+            const id = $btn.data('id');
+            if (id) performCheck(id, $btn, true);
         });
     }
 
@@ -621,21 +633,41 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── DOM helpers ─────────────────────────────────────────────────────────
     function updateSmsCodeDisplay(id, code) {
         const copyBtn = `<button onclick="copyToClipboard('${code}')" class="text-gray-300 hover:text-emerald-500 transition-colors"><i class="ri-file-copy-line"></i></button>`;
-        $(`.checkCodeBtn[data-id="${id}"]`).closest('tr').find('td:nth-child(5)').html(
-            `<div class="flex items-center gap-1.5"><span class="font-mono font-bold text-emerald-600">${code}</span>${copyBtn}</div>`
-        );
+        const content = `<div class="flex items-center gap-1.5"><span class="font-mono font-bold text-emerald-600">${code}</span>${copyBtn}</div>`;
+        
+        // Update desktop table
+        $(`.checkCodeBtn[data-id="${id}"]`).closest('tr').find('td:nth-child(5)').html(content);
+        
+        // Update mobile card
+        const $mobileCard = $(`.checkCodeBtn[data-id="${id}"]`).closest('.p-4');
+        if ($mobileCard.length) {
+            // Find the SMS code container in mobile view (2nd column of grid)
+            const $smsContainer = $mobileCard.find('.grid > div:nth-child(2)');
+            $smsContainer.find('p.text-gray-400, p.text-red-400').replaceWith(content);
+        }
     }
 
-    function updateStatusDisplay(id) {
-        $(`.checkCodeBtn[data-id="${id}"]`).closest('tr').find('td:nth-child(4)').html(
-            '<span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium">Completed</span>'
-        );
+    function updateStatusDisplay(id, status) {
+        const label = status.charAt(0).toUpperCase() + status.slice(1);
+        const badge = `<span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium">${label}</span>`;
+        
+        // Update desktop table
+        $(`.checkCodeBtn[data-id="${id}"]`).closest('tr').find('td:nth-child(4)').html(badge);
+        
+        // Update mobile card
+        $(`.checkCodeBtn[data-id="${id}"]`).closest('.p-4').find('.text-right').html(badge);
     }
 
     window.refreshOrders = function() {
         const icon = document.getElementById('refreshIcon');
         if (icon) icon.classList.add('animate-spin');
-        setTimeout(() => location.reload(), 400);
+        
+        // Trigger click on all check buttons
+        $('.checkCodeBtn:not(:disabled)').each(function() {
+            $(this).click();
+        });
+        
+        setTimeout(() => { if (icon) icon.classList.remove('animate-spin'); }, 1000);
     };
 
     window.copyToClipboard = function(text) {
