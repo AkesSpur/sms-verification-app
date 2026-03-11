@@ -247,7 +247,7 @@
                         </template>
 
                         <template x-if="results.length > 0">
-                            <div class="px-4 py-2 bg-slate-50 border-t border-gray-100">
+                            <div class="su-4 py-2 bg-slate-50 border-t border-gray-100">
                                 <a :href="'{{ route('home') }}?search=' + encodeURIComponent(q)"
                                    @click="open = false"
                                    class="text-xs text-primary-600 hover:text-primary-800 font-medium flex items-center gap-1">
@@ -357,14 +357,14 @@
 <!-- Floating support buttons -->
 @if($settings && $settings->telegram_support_link)
     <a href="{{ $settings->telegram_support_link }}" target="_blank"
-       class="fixed bottom-6 right-6 z-50 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110">
-        <i class="ri-telegram-fill text-xl"></i>
+       class="fixed bottom-6 right-4 z-50 bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110">
+        <i class="ri-telegram-fill text-2xl"></i>
     </a>
 @endif
 @if($settings && $settings->whatsapp_support_link)
     <a href="{{ $settings->whatsapp_support_link }}" target="_blank"
-       class="fixed bottom-20 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 md:hidden">
-        <i class="ri-whatsapp-fill text-xl"></i>
+       class="fixed bottom-20 right-4 z-50 bg-green-500 hover:bg-green-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 md:hidden">
+        <i class="ri-whatsapp-fill text-2xl"></i>
     </a>
 @endif
 
