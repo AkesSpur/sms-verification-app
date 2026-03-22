@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\GeneralSetting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -30,11 +31,11 @@ class AccountCreatedMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        // $generalSetting = GeneralSetting::first();
+        $generalSetting = GeneralSetting::first();
 
         return new Envelope(
-            // subject: 'Welcome to '. $generalSetting->site_name,
-            subject: 'Welcome to Friendy',
+            subject: 'Welcome to '. $generalSetting->site_name,
+            // subject: 'Welcome to Friendy',
         );
     }
 
