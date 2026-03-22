@@ -177,7 +177,7 @@ $servicesData = collect($services)->map(function($s) use ($_rate, $_markup) {
                                     <span class="px-2 py-0.5 rounded-md bg-red-50 text-red-500 font-medium">Cancelled</span>
                                 @endif
                             </td>
-                            <td class="px-5 py-3">
+                            <td class="px-5 py-3" id="sms-cell-{{ $rental->id }}">
                                 @if($rental->sms_code)
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-mono font-bold text-emerald-600">{{ $rental->sms_code }}</span>
@@ -256,7 +256,7 @@ $servicesData = collect($services)->map(function($s) use ($_rate, $_markup) {
                             <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Price</p>
                             <p class="font-bold text-gray-800">&#8358;{{ number_format($rental->price, 2) }}</p>
                         </div>
-                        <div>
+                        <div id="sms-card-{{ $rental->id }}">
                             <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">SMS Code</p>
                             @if($rental->sms_code)
                                 <div class="flex items-center gap-1">
@@ -533,8 +533,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Track the last seen code per order to avoid redundant DOM updates
+    const lastSeenCode = {};
+
     // ── Check code button ───────────────────────────────────────────────────
-    // Function to handle code checking logic
     function performCheck(id, $btn = null, silent = false) {
         if ($btn) {
             $btn.html('<i class="ri-loader-4-line animate-spin"></i>').prop('disabled', true);
@@ -546,11 +548,9 @@ document.addEventListener('DOMContentLoaded', function() {
             success: function(res) {
                 if (res.success) {
                     if (res.sms_code) {
-                        // Show the code but keep order active — more codes may arrive
-                        const $container = $btn ? $btn.closest('tr, .p-4') : $(`[data-id="${id}"]`).closest('tr, .p-4');
-                        const prev = $container.data('last-sms');
-                        if (res.sms_code !== prev) {
-                            $container.data('last-sms', res.sms_code);
+                        // Only update the DOM if the code actually changed
+                        if (res.sms_code !== lastSeenCode[id]) {
+                            lastSeenCode[id] = res.sms_code;
                             updateSmsCodeDisplay(id, res.sms_code);
                             if (!silent) notify('success', res.message);
                         }
@@ -567,10 +567,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             },
-            error: function(xhr) { 
-                if (!silent) notify('error', xhr.responseJSON?.message || 'Something went wrong'); 
+            error: function(xhr) {
+                if (!silent) notify('error', xhr.responseJSON?.message || 'Something went wrong');
             },
-            complete: function() { 
+            complete: function() {
                 if ($btn) {
                     $btn.html('<i class="ri-refresh-line"></i> Check Code').prop('disabled', false);
                     // Shorter text for desktop table button
@@ -631,10 +631,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ── Silent auto-check every 10 s ────────────────────────────────────────
     function autoCheckCodes() {
+        const seen = new Set();
         $('[data-status="active"], [data-status="pending"]').each(function() {
-            const $btn = $(this).find('.checkCodeBtn');
-            const id = $btn.data('id');
-            if (id) performCheck(id, $btn, true);
+            const id = $(this).find('.checkCodeBtn').first().data('id');
+            if (id && !seen.has(id)) {
+                seen.add(id);
+                performCheck(id, null, true);
+            }
         });
     }
 
@@ -663,17 +666,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── DOM helpers ─────────────────────────────────────────────────────────
     function updateSmsCodeDisplay(id, code) {
         const copyBtn = `<button onclick="copyToClipboard('${code}')" class="text-gray-300 hover:text-emerald-500 transition-colors"><i class="ri-file-copy-line"></i></button>`;
-        const content = `<div class="flex items-center gap-1.5"><span class="font-mono font-bold text-emerald-600">${code}</span>${copyBtn}</div>`;
-        
-        // Update desktop table
-        $(`.checkCodeBtn[data-id="${id}"]`).closest('tr').find('td:nth-child(5)').html(content);
-        
-        // Update mobile card
-        const $mobileCard = $(`.checkCodeBtn[data-id="${id}"]`).closest('.p-4');
-        if ($mobileCard.length) {
-            // Find the SMS code container in mobile view (2nd column of grid)
-            const $smsContainer = $mobileCard.find('.grid > div:nth-child(2)');
-            $smsContainer.find('p.text-gray-400, p.text-red-400').replaceWith(content);
+        const codeHtml = `<div class="flex items-center gap-1.5"><span class="font-mono font-bold text-emerald-600">${code}</span>${copyBtn}</div>`;
+
+        // Desktop — target the specific TD by unique ID
+        const $cell = $(`#sms-cell-${id}`);
+        if ($cell.length) $cell.html(codeHtml);
+
+        // Mobile — target the specific card container by unique ID, preserve the label
+        const $card = $(`#sms-card-${id}`);
+        if ($card.length) {
+            $card.html(
+                `<p class="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">SMS Code</p>${codeHtml}`
+            );
         }
     }
 
