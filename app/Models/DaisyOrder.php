@@ -24,13 +24,17 @@ class DaisyOrder extends Model
         'status',
         'sms_code',
         'sms_text',
-        'expires_at'
+        'expires_at',
+        'cancelled_at',
+        'completed_at',
     ];
 
     protected $casts = [
-        'expires_at' => 'datetime',
-        'price' => 'decimal:8',
-        'max_price' => 'decimal:8'
+        'expires_at'   => 'datetime',
+        'cancelled_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'price'        => 'decimal:8',
+        'max_price'    => 'decimal:8',
     ];
 
     // Status constants
@@ -289,16 +293,4 @@ class DaisyOrder extends Model
         return $query->with(['user', 'service', 'transaction'])->recent()->get();
     }
 
-    // Boot method
-    protected static function boot()
-    {
-        parent::boot();
-        
-        // Auto-expire orders
-        static::updating(function ($order) {
-            if ($order->isExpired() && $order->status === self::STATUS_ACTIVE) {
-                $order->status = self::STATUS_EXPIRED;
-            }
-        });
-    }
 }

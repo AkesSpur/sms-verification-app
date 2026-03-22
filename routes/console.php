@@ -27,11 +27,11 @@ Schedule::command('exchange-rate:update')
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/exchange-rate-update.log'));
 
-Schedule::command('daisy:sync-prices')
-    ->everyTenMinutes()
+Schedule::command('getatext:sync-services')
+    ->hourly()
     ->withoutOverlapping()
     ->runInBackground()
-    ->appendOutputTo(storage_path('logs/daisy-sync-prices.log'));
+    ->appendOutputTo(storage_path('logs/getatext-sync-services.log'));
 
 Schedule::command('orders:auto-cancel')
     ->everyMinute()

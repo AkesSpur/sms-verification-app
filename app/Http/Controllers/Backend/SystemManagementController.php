@@ -78,6 +78,17 @@ class SystemManagementController extends Controller
         }
     }
 
+    public function syncGetATextServices()
+    {
+        try {
+            Artisan::call('getatext:sync-services');
+            $output = trim(Artisan::output());
+            return response()->json(['success' => true, 'message' => 'GetAText services cache refreshed. ' . $output]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => "Sync failed: {$e->getMessage()}"], 500);
+        }
+    }
+
     public function readLog(Request $request)
     {
         $request->validate([

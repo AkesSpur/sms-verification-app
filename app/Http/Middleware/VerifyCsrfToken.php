@@ -17,5 +17,9 @@ class VerifyCsrfToken extends Middleware
         'webhook/paymentpoint/*',
         'api/webhook/paymentpoint',
         'api/webhook/paymentpoint/*',
+        'webhook/getatext',
+        'webhook/getatext/*',
+        'api/webhook/getatext',
+        'api/webhook/getatext/*',
     ];
 }

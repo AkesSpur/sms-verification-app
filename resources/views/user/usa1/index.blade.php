@@ -2,55 +2,22 @@
 
 @section('title', 'USA Numbers 1')
 
-@section('styles')
-<style>
-    [x-cloak] { display: none !important; }
-</style>
-@endsection
-
 @php
-$servicesData = $services->map(function($s) {
-    $sp = $s->getPriceForCountry('us');
-    $price = $sp ? (float)$sp->final_price_naira : 0;
+$_rate   = (float) ($settings->usd_to_ngn_rate ?? 1600);
+$_markup = (float) ($settings->api_price_markup_percentage ?? 0);
+
+$servicesData = collect($services)->map(function($s) use ($_rate, $_markup) {
+    $priceNaira = (float) ceil(($s['cost'] * $_rate * (1 + $_markup / 100)) / 10) * 10;
     return [
-        'code'  => $s->code,
-        'name'  => $s->name,
-        'price' => $price,
-        'label' => $price > 0 ? '₦' . number_format($price) : null,
+        'code'     => $s['short_name'],
+        'name'     => $s['name'],
+        'price'    => $priceNaira,
+        'label'    => $priceNaira > 0 ? '₦' . number_format($priceNaira) : null,
+        'count'    => (int) ($s['count'] ?? 0),
+        'in_stock' => (int) ($s['count'] ?? 0) > 0,
     ];
-})->filter(fn($s) => $s['price'] > 0)->values();
+})->values();
 @endphp
-
-{{-- Pass services data to JS before Alpine initialises --}}
-<script>
-    window.__usa1Services = @json($servicesData);
-
-    function svcPicker() {
-        return {
-            services: window.__usa1Services || [],
-            search: '',
-            open: false,
-            selected: null,
-            get filtered() {
-                const q = this.search.toLowerCase().trim();
-                return this.services.filter(s => !q || s.name.toLowerCase().includes(q));
-            },
-            pick(s) {
-                this.selected = s;
-                this.open = false;
-                this.search = '';
-                const inp = document.getElementById('serviceCode');
-                if (inp) inp.value = s.code;
-            },
-            clear() {
-                this.selected = null;
-                this.search = '';
-                const inp = document.getElementById('serviceCode');
-                if (inp) inp.value = '';
-            }
-        };
-    }
-</script>
 
 @section('content')
 <div class="space-y-5 max-w-4xl mx-auto">
@@ -68,96 +35,74 @@ $servicesData = $services->map(function($s) {
             <input type="hidden" name="country" value="us">
             <input type="hidden" name="service" id="serviceCode">
 
-            {{-- Custom dropdown via named Alpine component --}}
-            <div x-data="svcPicker()" class="relative">
-
-                {{-- Trigger button — no nested <button> inside to avoid invalid HTML --}}
-                <button type="button"
-                        @click="open = !open"
+            {{-- Custom service dropdown (vanilla JS) --}}
+            <div class="relative" id="serviceDropdownWrap">
+                <button type="button" id="serviceTrigger"
                         class="w-full flex items-center justify-between gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm hover:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all">
                     <span class="flex items-center gap-2 min-w-0">
                         <i class="ri-apps-2-line text-gray-400 flex-shrink-0"></i>
-                        <span class="truncate text-xs font-medium"
-                              :class="selected ? 'text-gray-800' : 'text-gray-400'"
-                              x-text="selected ? selected.name : 'Select a service...'"></span>
+                        <span id="serviceLabel" class="truncate text-xs font-medium text-gray-400">Select a service...</span>
                     </span>
                     <span class="flex items-center gap-1.5 flex-shrink-0">
-                        <span x-show="selected" x-cloak
-                              x-text="selected ? selected.label : ''"
+                        <span id="selectedPriceBadge" style="display:none"
                               class="text-xs font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md"></span>
-                        {{-- Use <span> not <button> — can't nest buttons --}}
-                        <span x-show="selected" x-cloak
-                              @click.stop="clear()"
+                        <span id="clearService" style="display:none"
                               class="cursor-pointer text-gray-300 hover:text-gray-500 transition-colors leading-none">
                             <i class="ri-close-circle-line text-sm"></i>
                         </span>
-                        <i class="ri-arrow-down-s-line text-gray-400 text-sm transition-transform duration-200"
-                           :class="open ? 'rotate-180' : ''"></i>
+                        <i class="ri-arrow-down-s-line text-gray-400 text-sm transition-transform duration-200" id="dropdownArrow"></i>
                     </span>
                 </button>
 
-                {{-- Dropdown panel --}}
-                <div x-show="open"
-                     x-cloak
-                     @click.outside="open = false"
-                     @keydown.escape.window="open = false"
-                     x-transition:enter="transition ease-out duration-150"
-                     x-transition:enter-start="opacity-0 scale-[0.98] -translate-y-1"
-                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                     x-transition:leave="transition ease-in duration-100"
-                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                     x-transition:leave-end="opacity-0 scale-[0.98] -translate-y-1"
-                     class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-[100] overflow-hidden">
-
-                    {{-- Search inside dropdown --}}
+                <div id="servicePanel" class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-[100] overflow-hidden">
                     <div class="p-2.5 border-b border-gray-50">
                         <div class="relative">
                             <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                            <input type="text"
-                                   x-model="search"
-                                   @click.stop
-                                   placeholder="Search services..."
-                                   autocomplete="off"
+                            <input type="text" id="serviceSearch" placeholder="Search services..." autocomplete="off"
                                    class="w-full pl-8 pr-3 py-2 text-xs bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-transparent placeholder-gray-400 transition-all">
                         </div>
                     </div>
-
-                    {{-- Options --}}
-                    <ul class="max-h-60 overflow-y-auto py-1">
-                        <template x-for="s in filtered" :key="s.code">
-                            <li @click="pick(s)"
-                                class="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-primary-50 transition-colors"
-                                :class="selected && selected.code === s.code ? 'bg-primary-50' : ''">
-                                <span class="text-sm text-gray-700" x-text="s.name"></span>
-                                <span class="text-xs font-bold text-primary-600 ml-3 flex-shrink-0" x-text="s.label"></span>
+                    <ul class="max-h-60 overflow-y-auto py-1" id="serviceList">
+                        @foreach($servicesData as $s)
+                            <li class="service-option flex items-center justify-between px-4 py-2.5 transition-colors {{ $s['in_stock'] ? 'cursor-pointer hover:bg-primary-50' : 'cursor-not-allowed opacity-50 bg-gray-50' }}"
+                                data-value="{{ $s['code'] }}"
+                                data-name="{{ $s['name'] }}"
+                                data-label="{{ $s['label'] }}"
+                                data-in-stock="{{ $s['in_stock'] ? '1' : '0' }}">
+                                <span class="text-sm text-gray-700">{{ $s['name'] }}</span>
+                                <span class="ml-3 flex-shrink-0 flex items-center gap-1.5">
+                                    @if($s['in_stock'])
+                                        <span class="text-xs font-bold text-primary-600">{{ $s['label'] }}</span>
+                                        <span class="text-[10px] text-gray-400 tabular-nums">({{ $s['count'] }})</span>
+                                    @else
+                                        <span class="text-[10px] text-gray-400 italic">Out of stock</span>
+                                    @endif
+                                </span>
                             </li>
-                        </template>
-                        <li x-show="filtered.length === 0"
-                            class="px-4 py-5 text-center text-xs text-gray-400">
+                        @endforeach
+                        <li id="serviceEmpty" class="hidden px-4 py-5 text-center text-xs text-gray-400">
                             <i class="ri-search-line text-2xl block mb-1 text-gray-200"></i>
-                            No results for "<span x-text="search" class="font-medium text-gray-500"></span>"
+                            No results found
                         </li>
                     </ul>
                 </div>
+            </div>
 
-                {{-- Price + Purchase row — shown only when a service is picked --}}
-                <div x-show="selected" x-cloak class="mt-4 pt-4 border-t border-gray-100">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">Price</span>
-                            <span class="text-base font-bold text-gray-900"
-                                  x-text="selected ? selected.label : ''"></span>
-                        </div>
-                        <button type="submit" id="purchaseBtn"
-                                class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-5 py-1.5 rounded-lg text-xs font-bold text-white transition-all btn-glow"
-                                style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%);">
-                            <i class="ri-shopping-bag-2-line text-sm"></i>
-                            Purchase Number
-                        </button>
+            {{-- Price + Purchase row (shown when service selected) --}}
+            <div id="priceRow" class="hidden mt-4 pt-4 border-t border-gray-100">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">Price</span>
+                        <span class="text-base font-bold text-gray-900" id="priceDisplay"></span>
                     </div>
+                    <button type="submit" id="purchaseBtn"
+                            class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-5 py-1.5 rounded-lg text-xs font-bold text-white transition-all btn-glow"
+                            style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%);">
+                        <i class="ri-shopping-bag-2-line text-sm"></i>
+                        Purchase Number
+                    </button>
                 </div>
-
-            </div>{{-- /x-data --}}
+            </div>
         </form>
     </div>
 
@@ -472,6 +417,82 @@ document.addEventListener('DOMContentLoaded', function() {
 @endsection
 
 @push('scripts')
+<script>
+// ── Service dropdown (vanilla JS) ──────────────────────────────────────────
+(function() {
+    const trigger      = document.getElementById('serviceTrigger');
+    const panel        = document.getElementById('servicePanel');
+    const search       = document.getElementById('serviceSearch');
+    const list         = document.getElementById('serviceList');
+    const empty        = document.getElementById('serviceEmpty');
+    const lbl          = document.getElementById('serviceLabel');
+    const arrow        = document.getElementById('dropdownArrow');
+    const clearBtn     = document.getElementById('clearService');
+    const priceBadge   = document.getElementById('selectedPriceBadge');
+    const priceRow     = document.getElementById('priceRow');
+    const priceDisplay = document.getElementById('priceDisplay');
+    if (!trigger) return;
+
+    function openPanel() {
+        panel.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+        search.value = '';
+        list.querySelectorAll('.service-option').forEach(el => el.classList.remove('hidden'));
+        empty.classList.add('hidden');
+        search.focus();
+    }
+
+    function closePanel() {
+        panel.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+    }
+
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        panel.classList.contains('hidden') ? openPanel() : closePanel();
+    });
+
+    search.addEventListener('input', function() {
+        const term = this.value.toLowerCase().trim();
+        let visible = 0;
+        list.querySelectorAll('.service-option').forEach(el => {
+            const match = !term || el.dataset.name.toLowerCase().includes(term);
+            el.classList.toggle('hidden', !match);
+            if (match) visible++;
+        });
+        empty.classList.toggle('hidden', visible > 0);
+    });
+
+    list.addEventListener('click', function(e) {
+        const opt = e.target.closest('.service-option');
+        if (!opt || opt.dataset.inStock !== '1') return;
+        document.getElementById('serviceCode').value = opt.dataset.value;
+        lbl.textContent = opt.dataset.name;
+        lbl.classList.replace('text-gray-400', 'text-gray-800');
+        priceBadge.textContent = opt.dataset.label;
+        priceBadge.style.display = '';
+        clearBtn.style.display = '';
+        priceDisplay.textContent = opt.dataset.label;
+        priceRow.classList.remove('hidden');
+        closePanel();
+    });
+
+    clearBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.getElementById('serviceCode').value = '';
+        lbl.textContent = 'Select a service...';
+        lbl.classList.replace('text-gray-800', 'text-gray-400');
+        priceBadge.style.display = 'none';
+        clearBtn.style.display = 'none';
+        priceRow.classList.add('hidden');
+    });
+
+    panel.addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', closePanel);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+})();
+</script>
+
 <script>
 (function ($) {
     "use strict";

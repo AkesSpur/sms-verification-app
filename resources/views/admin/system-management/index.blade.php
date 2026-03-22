@@ -114,6 +114,36 @@
                 </div>
             </div>
 
+            {{-- GetAText Management --}}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-sms mr-2"></i>GetAText Management</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">Manage GetAText API services. The services list is cached for 1 hour and refreshed automatically on schedule.</p>
+                            <div class="row">
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card border shadow-sm h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-sync-alt fa-2x text-primary mb-3"></i>
+                                            <h6 class="font-weight-bold">Sync Services Cache</h6>
+                                            <p class="text-muted small mb-3">Clears and re-warms the GetAText services cache from the live API.</p>
+                                            <button class="btn btn-outline-primary btn-sm btn-cache-action"
+                                                    data-url="{{ route('admin.system-management.sync-getatext-services') }}"
+                                                    data-label="GetAText Services Cache">
+                                                <i class="fas fa-sync-alt mr-1"></i> Sync Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Log Management --}}
             <div class="row">
                 <div class="col-12">

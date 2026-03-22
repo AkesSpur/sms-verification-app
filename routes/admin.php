@@ -213,6 +213,7 @@ Route::prefix('system-management')->name('system-management.')->group(function (
     Route::post('/optimize', [SystemManagementController::class, 'optimize'])->name('optimize');
     Route::post('/read-log', [SystemManagementController::class, 'readLog'])->name('read-log');
     Route::post('/clear-log', [SystemManagementController::class, 'clearLog'])->name('clear-log');
+    Route::post('/sync-getatext-services', [SystemManagementController::class, 'syncGetATextServices'])->name('sync-getatext-services');
 });
 
 /** Payment settings routes */

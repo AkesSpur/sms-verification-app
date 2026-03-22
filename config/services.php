@@ -72,6 +72,12 @@ return [
         'log_requests' => env('DAISYSMS_LOG_REQUESTS', true),
     ],
 
+    'getatext' => [
+        'api_key'  => env('GETATEXT_API_KEY'),
+        'base_url' => env('GETATEXT_BASE_URL', 'https://getatext.com'),
+        'timeout'  => env('GETATEXT_TIMEOUT', 30),
+    ],
+
     'paymentpoint' => [
         'api_key' => env('PAYMENTPOINT_API_KEY'),
         'api_secret' => env('PAYMENTPOINT_API_SECRET'),
