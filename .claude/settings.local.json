@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Skill(claude-api)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "WebFetch(domain:getatext.com)",
+      "Bash(find /c/Users/akess/OneDrive/Documents/jobs/sms-verification-app/database/migrations -type f -name *daisy* -o -name *Daisy*)",
+      "Bash(find /c/Users/akess/OneDrive/Documents/jobs/sms-verification-app -type f -name *SmsRental* -o -name *Rental*)"
     ]
   }
 }
