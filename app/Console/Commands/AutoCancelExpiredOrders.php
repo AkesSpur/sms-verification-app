@@ -6,10 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\DaisyOrder;
 use App\Models\Order;
 use App\Models\User;
-use App\Services\DaisySmsService;
-use App\Services\SmsPoolService;
 use Illuminate\Support\Facades\DB;
-// use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Exception;
 
@@ -40,26 +37,58 @@ class AutoCancelExpiredOrders extends Command
         $limit = (int) $this->option('limit');
         
         $this->info('Starting auto-cancellation of expired orders...');
-        
+
         if ($dryRun) {
             $this->warn('DRY RUN MODE - No actual changes will be made');
         }
-        
-        $daisyService = app(DaisySmsService::class);
-        $poolService = app(SmsPoolService::class);
 
-        $daisyResults = $this->processDaisyOrders($daisyService, $dryRun, $limit);
-        $poolResults = $this->processPoolOrders($poolService, $dryRun, $limit);
-        
+        $daisyResults = $this->processDaisyOrders($dryRun, $limit);
+        $poolResults  = $this->processPoolOrders($dryRun, $limit);
+
+        // Mark orders that received a code and are now expired as completed
+        $this->completeExpiredDaisyOrdersWithCode($dryRun, $limit);
+
         $this->displayResults($daisyResults, $poolResults, $dryRun);
         
         return Command::SUCCESS;
     }
     
     /**
+     * Mark active DaisyOrders that have a code and are now past their expiry as completed.
+     */
+    private function completeExpiredDaisyOrdersWithCode($dryRun = false, $limit = 100): void
+    {
+        $orders = DaisyOrder::where('expires_at', '<', Carbon::now())
+            ->whereIn('status', [DaisyOrder::STATUS_PENDING, DaisyOrder::STATUS_ACTIVE])
+            ->whereNotNull('sms_code')
+            ->limit($limit)
+            ->get();
+
+        $this->info("Found {$orders->count()} expired Daisy orders with code to mark completed");
+
+        foreach ($orders as $order) {
+            /** @var DaisyOrder $order */
+            if ($dryRun) {
+                $this->line("DRY RUN: Would complete DaisyOrder #{$order->id} (has code, expired)");
+                continue;
+            }
+
+            try {
+                $order->update([
+                    'status'       => DaisyOrder::STATUS_COMPLETED,
+                    'completed_at' => now(),
+                ]);
+                $this->line("✓ Completed DaisyOrder #{$order->id}");
+            } catch (Exception $e) {
+                $this->error("✗ Failed to complete DaisyOrder #{$order->id}: {$e->getMessage()}");
+            }
+        }
+    }
+
+    /**
      * Process expired DaisyOrder records
      */
-    private function processDaisyOrders(DaisySmsService $daisyService, $dryRun = false, $limit = 100)
+    private function processDaisyOrders($dryRun = false, $limit = 100)
     {
         $results = [
             'processed' => 0,
