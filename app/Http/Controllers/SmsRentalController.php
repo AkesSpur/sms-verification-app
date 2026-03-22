@@ -347,7 +347,32 @@ class SmsRentalController extends Controller
                 ]);
             }
 
-            // ── Expired beyond 1-minute grace period — auto-cancel with refund ──
+            // ── Code check FIRST — never cancel an order that already has a code ──
+            $rental->refresh();
+            if ($rental->sms_code) {
+                // If the order expired while holding a code, complete it instead of cancelling
+                if (in_array($rental->status, [DaisyOrder::STATUS_PENDING, DaisyOrder::STATUS_ACTIVE])
+                    && $rental->isExpired()
+                ) {
+                    try {
+                        $rental->update(['status' => DaisyOrder::STATUS_COMPLETED, 'completed_at' => now()]);
+                        $rental->refresh();
+                    } catch (Exception $e) {
+                        // non-fatal — code is still returned below
+                    }
+                }
+
+                return response()->json([
+                    'success'  => true,
+                    'status'   => $rental->status,
+                    'sms_code' => $rental->sms_code,
+                    'code'     => $rental->sms_code,
+                    'text'     => $rental->sms_text,
+                    'message'  => 'SMS code: ' . $rental->sms_code,
+                ]);
+            }
+
+            // ── No code: if expired beyond 1-minute grace period — auto-cancel with refund ──
             if ($rental->expires_at && $rental->expires_at->isPast()) {
                 $minutesPastExpiry = max(0, now()->timestamp - $rental->expires_at->timestamp) / 60;
 
@@ -390,19 +415,6 @@ class SmsRentalController extends Controller
                 }
             }
 
-            // ── Refresh and return current code (if any) ──
-            $rental->refresh();
-            if ($rental->sms_code) {
-                return response()->json([
-                    'success'  => true,
-                    'status'   => $rental->status,
-                    'sms_code' => $rental->sms_code,
-                    'code'     => $rental->sms_code,
-                    'text'     => $rental->sms_text,
-                    'message'  => 'SMS code: ' . $rental->sms_code,
-                ]);
-            }
-
             return response()->json([
                 'success' => true,
                 'status'  => 'waiting',
@@ -437,6 +449,14 @@ class SmsRentalController extends Controller
                 ->where('user_id', $user->id)
                 ->whereIn('status', [DaisyOrder::STATUS_PENDING, DaisyOrder::STATUS_ACTIVE])
                 ->firstOrFail();
+
+            // ── Cannot cancel an order that has already received a code ──
+            if ($rental->sms_code) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot cancel an order after receiving a code.',
+                ]);
+            }
 
             // ── Expired beyond grace period — mark as expired, no API call ──
             if ($rental->expires_at && $rental->expires_at->isPast()) {
@@ -565,6 +585,19 @@ class SmsRentalController extends Controller
                     'success' => false,
                     'message' => 'Rental has not expired yet',
                 ]);
+            }
+
+            // ── Orders with a code are completed, not expired ──
+            if ($rental->sms_code) {
+                DB::beginTransaction();
+                try {
+                    $rental->update(['status' => DaisyOrder::STATUS_COMPLETED, 'completed_at' => now()]);
+                    DB::commit();
+                    return response()->json(['success' => true, 'message' => 'Rental marked as completed']);
+                } catch (Exception $dbException) {
+                    DB::rollBack();
+                    return response()->json(['success' => false, 'message' => 'Database error occurred while processing completion']);
+                }
             }
 
             DB::beginTransaction();

@@ -34,7 +34,7 @@ Schedule::command('getatext:sync-services')
     ->appendOutputTo(storage_path('logs/getatext-sync-services.log'));
 
 Schedule::command('orders:auto-cancel')
-    ->everyMinute()
+    ->everyFiveMinutes()
     ->withoutOverlapping()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/auto-cancel-orders.log'));
