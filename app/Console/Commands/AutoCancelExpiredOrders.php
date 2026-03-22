@@ -219,7 +219,7 @@ class AutoCancelExpiredOrders extends Command
     /**
      * Process expired PoolOrder records
      */
-    private function processPoolOrders(SmsPoolService $poolService, $dryRun = false, $limit = 100)
+    private function processPoolOrders($dryRun = false, $limit = 100)
     {
         $results = [
             'processed' => 0,
