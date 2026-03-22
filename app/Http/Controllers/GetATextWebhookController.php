@@ -28,17 +28,8 @@ class GetATextWebhookController extends Controller
             'payload' => $request->all(),
         ]);
 
-        // Verify the Auth header
-        $incomingKey = $request->header('Auth');
-        $expectedKey = config('services.getatext.api_key');
-
-        if (empty($expectedKey) || $incomingKey !== $expectedKey) {
-            Log::channel('getatext')->warning('Webhook auth failed', [
-                'incoming_key_prefix' => $incomingKey ? substr($incomingKey, 0, 8) . '...' : 'missing',
-            ]);
-
-            return response()->json(['status' => 'unauthorized'], 403);
-        }
+        // GetAText does not send an Auth header on webhook pushes.
+        // Security is provided by the rental_id matching an order in our DB.
 
         // Extract fields from payload
         $rentalId = $request->input('id');

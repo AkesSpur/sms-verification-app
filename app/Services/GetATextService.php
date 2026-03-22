@@ -222,12 +222,19 @@ class GetATextService
                 return ['success' => false, 'error' => is_string($error) ? $error : 'Provider error. Please try again.'];
             }
 
+            // Compute expires_at from now + TTL to avoid timezone ambiguity.
+            // GetAText returns end_time in their server timezone (US Eastern),
+            // so we derive duration ourselves using ttl (minutes) when available.
+            $ttlMinutes = isset($data['ttl']) && $data['ttl'] > 0
+                ? (int) $data['ttl']
+                : 7;
+
             return [
                 'success'      => true,
                 'rental_id'    => (int) $data['id'],
                 'phone_number' => (string) $data['number'],
                 'service_name' => (string) ($data['service_name'] ?? $service),
-                'expires_at'   => Carbon::parse($data['end_time']),
+                'expires_at'   => now()->addMinutes($ttlMinutes),
                 'price_usd'    => (float) ($data['price'] ?? 0),
             ];
 

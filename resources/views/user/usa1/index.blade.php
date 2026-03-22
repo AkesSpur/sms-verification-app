@@ -22,7 +22,8 @@ $servicesData = collect($services)->map(function($s) use ($_rate, $_markup) {
 @section('content')
 <div class="space-y-5 max-w-4xl mx-auto">
 
-    {{-- ── Purchase form ── --}}
+    {{-- ── Purchase form (admin only) ── --}}
+    @if(auth()->user()->isAdmin())
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         {{-- Title moved inside the form card --}}
         <div class="mb-4">
@@ -105,6 +106,7 @@ $servicesData = collect($services)->map(function($s) use ($_rate, $_markup) {
             </div>
         </form>
     </div>
+    @endif
 
     {{-- ── Info notice ── --}}
     <div class="flex items-start gap-3 bg-primary-50 border border-primary-100 rounded-2xl p-4">
@@ -641,13 +643,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const expires = new Date($el.data('expires'));
             const $disp = $el.find('.countdown-display');
 
-            setInterval(function() {
+            function tick() {
                 const left = expires - Date.now();
                 if (left <= 0) { $disp.text('Expired'); return; }
                 const m = Math.floor(left / 60000);
                 const s = Math.floor((left % 60000) / 1000);
                 $disp.text(`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
-            }, 1000);
+            }
+
+            tick(); // show immediately on load
+            setInterval(tick, 1000);
         });
     }
 
