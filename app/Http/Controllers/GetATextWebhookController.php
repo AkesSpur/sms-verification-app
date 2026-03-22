@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\DaisyOrder;
-use App\Services\GetATextService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -54,33 +53,32 @@ class GetATextWebhookController extends Controller
             return response()->json(['status' => 'not_found'], 404);
         }
 
-        // Idempotency guard — already processed
-        if ($order->sms_code) {
-            Log::channel('getatext')->info('Webhook already processed', [
-                'rental_id' => $rentalId,
-                'order_id'  => $order->id,
+        // Log if this is a new code replacing a previous one
+        if ($order->sms_code && $order->sms_code !== (string) $smsCode) {
+            Log::channel('getatext')->info('Webhook updating existing code', [
+                'rental_id'    => $rentalId,
+                'order_id'     => $order->id,
+                'previous_code' => $order->sms_code,
+                'new_code'      => $smsCode,
             ]);
-
-            return response()->json(['status' => 'already_set']);
         }
 
-        // Persist the SMS code
+        // Persist the SMS code — order stays active so more codes can arrive
         DB::beginTransaction();
 
         try {
             $order->update([
-                'sms_code'     => (string) $smsCode,
-                'sms_text'     => $smsText,
-                'status'       => DaisyOrder::STATUS_COMPLETED,
-                'completed_at' => now(),
+                'sms_code' => (string) $smsCode,
+                'sms_text' => $smsText,
             ]);
 
             DB::commit();
 
-            Log::channel('getatext')->info('Webhook processed successfully', [
+            Log::channel('getatext')->info('Webhook code saved', [
                 'rental_id' => $rentalId,
                 'order_id'  => $order->id,
                 'code'      => $smsCode,
+                'status'    => $order->status,
             ]);
 
         } catch (Exception $e) {
@@ -92,15 +90,6 @@ class GetATextWebhookController extends Controller
             ]);
 
             return response()->json(['status' => 'error'], 500);
-        }
-
-        // Best-effort: mark completed on GetAText side
-        try {
-            app(GetATextService::class)->markCompleted((int) $rentalId);
-        } catch (Exception $e) {
-            Log::channel('getatext')->debug('markCompleted after webhook failed (non-critical)', [
-                'error' => $e->getMessage(),
-            ]);
         }
 
         return response()->json(['status' => 'ok']);

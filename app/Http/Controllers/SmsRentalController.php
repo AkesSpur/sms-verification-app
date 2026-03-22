@@ -338,24 +338,12 @@ class SmsRentalController extends Controller
                 ->where('user_id', $user->id)
                 ->firstOrFail();
 
-            // ── Already completed (webhook wrote the code) ──
-            if ($rental->status === DaisyOrder::STATUS_COMPLETED && $rental->sms_code) {
-                return response()->json([
-                    'success'  => true,
-                    'status'   => 'completed',
-                    'code'     => $rental->sms_code,
-                    'text'     => $rental->sms_text,
-                    'sms_code' => $rental->sms_code,
-                    'reload'   => true,
-                    'message'  => 'SMS code received successfully!',
-                ]);
-            }
-
-            // ── Not active anymore ──
-            if ($rental->status !== DaisyOrder::STATUS_ACTIVE) {
+            // ── Terminal status — nothing more to do ──
+            if (in_array($rental->status, [DaisyOrder::STATUS_CANCELLED, DaisyOrder::STATUS_EXPIRED])) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Rental is not active',
+                    'status'  => $rental->status,
+                    'message' => 'Rental has been ' . $rental->status . '.',
                 ]);
             }
 
@@ -402,18 +390,16 @@ class SmsRentalController extends Controller
                 }
             }
 
-            // ── Still active, code not yet received via webhook ──
-            // Check if code arrived since last poll (race-condition guard)
+            // ── Refresh and return current code (if any) ──
             $rental->refresh();
             if ($rental->sms_code) {
                 return response()->json([
                     'success'  => true,
-                    'status'   => 'completed',
+                    'status'   => $rental->status,
+                    'sms_code' => $rental->sms_code,
                     'code'     => $rental->sms_code,
                     'text'     => $rental->sms_text,
-                    'sms_code' => $rental->sms_code,
-                    'reload'   => true,
-                    'message'  => 'SMS code received successfully!',
+                    'message'  => 'SMS code: ' . $rental->sms_code,
                 ]);
             }
 

@@ -546,21 +546,25 @@ document.addEventListener('DOMContentLoaded', function() {
             success: function(res) {
                 if (res.success) {
                     if (res.sms_code) {
-                        if (!silent) notify('success', res.message);
-                        updateSmsCodeDisplay(id, res.sms_code);
-                        updateStatusDisplay(id, 'completed');
-                        
-                        // Hide action buttons
+                        // Show the code but keep order active — more codes may arrive
                         const $container = $btn ? $btn.closest('tr, .p-4') : $(`[data-id="${id}"]`).closest('tr, .p-4');
-                        $container.find('.checkCodeBtn, .cancelBtn, [onclick^="prepareCancel"]').hide();
-                        
-                        // Update data-status attribute to stop auto-checking
-                        $container.attr('data-status', 'completed');
+                        const prev = $container.data('last-sms');
+                        if (res.sms_code !== prev) {
+                            $container.data('last-sms', res.sms_code);
+                            updateSmsCodeDisplay(id, res.sms_code);
+                            if (!silent) notify('success', res.message);
+                        }
+                        // Leave status badge, action buttons, and data-status unchanged
                     } else if (!silent) {
                         notify('info', res.message);
                     }
-                } else if (!silent) {
-                    notify('info', res.message);
+                } else {
+                    // Terminal states (cancelled/expired) — reload to reflect final status
+                    if (res.status === 'cancelled' || res.status === 'expired') {
+                        setTimeout(() => location.reload(), 800);
+                    } else if (!silent) {
+                        notify('info', res.message);
+                    }
                 }
             },
             error: function(xhr) { 
