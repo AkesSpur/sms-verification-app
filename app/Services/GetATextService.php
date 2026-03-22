@@ -224,10 +224,11 @@ class GetATextService
 
             // Compute expires_at from now + TTL to avoid timezone ambiguity.
             // GetAText returns end_time in their server timezone (US Eastern),
-            // so we derive duration ourselves using ttl (minutes) when available.
-            $ttlMinutes = isset($data['ttl']) && $data['ttl'] > 0
-                ? (int) $data['ttl']
-                : 7;
+            // so we derive duration ourselves from the cached service TTL.
+            $cachedServices = Cache::get('getatext-get-services', []);
+            $serviceInfo    = collect($cachedServices)->firstWhere('short_name', $service);
+            $ttlMinutes     = (int) ($serviceInfo['ttl'] ?? $data['ttl'] ?? 7);
+            if ($ttlMinutes <= 0) $ttlMinutes = 15;
 
             return [
                 'success'      => true,

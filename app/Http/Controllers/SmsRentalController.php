@@ -361,7 +361,7 @@ class SmsRentalController extends Controller
 
             // ── Expired beyond 1-minute grace period — auto-cancel with refund ──
             if ($rental->expires_at && $rental->expires_at->isPast()) {
-                $minutesPastExpiry = now()->diffInMinutes($rental->expires_at);
+                $minutesPastExpiry = max(0, now()->timestamp - $rental->expires_at->timestamp) / 60;
 
                 if ($minutesPastExpiry > 1) {
                     DB::beginTransaction();
@@ -454,7 +454,7 @@ class SmsRentalController extends Controller
 
             // ── Expired beyond grace period — mark as expired, no API call ──
             if ($rental->expires_at && $rental->expires_at->isPast()) {
-                $minutesPastExpiry = now()->diffInMinutes($rental->expires_at);
+                $minutesPastExpiry = max(0, now()->timestamp - $rental->expires_at->timestamp) / 60;
 
                 if ($minutesPastExpiry > 1) {
                     DB::beginTransaction();
@@ -480,7 +480,7 @@ class SmsRentalController extends Controller
             }
 
             // ── GetAText requires ≥1 minute after creation before cancelling ──
-            $secondsSinceCreation = now()->diffInSeconds($rental->created_at);
+            $secondsSinceCreation = max(0, now()->timestamp - $rental->created_at->timestamp);
             if ($secondsSinceCreation < 60) {
                 $waitSeconds = 60 - $secondsSinceCreation;
                 return response()->json([
