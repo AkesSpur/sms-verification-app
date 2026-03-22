@@ -22,8 +22,7 @@ $servicesData = collect($services)->map(function($s) use ($_rate, $_markup) {
 @section('content')
 <div class="space-y-5 max-w-4xl mx-auto">
 
-    {{-- ── Purchase form (admin only) ── --}}
-    @if(auth()->user()->isAdmin())
+    {{-- ── Purchase form ── --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         {{-- Title moved inside the form card --}}
         <div class="mb-4">
@@ -106,7 +105,6 @@ $servicesData = collect($services)->map(function($s) use ($_rate, $_markup) {
             </div>
         </form>
     </div>
-    @endif
 
     {{-- ── Info notice ── --}}
     <div class="flex items-start gap-3 bg-primary-50 border border-primary-100 rounded-2xl p-4">
