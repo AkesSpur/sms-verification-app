@@ -227,7 +227,7 @@ class GetATextService
             // so we derive duration ourselves from the cached service TTL.
             $cachedServices = Cache::get('getatext-get-services', []);
             $serviceInfo    = collect($cachedServices)->firstWhere('short_name', $service);
-            $ttlMinutes     = (int) ($serviceInfo['ttl'] ?? $data['ttl'] ?? 7);
+            $ttlMinutes     = (int) ($serviceInfo['ttl'] ?? $data['ttl'] ?? 15);
             if ($ttlMinutes <= 0) $ttlMinutes = 15;
 
             return [
