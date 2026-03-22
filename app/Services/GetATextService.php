@@ -168,7 +168,7 @@ class GetATextService
                         'cost'       => (float) $item['price'],
                         'count'      => (int) ($item['stock'] ?? 0),
                         'price'      => (float) $item['price'],
-                        'ttl'        => (int) ($item['ttl'] ?? 7),
+                        'ttl'        => (int) ($item['ttl'] ?? 15),
                     ];
                 }
 
