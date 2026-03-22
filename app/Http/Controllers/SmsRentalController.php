@@ -499,15 +499,26 @@ class SmsRentalController extends Controller
             $result = $this->getATextService->cancelRental((int) $rental->rental_id);
 
             if (!$result['success']) {
-                Log::channel('getatext')->error('Cancel API error', [
+                // 404 = rental no longer exists on GetAText (already expired/viewed on their side).
+                // Treat as "provider already cleaned up" and cancel locally with refund.
+                $providerAlreadyGone = str_contains(strtolower($result['error']), 'not found');
+
+                if (!$providerAlreadyGone) {
+                    Log::channel('getatext')->error('Cancel API error', [
+                        'request_id' => $requestId,
+                        'rental_id'  => $rental->rental_id,
+                        'error'      => $result['error'],
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to cancel rental: ' . $result['error'],
+                    ]);
+                }
+
+                Log::channel('getatext')->info('Cancel: rental already gone on provider side, cancelling locally', [
                     'request_id' => $requestId,
                     'rental_id'  => $rental->rental_id,
-                    'error'      => $result['error'],
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to cancel rental: ' . $result['error'],
                 ]);
             }
 
