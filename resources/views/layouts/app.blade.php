@@ -352,19 +352,20 @@
         </div>
     </footer>
 
-    <!-- Floating support buttons -->
+<!-- Floating support buttons -->
 @if($settings && $settings->telegram_support_link)
     <a href="{{ $settings->telegram_support_link }}" target="_blank"
-       class="fixed bottom-6 right-4 z-50 bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110">
+       class="fixed bottom-6 left-4 z-30 bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110">
         <i class="ri-telegram-fill text-2xl"></i>
     </a>
 @endif
 @if($settings && $settings->whatsapp_support_link)
     <a href="{{ $settings->whatsapp_support_link }}" target="_blank"
-       class="fixed bottom-20 right-4 z-50 bg-green-500 hover:bg-green-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 md:hidden">
+       class="fixed bottom-20 left-4 z-30 bg-green-500 hover:bg-green-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 md:hidden">
         <i class="ri-whatsapp-fill text-2xl"></i>
     </a>
 @endif
+
 </div>{{-- /content wrapper --}}
 
 
