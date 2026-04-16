@@ -191,7 +191,7 @@ class DigitalProductLogController extends Controller
         $request->validate([
             'product_id' => 'required|exists:digital_products,id',
             'log_items' => 'required|array|min:1',
-            'log_items.*' => 'required|string|max:1000',
+            'log_items.*' => 'required|string',
             'details' => 'nullable|string',
             'status' => 'required|in:available,sold'
         ]);
