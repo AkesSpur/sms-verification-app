@@ -27,7 +27,7 @@ class DigitalProductLogController extends Controller
             $query->where('status', $request->status);
         }
 
-        $logs = $query->orderBy('created_at', 'desc')->get();
+        $logs = $query->orderBy('created_at', 'desc')->paginate(100);
         $products = DigitalProduct::active()->ordered()->get(['id', 'name']);
 
         return view('admin.digital-product-log.index', compact('logs', 'products'));
