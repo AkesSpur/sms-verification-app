@@ -10,18 +10,24 @@ trait ImageUploadTrait
     protected function convertToWebp($imagePath, $ext)
     {
         $newPath = preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $imagePath);
+        if ($newPath === $imagePath) {
+            $newPath = $imagePath . '.webp';
+        }
 
-        switch (strtolower($ext)) {
-            case 'jpg':
-            case 'jpeg':
+        $imageType = exif_imagetype($imagePath);
+
+        switch ($imageType) {
+            case IMAGETYPE_JPEG:
                 $image = imagecreatefromjpeg($imagePath);
                 break;
-            case 'png':
+            case IMAGETYPE_PNG:
                 $image = imagecreatefrompng($imagePath);
                 imagepalettetotruecolor($image);
                 imagealphablending($image, true);
                 imagesavealpha($image, true);
                 break;
+            case IMAGETYPE_WEBP:
+                return $imagePath;
             default:
                 return $imagePath; // Return original if not convertible
         }
