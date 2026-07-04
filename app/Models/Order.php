@@ -14,7 +14,7 @@ protected $fillable = [
     'user_id', 'service_id', 'country_id', 'phone_number', 'activation_id', 'price', 'api_price', 'markup_percentage', 'final_price',
     'sms_code', 'sms_received_at', 'status', 'api_response', 'api_status', 'refunded', 'needs_review', 
     'retry_attempts', 'last_retry_at', 'max_retries', 'expires_at', 'sms_window_expires_at', 'is_number_used',
-    'can_cancel', 'cancelled_at', 'cancellation_reason', 'order_source'
+    'can_cancel', 'cancelled_at', 'cancellation_reason', 'order_source', 'api_provider'
 ];
 
 protected $casts = [

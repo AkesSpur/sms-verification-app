@@ -60,17 +60,31 @@ class UsersController extends Controller
             $services  = [];
         }
 
-        // Get active international orders (excluding USA orders)
+        // Orders for this page: all SmsBower orders, plus legacy non-USA orders.
+        // NOTE: when no 'US' country row exists ($usaId === null), a plain
+        // "country_id != null" comparison matches nothing in SQL — so the USA
+        // exclusion must only be applied when the row actually exists.
+        $internationalFilter = function ($query) use ($usaId) {
+            $query->where('api_provider', 'smsbower');
+            if ($usaId) {
+                $query->orWhere('country_id', '!=', $usaId);
+            } else {
+                $query->orWhereNotNull('country_id');
+            }
+        };
+
+        // Get active international orders
         $activeOrders = Order::where('user_id', Auth::user()->id)
             ->whereNotIn('status', ['completed', 'cancelled', 'expired'])
-            ->where('country_id', '!=', $usaId)
-            ->with('service')
+            ->where($internationalFilter)
+            ->with(['service', 'country'])
             ->latest()
             ->get();
 
         // Get all orders for history (paginated)
         $orders = Order::where('user_id', Auth::user()->id)
-            ->where('country_id', '!=', $usaId)
+            ->where($internationalFilter)
+            ->with(['service', 'country'])
             ->latest()
             ->paginate(10);
 
