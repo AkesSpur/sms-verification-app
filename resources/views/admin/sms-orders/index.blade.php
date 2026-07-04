@@ -251,7 +251,12 @@
                                                 <td>
                                                     <div>
                                                         <strong>{{ $order->service->name ?? 'N/A' }}</strong><br>
-                                                        <small class="text-muted">{{ $order->service->code ?? 'N/A' }}</small>
+                                                        <small class="text-muted">{{ $order->service->code ?? 'N/A' }}</small><br>
+                                                        @if($order->api_provider === 'smsbower')
+                                                            <span class="badge badge-info">SmsBower</span>
+                                                        @else
+                                                            <span class="badge badge-secondary">SMSPool</span>
+                                                        @endif
                                                     </div>
                                                 </td>
                                                 <td>
