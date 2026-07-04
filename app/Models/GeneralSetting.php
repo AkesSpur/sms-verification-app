@@ -22,6 +22,7 @@ class GeneralSetting extends Model
         'whatsapp_support_link',
         'telegram_support_link',
         'usd_to_ngn_rate',
+        'global_order_fee',
         'exchange_rate_updated_at',
         'exchange_rate_markup_percentage',
     ];

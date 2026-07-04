@@ -5,7 +5,9 @@
       "Bash(npm install:*)",
       "WebFetch(domain:getatext.com)",
       "Bash(find /c/Users/akess/OneDrive/Documents/jobs/sms-verification-app/database/migrations -type f -name *daisy* -o -name *Daisy*)",
-      "Bash(find /c/Users/akess/OneDrive/Documents/jobs/sms-verification-app -type f -name *SmsRental* -o -name *Rental*)"
+      "Bash(find /c/Users/akess/OneDrive/Documents/jobs/sms-verification-app -type f -name *SmsRental* -o -name *Rental*)",
+      "Bash(grep -n \"SMSBOWER\" /Users/akegbejoabiodun/Herd/smsyard/.env /Users/akegbejoabiodun/Herd/sms-verification-app/.env 2>/dev/null)",
+      "Read(//Users/akegbejoabiodun/Herd/smsyard/**)"
     ]
   }
 }

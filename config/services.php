@@ -51,6 +51,11 @@ return [
         'retry_delay' => env('SMSPOOL_RETRY_DELAY', 1000), // milliseconds
     ],
 
+    'smsbower' => [
+        'api_key' => env('SMSBOWER_API_KEY'),
+        'base_url' => env('SMSBOWER_BASE_URL', 'https://smsbower.page/stubs/handler_api.php'),
+    ],
+
     'owlet' => [
         'api_key' => env('OWLET_API_KEY'),
         'base_url' => env('OWLET_BASE_URL', 'https://the-owlet.com/api/v2'),

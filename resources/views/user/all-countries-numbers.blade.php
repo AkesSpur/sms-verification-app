@@ -17,6 +17,8 @@
             @csrf
             <input type="hidden" id="country" name="country">
             <input type="hidden" id="service" name="service">
+            <input type="hidden" id="country_name" name="country_name">
+            <input type="hidden" id="service_name" name="service_name">
 
             <div class="space-y-3">
 
@@ -39,9 +41,9 @@
                             </div>
                         </div>
                         <div class="max-h-56 overflow-y-auto py-1" id="countryList">
-                            @foreach($countries->sortBy('name') as $c)
+                            @foreach($countries as $id => $name)
                                 <div class="country-option flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 cursor-pointer transition-colors"
-                                     data-value="{{ $c->code }}" data-name="{{ $c->name }}">{{ $c->name }}</div>
+                                     data-value="{{ $id }}" data-name="{{ $name }}">{{ $name }}</div>
                             @endforeach
                             <div id="countryEmpty" class="hidden px-4 py-5 text-center text-xs text-gray-400">No results found</div>
                         </div>
@@ -67,9 +69,9 @@
                             </div>
                         </div>
                         <div class="max-h-56 overflow-y-auto py-1" id="serviceList">
-                            @foreach($services->sortBy('name') as $s)
+                            @foreach($services as $code => $name)
                                 <div class="service-option flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 cursor-pointer transition-colors"
-                                     data-value="{{ $s->code }}" data-name="{{ $s->name }}">{{ $s->name }}</div>
+                                     data-value="{{ $code }}" data-name="{{ $name }}">{{ $name }}</div>
                             @endforeach
                             <div id="serviceEmpty" class="hidden px-4 py-5 text-center text-xs text-gray-400">No results found</div>
                         </div>
@@ -475,13 +477,15 @@ window.copyToClipboard = function(text) {
     });
 
     setupDropdown('countryTrigger', 'countryPanel', 'countrySearch', 'countryList', 'country-option', 'countryEmpty',
-        function(value) {
+        function(value, name) {
             currentCountry = value;
             document.getElementById('country').value = value;
+            document.getElementById('country_name').value = name;
             // Show service picker, reset downstream
             document.getElementById('serviceDropdownWrap').classList.remove('hidden');
             document.getElementById('serviceLabel').textContent = 'Select a service...';
             document.getElementById('service').value = '';
+            document.getElementById('service_name').value = '';
             currentService = '';
             document.getElementById('checkRow').classList.add('hidden');
             document.getElementById('priceRow').classList.add('hidden');
@@ -490,9 +494,10 @@ window.copyToClipboard = function(text) {
     );
 
     setupDropdown('serviceTrigger', 'servicePanel', 'serviceSearch', 'serviceList', 'service-option', 'serviceEmpty',
-        function(value) {
+        function(value, name) {
             currentService = value;
             document.getElementById('service').value = value;
+            document.getElementById('service_name').value = name;
             // Show check availability row
             document.getElementById('checkRow').classList.remove('hidden');
             document.getElementById('priceRow').classList.add('hidden');
@@ -574,6 +579,8 @@ document.getElementById('internationalForm').addEventListener('submit', function
     e.preventDefault();
     const country = document.getElementById('country').value;
     const service = document.getElementById('service').value;
+    const countryName = document.getElementById('country_name').value;
+    const serviceName = document.getElementById('service_name').value;
 
     if (!country || !service) {
         notify('error', 'Please select both country and service');
@@ -592,9 +599,9 @@ document.getElementById('internationalForm').addEventListener('submit', function
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept':       'application/json'
         },
-        body: JSON.stringify({ country, service })
+        body: JSON.stringify({ country, service, country_name: countryName, service_name: serviceName })
     })
-    .then(res => res.json())
+    .the n(res => res.json())
     .then(data => {
         if (data.success) {
             notify('success', data.message || 'Number purchased successfully!');

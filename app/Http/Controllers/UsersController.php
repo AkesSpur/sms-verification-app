@@ -49,10 +49,16 @@ class UsersController extends Controller
     public function allCountriesNumbers()
     {
         $usaId = Country::where('code', 'US')->value('id');
-        $services = Service::all();
-        $countries = $usaId
-            ? Country::where('id', '!=', $usaId)->get()
-            : Country::where('code', '!=', 'US')->get();
+
+        // Country/service lists come from the SmsBower API (cached 6h)
+        $smsBower = app(\App\Services\SmsBowerService::class);
+        try {
+            $countries = $smsBower->getCountries(); // [numeric_id => name]
+            $services  = $smsBower->getServices();  // [code => name]
+        } catch (\Throwable $th) {
+            $countries = [];
+            $services  = [];
+        }
 
         // Get active international orders (excluding USA orders)
         $activeOrders = Order::where('user_id', Auth::user()->id)

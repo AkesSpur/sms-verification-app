@@ -12,13 +12,11 @@ use App\Models\Transaction;
 use App\Models\BlacklistedNumber;
 use App\Models\EmailConfiguration;
 use App\Mail\SaleNotificationMail;
-use App\Services\SmsPoolService;
-use App\Services\PricingService;
+use App\Services\SmsBowerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -27,34 +25,13 @@ use Carbon\Carbon;
 class InternationalNumberController extends Controller
 {
     protected $smsService;
-    protected $pricingService;
     protected $maxOrdersPerHour = 20;
     protected $maxOrdersPerDay = 80;
     protected $minBalanceRequired = 100.00; // Minimum balance in Naira
 
-    /**
-     * Get country mapping for SMS Activate API
-     */
-    private function getCountryMapping($countryCode)
-    {
-        $country = Country::where('code', $countryCode)->first();
-        return $country ? $country->code : null;
-    }
-
-    /**
-     * Get all country mappings (cached for performance)
-     */
-    private function getCountryMappings()
-    {
-        return Cache::remember('country_mappings', 3600, function () {
-            return Country::pluck('code', 'code')->toArray();
-        });
-    }
-
-    public function __construct(SmsPoolService $smsService, PricingService $pricingService)
+    public function __construct(SmsBowerService $smsService)
     {
         $this->smsService = $smsService;
-        $this->pricingService = $pricingService;
         $this->middleware('auth');
         
         // Apply throttle middleware only for non-admin users
@@ -71,53 +48,29 @@ class InternationalNumberController extends Controller
      */
     public function checkAvailability(Request $request)
     {
-        $countryMappings = $this->getCountryMappings();
-        
         $request->validate([
-            'country' => 'required|string|in:' . implode(',', array_keys($countryMappings)),
+            'country' => 'required|integer',
             'service' => 'required|string'
         ]);
 
-        $countryCode = $request->input('country');
+        $countryId = (int) $request->input('country');
         $serviceCode = $request->input('service');
         $user = Auth::user();
 
         try {
-            // Get country code for SMS Activate API
-            $apiCountryCode = $this->getCountryMapping($countryCode);
-            
-            if ($apiCountryCode === null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Country not supported'
-                ], 400);
-            }
-            
-            // Check if service exists and is active
-            $service = Service::where('code', $serviceCode)
-                ->where('status', 'active')
-                ->first();
+            // Get live price and stock from SmsBower API
+            $priceData = $this->smsService->getPrice($countryId, $serviceCode);
 
-            if (!$service) {
+            if (!$priceData || $priceData['count'] === 0) {
                 return response()->json([
-                    'success' => false,
+                    'success' => true,
                     'available' => false,
-                    'message' => 'Service not available for this country.'
+                    'message' => 'Service temporarily unavailable. Please try again later.'
                 ]);
             }
 
-            // Get price for this country and service
-            $countryModel = Country::where('code', $countryCode)->first();
-            if (!$countryModel) {
-                return response()->json([
-                    'success' => false,
-                    'available' => false,
-                    'message' => 'Country not supported.'
-                ]);
-            }
+            $priceInNaira = $this->smsService->calculateNairaPrice($priceData['cost']);
 
-            $priceInNaira = $this->pricingService->getServicePrice($service->id, $countryModel->id);
-            
             // Check user balance
             if ($user->balance < $priceInNaira) {
                 return response()->json([
@@ -127,29 +80,18 @@ class InternationalNumberController extends Controller
                 ]);
             }
 
-            // Check availability from SMSPool API
-            $availability = $this->smsService->checkAvailability($service->code ?? $serviceCode, $countryModel->code ?? $apiCountryCode);
-            
-            if ($availability) {
-                return response()->json([
-                    'success' => true,
-                    'available' => true,
-                    'message' => 'Service is available!',
-                    'price' => $priceInNaira,
-                    'formatted_price' => '₦' . number_format($priceInNaira, 2)
-                ]);
-            } else {
-                return response()->json([
-                    'success' => true,
-                    'available' => false,
-                    'message' => 'Service temporarily unavailable. Please try again later.'
-                ]);
-            }
+            return response()->json([
+                'success' => true,
+                'available' => true,
+                'message' => 'Service is available!',
+                'price' => $priceInNaira,
+                'formatted_price' => '₦' . number_format($priceInNaira, 2)
+            ]);
 
         } catch (\Exception $e) {
             Log::error('International number availability check failed', [
                 'user_id' => $user->id,
-                'country' => $countryCode,
+                'country' => $countryId,
                 'service' => $serviceCode,
                 'error' => $e->getMessage()
             ]);
@@ -167,15 +109,17 @@ class InternationalNumberController extends Controller
      */
     public function store(Request $request)
     {
-        $countryMappings = $this->getCountryMappings();
-        
         $request->validate([
-            'country' => 'required|string|in:' . implode(',', array_keys($countryMappings)),
-            'service' => 'required|string'
+            'country' => 'required|integer',
+            'service' => 'required|string',
+            'country_name' => 'required|string|max:255',
+            'service_name' => 'required|string|max:255'
         ]);
 
-        $countryCode = $request->input('country');
+        $countryId = (int) $request->input('country');
         $serviceCode = $request->input('service');
+        $countryName = $request->input('country_name');
+        $serviceName = $request->input('service_name');
         $user = Auth::user();
 
         // Rate limiting (skip for admin users)
@@ -190,37 +134,18 @@ class InternationalNumberController extends Controller
         }
 
         try {
-            return DB::transaction(function () use ($request, $countryCode, $serviceCode, $user) {
-                // Get API country code
-                $apiCountryCode = $this->getCountryMapping($countryCode);
-                
-                if ($apiCountryCode === null) {
-                    throw new \Exception('Country not supported');
-                }
-                
-                // Get service with lock
-                $service = Service::where('code', $serviceCode)
-                    ->where('status', 'active')
-                    ->lockForUpdate()
-                    ->first();
+            return DB::transaction(function () use ($countryId, $serviceCode, $countryName, $serviceName, $user) {
+                // Live price and stock check from SmsBower API
+                $priceData = $this->smsService->getPrice($countryId, $serviceCode);
 
-                if (!$service) {
+                if (!$priceData || $priceData['count'] === 0) {
                     throw ValidationException::withMessages([
-                        'service' => 'Service not available for international numbers.'
+                        'service' => 'Service is no longer available for this country.'
                     ]);
                 }
 
-                // Get country model
-                $countryModel = Country::where('code', $countryCode)->first();
-                if (!$countryModel) {
-                    throw ValidationException::withMessages([
-                        'country' => 'Country not supported.'
-                    ]);
-                }
+                $priceInNaira = $this->smsService->calculateNairaPrice($priceData['cost']);
 
-                // Get price in Naira from PricingService
-                $priceInNaira = $this->pricingService->getServicePrice($service->id, $countryModel->id);
-                
                 if ($user->balance < $priceInNaira) {
                     throw ValidationException::withMessages([
                         'balance' => 'Insufficient balance. Required: ₦' . number_format($priceInNaira, 2)
@@ -238,17 +163,53 @@ class InternationalNumberController extends Controller
                     ]);
                 }
 
-                // Request number from SMSPool API
-                $response = $this->smsService->purchaseNumber($service->code ?? $serviceCode, $user->id, $countryModel->code ?? $apiCountryCode, $priceInNaira, 'international_numbers_web');
+                // Resolve DB rows for the order foreign keys (match by name, create if missing)
+                $countryModel = Country::whereRaw('LOWER(name) = ?', [strtolower($countryName)])->first()
+                    ?? Country::create([
+                        'name' => $countryName,
+                        'code' => 'SB-' . $countryId,
+                        'flag' => '🌍'
+                    ]);
 
-                if (!$response['success']) {
-                    throw new \Exception('Failed to get international number from provider.');
+                $service = Service::firstOrCreate(
+                    ['code' => $serviceCode],
+                    ['name' => $serviceName, 'status' => 'active']
+                );
+
+                // Request number from SmsBower API
+                $response = $this->smsService->purchaseNumber($countryId, $serviceCode);
+
+                if (isset($response['error'])) {
+                    throw new \Exception($response['error']);
                 }
 
-                $order = $response['order'];
-                $phoneNumber = $response['phone_number'];
-                $activationId = $response['activation_id'];
-                $country = $response['country'];
+                $phoneNumber = $response['number'];
+                $activationId = $response['order_id'];
+
+                // Create order (20-minute SMS window)
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'service_id' => $service->id,
+                    'country_id' => $countryModel->id,
+                    'phone_number' => (string) $phoneNumber,
+                    'activation_id' => $activationId,
+                    'price' => $priceInNaira,
+                    'api_price' => $priceData['cost'],
+                    'final_price' => $priceInNaira,
+                    'status' => Order::STATUS_PENDING,
+                    'expires_at' => Carbon::now()->addMinutes(20),
+                    'sms_window_expires_at' => Carbon::now()->addMinutes(20),
+                    'order_source' => 'international_numbers_web',
+                    'api_provider' => 'smsbower',
+                    'api_response' => json_encode($response)
+                ]);
+
+                $user->deductBalance(
+                    $priceInNaira,
+                    'sms_purchase',
+                    "SMS number purchase for {$service->name} ({$countryModel->name})",
+                    $order
+                );
 
                 // Hit rate limiter (skip for admin users)
                 if ($user->role !== 'admin') {
@@ -259,12 +220,12 @@ class InternationalNumberController extends Controller
                 Log::info('International number purchased successfully', [
                     'user_id' => $user->id,
                     'order_id' => $order->id,
-                    'country' => $countryCode,
+                    'country' => $countryId,
                     'service' => $serviceCode,
                     'phone_number' => $phoneNumber
                 ]);
 
-                // Send sales notification email for testing
+                // Send sales notification email
                 $this->sendSalesNotificationEmail($order);
 
                 return response()->json([
@@ -274,7 +235,7 @@ class InternationalNumberController extends Controller
                         'id' => $order->id,
                         'phone_number' => $phoneNumber,
                         'service' => $service->name,
-                        'country' => $country->name,
+                        'country' => $countryModel->name,
                         'expires_at' => $order->expires_at->format('Y-m-d H:i:s'),
                         'status' => $order->status
                     ]
@@ -284,17 +245,16 @@ class InternationalNumberController extends Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            // Log::error('International number purchase failed', [
-            //     'user_id' => $user->id,
-            //     'country' => $countryCode,
-            //     'service' => $serviceCode,
-            //     'error' => $e->getMessage(),
-            //     'trace' => $e->getTraceAsString()
-            // ]);
+            Log::error('International number purchase failed', [
+                'user_id' => $user->id,
+                'country' => $countryId,
+                'service' => $serviceCode,
+                'error' => $e->getMessage()
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to purchase number. Please try again later.'
+                'message' => $e->getMessage() ?: 'Failed to purchase number. Please try again later.'
             ], 500);
         }
     }
@@ -369,18 +329,17 @@ class InternationalNumberController extends Controller
                     ]);
                 }
 
-                // Get status from SMSPool API
-                $status = $this->smsService->checkSmsStatus($order->activation_id);
+                // Get status from SmsBower API
+                $status = $this->smsService->checkSms($order->activation_id);
 
-                // Handle SMSPool API response format
                 if (isset($status['status'])) {
                     $apiStatus = $status['status'];
-                    
-                    if ($apiStatus === 'completed' && isset($status['code'])) {
+
+                    if ($apiStatus === 'completed' && !empty($status['code'])) {
                         // Extract verification code from the message using regex
-                        $extractedCode = $this->extractVerificationCode($status['full_sms'] ?? $status['code']);
+                        $extractedCode = $this->extractVerificationCode($status['code']);
                         $codeToStore = $extractedCode ?: $status['code'];
-                        
+
                         $order->update([
                             'sms_code' => $codeToStore,
                             'sms_received_at' => now(),
@@ -390,7 +349,7 @@ class InternationalNumberController extends Controller
                         Log::info('International SMS code received', [
                             'order_id' => $order->id,
                             'user_id' => $order->user_id,
-                            'full_message' => $status['full_sms'] ?? $status['code'],
+                            'full_message' => $status['code'],
                             'extracted_code' => $extractedCode
                         ]);
                         
@@ -411,6 +370,12 @@ class InternationalNumberController extends Controller
                     
                     if (in_array($apiStatus, ['cancelled', 'expired'])) {
                         $order->update(['status' => Order::STATUS_EXPIRED]);
+
+                        // Refund if the provider cancelled before any SMS arrived
+                        if (is_null($order->sms_code)) {
+                            $order->processRefund('Cancelled by provider', 'system');
+                        }
+
                         return response()->json([
                             'success' => true,
                             'order' => [
@@ -766,16 +731,17 @@ class InternationalNumberController extends Controller
 
         try {
             return DB::transaction(function () use ($order, $user) {
-                // Try to cancel with the SMSPool provider if we have an activation ID
-                if ($order->activation_id && $this->smsService) {
-                    try {
-                        $this->smsService->cancelNumber($order->activation_id);
-                    } catch (\Exception $e) {
-                        Log::warning('Failed to cancel order with SMSPool provider', [
-                            'order_id' => $order->id,
-                            'activation_id' => $order->activation_id,
-                            'error' => $e->getMessage()
-                        ]);
+                // Cancel with the SmsBower provider — only refund when the provider confirms,
+                // otherwise the number stays active (and billable) on their side
+                if ($order->activation_id) {
+                    $cancelResult = $this->smsService->cancelOrder($order->activation_id);
+
+                    if (!$cancelResult['success']) {
+                        return response()->json([
+                            'success' => false,
+                            'early_cancel' => $cancelResult['early_cancel'] ?? false,
+                            'message' => $cancelResult['message']
+                        ], 422);
                     }
                 }
 
