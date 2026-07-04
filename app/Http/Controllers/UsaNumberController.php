@@ -56,10 +56,18 @@ class UsaNumberController extends Controller
     {
         $user = auth()->user();
         $usaCountryId = $this->getUsaCountryId();
-        
+
+        // This page is SMSPool-only: SmsBower orders (even USA ones) belong to
+        // the All Countries page. Legacy orders have NULL api_provider.
+        $notSmsBower = function ($query) {
+            $query->whereNull('api_provider')
+                ->orWhere('api_provider', '!=', 'smsbower');
+        };
+
         // Get user's active orders for USA numbers
         $activeOrders = Order::where('user_id', $user->id)
             ->where('country_id', $usaCountryId)
+            ->where($notSmsBower)
             ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_ACTIVE])
             ->with(['service', 'user'])
             ->orderBy('created_at', 'desc')
@@ -68,22 +76,24 @@ class UsaNumberController extends Controller
         // Get all user's USA orders for history display with pagination
         $allOrders = Order::where('user_id', $user->id)
             ->where('country_id', $usaCountryId)
+            ->where($notSmsBower)
             ->with(['service', 'user'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-        
+
         // Get available services for USA using proper relationship
         $services = Service::where('status', 'active')
             ->orderBy('name')
             ->get();
-        
+
         // Get user statistics
         $stats = [
             'balance' => $user->balance ?? 0,
-            'total_orders' => Order::where('user_id', $user->id)->where('country_id', $usaCountryId)->count(),
+            'total_orders' => Order::where('user_id', $user->id)->where('country_id', $usaCountryId)->where($notSmsBower)->count(),
             'active_orders' => $activeOrders->count(),
             'completed_orders' => Order::where('user_id', $user->id)
                 ->where('country_id', $usaCountryId)
+                ->where($notSmsBower)
                 ->where('status', Order::STATUS_COMPLETED)
                 ->count(),
         ];
