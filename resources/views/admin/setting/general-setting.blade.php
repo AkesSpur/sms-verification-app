@@ -95,8 +95,15 @@
                 <small class="form-text text-muted">Percentage to add to API prices when no custom pricing is set.</small>
             </div>
             <div class="form-group">
+                <label>Global Order Fee (₦)</label>
+                <input type="number" class="form-control" name="global_order_fee"
+                       value="{{@$generalSettings->global_order_fee ?? 1000}}"
+                       step="0.01" min="0" placeholder="e.g. 1000.00">
+                <small class="form-text text-muted">Flat fee in Naira added to every All Countries (SmsBower) order on top of the converted USD cost.</small>
+            </div>
+            <div class="form-group">
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="enable_dynamic_pricing" 
+                    <input type="checkbox" class="custom-control-input" id="enable_dynamic_pricing"
                            name="enable_dynamic_pricing" value="1" 
                            {{@$generalSettings->enable_dynamic_pricing ? 'checked' : ''}}>
                     <label class="custom-control-label" for="enable_dynamic_pricing">Enable Dynamic Pricing</label>
