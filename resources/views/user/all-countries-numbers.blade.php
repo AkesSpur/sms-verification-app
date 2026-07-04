@@ -601,7 +601,7 @@ document.getElementById('internationalForm').addEventListener('submit', function
         },
         body: JSON.stringify({ country, service, country_name: countryName, service_name: serviceName })
     })
-    .the n(res => res.json())
+    .then(res => res.json())
     .then(data => {
         if (data.success) {
             notify('success', data.message || 'Number purchased successfully!');
