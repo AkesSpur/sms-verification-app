@@ -173,7 +173,7 @@ class InternationalNumberController extends Controller
 
                 $service = Service::firstOrCreate(
                     ['code' => $serviceCode],
-                    ['name' => $serviceName, 'status' => 'active']
+                    ['name' => $serviceName, 'status' => 'active', 'price' => 0]
                 );
 
                 // Request number from SmsBower API

@@ -10,7 +10,7 @@ use Carbon\Carbon;
 class Service extends Model
 {
     protected $fillable = [
-        'name', 'code', 'status', 'icon', 'is_available', 'available_numbers', 'last_availability_check',
+        'name', 'code', 'price', 'status', 'icon', 'is_available', 'available_numbers', 'last_availability_check',
         'max_retry_attempts', 'sms_timeout_minutes', 'auto_refund_on_timeout', 'api_service_code', 'api_config',
         'base_price', 'markup_percentage', 'use_dynamic_pricing', 'total_orders', 'successful_orders', 
         'success_rate', 'description', 'sort_order'
